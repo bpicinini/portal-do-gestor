@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+data/dados.xlsx
+!data/dados.xlsx
+.env
+.streamlit/secrets.toml
+Arquivos Base/
+~$*
+.claude/
+streamlit.pid
+streamlit.stdout.log
+streamlit.stderr.log

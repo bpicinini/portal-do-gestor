@@ -1,0 +1,1453 @@
+
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                    <head>
+                        <meta charset="UTF-8">
+                        <!--[if gte mso 9]>
+                        <xml>
+                            <x:ExcelWorkbook>
+                                <x:ExcelWorksheets>
+                                    <x:ExcelWorksheet>
+                                        <x:Name>Colaboradores</x:Name>
+                                        <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+                                    </x:ExcelWorksheet>
+                                </x:ExcelWorksheets>
+                            </x:ExcelWorkbook>
+                        </xml>
+                        <![endif]-->
+                        <style>
+                            table { border-collapse: collapse; width: 100%; }
+                            th, td { border: 1px solid #dddddd; text-align: left; padding: 8px; }
+                            th { background-color: #f2f2f2; }
+                            td[data-excel-type="number"] { mso-number-format:"0\.00"; }
+                            td[data-excel-type="currency"] { mso-number-format:"\"R\$\"\ #\,##0\.00"; }
+                        </style>
+                    </head>
+                    <body>
+                        <table>
+                    <thead id="table-head" class="[&amp;_tr]:border-b bg-[hsl(var(--muted))]">
+                        <tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="colaborador" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Colaborador</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="colaborador" title="Filtrar Colaborador">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="tipo" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Vínculo</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="tipo" title="Filtrar Vínculo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="empresa" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Empresa</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="empresa" title="Filtrar Empresa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="cargo" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Cargo</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="cargo" title="Filtrar Cargo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="gestorDireto" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Gestor Direto</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="gestorDireto" title="Filtrar Gestor Direto">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="idCentroCusto" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">ID Centro de Custo</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="idCentroCusto" title="Filtrar ID Centro de Custo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="centroCusto" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Centro de Custo</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="centroCusto" title="Filtrar Centro de Custo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="departamento" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Departamento</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="departamento" title="Filtrar Departamento">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="diretoria" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Diretoria</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="diretoria" title="Filtrar Diretoria">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="admissao" data-type="date">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Admissão</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="admissao" title="Filtrar Admissão">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="salario" data-type="number">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Salário</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="salario" title="Filtrar Salário">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="flash_alimentacao" data-type="number">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Flash Alimentação</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="flash_alimentacao" title="Filtrar Flash Alimentação">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="flash_premiacao" data-type="number">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Flash Premiação</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="flash_premiacao" title="Filtrar Flash Premiação">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="flash_adicional" data-type="number">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Flash Adicional</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="flash_adicional" title="Filtrar Flash Adicional">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="unimed" data-type="number">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Unimed</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="unimed" title="Filtrar Unimed">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="odonto" data-type="number">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Odonto</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="odonto" title="Filtrar Odonto">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="desligamento" data-type="date">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Data Desligamento</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="desligamento" title="Filtrar Data Desligamento">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-[hsl(var(--muted-foreground))] whitespace-nowrap bg-[hsl(var(--muted))]" data-key="motivoDesligamento" data-type="text">
+                        <div class="flex items-center justify-between group">
+                            <span class="sort-handle flex-grow cursor-pointer">Motivo Desligamento</span>
+                            <div class="flex items-center">
+                                <span class="sort-icon opacity-20 group-hover:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+                                </span>
+                                <button class="filter-btn ml-1 p-1 rounded hover:bg-[hsl(var(--accent))] data-[active=true]:text-[hsl(var(--primary))] data-[active=true]:bg-[hsl(var(--accent))]" data-key="motivoDesligamento" title="Filtrar Motivo Desligamento">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="[&amp;_tr:last-child]:border-0"><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">ADIR GOMES CARVALHO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PJ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESPECIALISTA OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">27/12/2021</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;9.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.400,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">AGATA TRINITY GONCALVES MACHADO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">03/06/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;2.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">ALINE GRIMM</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">WINNING TRADING S.A. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">01/12/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;6.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">ANA LUIZA SILVA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">WINNING TRADING S.A. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">07/11/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;348,87</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">AUGUSTO DA LUZ SCHNEIDER</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">17/12/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;2.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">BEATRIZ DA SILVA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">WINNING TRADING S.A. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">05/02/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;2.800,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;431,94</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">BEATRIZ RUIZ DE OLIVEIRA VIEIRA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIÁRIA DE IMPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">22/09/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">BRUNA KELSCH DA SILVA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL DA SILVA HILGERT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">09/10/2020</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.300,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;431,94</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">BRUNA SANDY DIONIZIO SCHELL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA ORPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">10/04/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;6.670,13</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;498,40</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">BRUNO PICININI</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PJ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GERENTE DE OPERACOES</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL ANTUNES SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">01/06/2015</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.450,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;433,89</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">CAMILA DE SOUZA NUNES</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA DE SEGUROS JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">29/08/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">CAMILLI DIOVANA DA SILVEIRA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">14/02/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.285,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;348,87</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">CAROLINE FLORENCIO DE ANDRADE</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">WINNING TRADING S.A. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL PLENO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">06/03/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.850,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;800,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;498,40</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">EDUARDA DA SILVA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">3S CORP S.A.</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">10/07/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;2.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">ELIANE TERESA LEMES BIELEFELD</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL PLENO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LILIANE MAUS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">603</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERACIONAL EXPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERAÇÃO EXPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">01/12/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">ELIS TAINA DA SILVA RIPCKE</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL PLENO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">15/01/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.850,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">ELIZANDRA SEVERO MORAES</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LILIANE MAUS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">603</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERACIONAL EXPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERAÇÃO EXPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">23/01/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;4.770,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;431,94</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">ENILA KAWELY DA SILVA PADILHA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL DA SILVA HILGERT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">09/05/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.300,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;382,11</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">FELIPE MARCELLINO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PJ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESPECIALISTA OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LILIANE MAUS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">603</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERACIONAL EXPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERAÇÃO EXPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">17/02/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;10.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.200,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">FERNANDA FARIAS DORNELES DE CARVALHO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL PLENO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">03/12/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.250,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;498,40</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">FRANCIANE DE OLIVEIRA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">09/12/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;2.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">FRANCIELY MEIRELLES ARTIGAS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">WINNING TRADING S.A. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL PLENO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">28/11/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;6.625,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;382,11</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">GABRIEL DA SILVA HILGERT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PJ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">COORDENADOR OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">BRUNO PICININI</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">08/02/2021</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;13.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.450,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;617,06</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;27,92</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">GIOVANNA PAMPANELLI RIBEIRO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">10/11/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.200,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">GIOVANNA VITORIA SEBBEN</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">07/03/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.285,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;348,87</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">GRAZIELE MARQUES DA SILVA MEYTRE</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">04/12/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.312,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;640,80</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;27,92</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">ISADORA VALENTINA SOARES</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">3S CORP S.A.</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">JOVEM APRENDIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">27/01/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;777,77</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">JESSICA MACHADO OLIVEIRA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL PLENO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LILIANE MAUS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">603</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERACIONAL EXPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERAÇÃO EXPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">01/12/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">JOAO PEDRO GOMES DA SILVA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">03/11/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;4.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">JOAO PEDRO GOMES DA SILVA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER - NH </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">03/11/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;4.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">JULIANO KAIRE SPERANDEI</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">17/06/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;2.800,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">KAILANE EDUARDA CLAUDINO DE MOURA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">08/03/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.050,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">KETLIN NICOLY DE SOUZA BIZARRO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIÁRIA DE IMPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">16/03/2026</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">LAIANE ROSIANE DA LUZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">08/05/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.312,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;382,11</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">LILIANE MAUS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PJ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">SUPERVISORA DE EXPORTACAO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">BRUNO PICININI</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">603</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERACIONAL EXPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERAÇÃO EXPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">05/04/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;8.925,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.450,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.044,26</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;36,30</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">LIVIA HAUBERT DAVID</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">05/02/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;2.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;512,63</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">LUCAS LEITE SILVA DA ROSA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">12/08/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;2.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;382,11</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">LUCAS PERIN BLASZCZAK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">3S CORP S.A.</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIÁRIO DE IMPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">14/04/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">LUCIMAR BARBOSA SERPA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">WINNING TRADING S.A. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">29/01/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;6.825,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;800,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;574,34</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;36,30</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">MANUELLA GONCALVES DA SILVA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">04/12/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.477,60</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;431,94</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">MARCELO KIRSCH</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">18/03/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;8.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;850,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;830,66</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">MARIANA DE SOUSA PICCINI</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL DA SILVA HILGERT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">16/03/2026</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;4.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">MARIANA MATTE REIS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">08/11/2021</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.392,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;382,11</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PJ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESPECIALISTA OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">16/09/2019</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;10.610,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.450,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;574,34</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;27,92</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">MATEUS GABRIEL RAUBER</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIÁRIO DE IMPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">27/10/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">MATHEUS BOURSCHEID</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL DA SILVA HILGERT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">18/04/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;4.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">MATHEUS LARA ROPELATO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PJ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">SUPERVISOR OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL DA SILVA HILGERT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">07/03/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;9.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.450,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;545,87</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;27,92</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">MAYARA DOS SANTOS CAMPOS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIÁRIA DE IMPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">27/10/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">NICOLY CORDEIRO LINS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">05/09/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;4.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;348,87</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PJ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">COORDENADORA OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">BRUNO PICININI</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">31/10/2022</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;13.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.450,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">REGINA DOS SANTOS CARDOSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">01/04/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;7.850,25</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;498,40</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">RENAN GOMES DIAS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL PLENO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">17/07/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.850,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;800,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;631,30</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">RICARDO GUIMARAES PASSOS COSTA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">01/04/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;7.850,25</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;631,30</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">ROBERTA DA ROSA MELO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL PLENO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LILIANE MAUS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">603</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERACIONAL EXPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERAÇÃO EXPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">10/11/2025</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;4.700,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">SUMAIA GABRIELE SCHNEIDER</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL JUNIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LILIANE MAUS</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">603</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERACIONAL EXPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">OPERAÇÃO EXPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">08/03/2023</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;348,87</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">TIAGO SCHNEIDER</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ANALISTA OPERACIONAL SENIOR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL DA SILVA HILGERT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">604</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">AGENCIAMENTO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">16/11/2021</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;5.300,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">VITOR MATHEUS DUARTE</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">29/08/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;3.000,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">VITORIA AYRES DE SOUZA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">CLT</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. MATRIZ</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ASSISTENTE OPERACIONAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">PATRICE ZEIDLER BASSO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">16/09/2024</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;2.528,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;600,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;0,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;348,87</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;19,54</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr><tr class="border-b transition-colors hover:bg-[hsl(var(--muted))]/50">
+                        <td class="p-4 align-middle font-medium whitespace-nowrap">WEMILLY CARVALHO DA SILVA</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">LEADER LOGISTICS LTDA. FILIAL</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">ESTAGIÁRIA DE IMPORTAÇÃO</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">MARIANA STRICK</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">601</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO </td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">IMPORTAÇÃO
+</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">GABRIEL SPOHR</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap">16/03/2026</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">R$&nbsp;1.500,00</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap" data-excel-type="currency">N/A</td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                        <td class="p-4 align-middle text-[hsl(var(--muted-foreground))] whitespace-nowrap"></td>
+                    </tr></tbody>
+                    <tfoot id="table-footer" class="sticky bottom-0 bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] font-semibold shadow-[0_-2px_4px_rgba(0,0,0,0.1)]">
+                        <tr class="border-t border-[hsl(var(--border))]">
+                            <td class="h-12 px-4 text-left align-middle" colspan="10">Total</td>
+                            <td id="total-salario" class="h-12 px-4 text-left align-middle font-mono">R$&nbsp;298.245,00</td>
+                            <td id="total-flash-alimentacao" class="h-12 px-4 text-left align-middle font-mono">R$&nbsp;26.050,00</td>
+                            <td id="total-flash-premiacao" class="h-12 px-4 text-left align-middle font-mono">R$&nbsp;39.700,00</td>
+                            <td id="total-flash-adicional" class="h-12 px-4 text-left align-middle font-mono">R$&nbsp;0,00</td>
+                            <td id="total-unimed" class="h-12 px-4 text-left align-middle font-mono">R$&nbsp;14.761,58</td>
+                            <td id="total-odonto" class="h-12 px-4 text-left align-middle font-mono">R$&nbsp;594,62</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                    </body>
+                </html>

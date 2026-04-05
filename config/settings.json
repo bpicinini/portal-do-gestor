@@ -1,0 +1,33 @@
+{
+    "empresa": "3S Corporate",
+    "versao": "v1.0.0",
+    "data_file": "data/dados.xlsx",
+    "pesos_cargo": {
+        "Coordenador": null,
+        "Supervisor": null,
+        "Especialista": 1.5,
+        "Analista Sênior": 1.3,
+        "Analista Pleno": 1.15,
+        "Analista Júnior": 1.0,
+        "Assistente": 0.5,
+        "Estagiário": 0.25,
+        "Jovem Aprendiz": 0.25
+    },
+    "pesos_etapa_bi": {
+        "Aberturas": 2,
+        "Embarcados": 4,
+        "Chegadas": 6,
+        "Registros": 7,
+        "Lib. Faturamento": 1
+    },
+    "pesos_modal": {
+        "Marítimo": 1.0,
+        "Aéreo": 0.75,
+        "Rodoviário": 0.50
+    },
+    "pesos_tipo_importacao": {
+        "Direta": 1.0,
+        "Conta e Ordem": 1.5,
+        "Encomenda": 2.0
+    }
+}
