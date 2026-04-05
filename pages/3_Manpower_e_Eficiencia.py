@@ -322,7 +322,163 @@ def render_tabela_performance(df_ano):
     st.dataframe(styled, use_container_width=True, hide_index=True, height=height)
 
 
-tab_perf, tab_mw, tab_score = st.tabs(["Eficiência", "Manpower", "Volume (Score)"])
+def resumir_eficiencia_ano(df_ano, df_prev, ano):
+    registros = df_ano.to_dict("records")
+    volumes = [registro["volume_score"] for registro in registros if registro.get("volume_score")]
+    eficiencias = [registro["performance"] for registro in registros if registro.get("performance")]
+    manpowers = [registro["manpower"] for registro in registros if registro.get("manpower")]
+    pcts = [registro["pct_meta"] for registro in registros if registro.get("pct_meta")]
+
+    resumo = {
+        "registros": registros,
+        "volume_medio": sum(volumes) / len(volumes) if volumes else None,
+        "eficiencia_media": sum(eficiencias) / len(eficiencias) if eficiencias else None,
+        "manpower_medio": sum(manpowers) / len(manpowers) if manpowers else None,
+        "pct_medio": sum(pcts) / len(pcts) if pcts else None,
+        "delta_volume": None,
+        "delta_eficiencia": None,
+        "delta_mp": None,
+        "mp_delta_color": "normal",
+    }
+
+    if df_prev is None or df_prev.empty:
+        return resumo
+
+    meses_com_volume = set(
+        df_ano.loc[
+            df_ano["volume_score"].notna() & (df_ano["volume_score"] > 0),
+            "mes",
+        ].tolist()
+    )
+    prev_registros = df_prev.to_dict("records")
+    prev_volumes = [
+        registro["volume_score"]
+        for registro in prev_registros
+        if registro.get("volume_score") and registro.get("mes") in meses_com_volume
+    ]
+    prev_eficiencias = [registro["performance"] for registro in prev_registros if registro.get("performance")]
+    prev_manpowers = [registro["manpower"] for registro in prev_registros if registro.get("manpower")]
+
+    if prev_volumes and resumo["volume_medio"]:
+        prev_volume_medio = sum(prev_volumes) / len(prev_volumes)
+        delta_volume_pct = (resumo["volume_medio"] - prev_volume_medio) / prev_volume_medio * 100
+        resumo["delta_volume"] = f"{delta_volume_pct:+.1f}% vs {int(ano) - 1}".replace(".", ",")
+
+    if prev_eficiencias and resumo["eficiencia_media"]:
+        prev_media = sum(prev_eficiencias) / len(prev_eficiencias)
+        delta_pct = (resumo["eficiencia_media"] - prev_media) / prev_media * 100
+        resumo["delta_eficiencia"] = f"{delta_pct:+.1f}% vs {int(ano) - 1}".replace(".", ",")
+
+    if prev_manpowers and resumo["manpower_medio"]:
+        prev_mp_medio = sum(prev_manpowers) / len(prev_manpowers)
+        delta_mp_pct = (resumo["manpower_medio"] - prev_mp_medio) / prev_mp_medio * 100
+        resumo["delta_mp"] = f"{delta_mp_pct:+.1f}% vs {int(ano) - 1}".replace(".", ",")
+        resumo["mp_delta_color"] = "inverse"
+
+    return resumo
+
+
+def render_metricas_eficiencia(resumo):
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
+        st.metric("Meses", len(resumo["registros"]))
+    with c2:
+        st.metric(
+            "Volume médio",
+            _br_int(resumo["volume_medio"]) if resumo["volume_medio"] else "—",
+            delta=resumo["delta_volume"],
+        )
+    with c3:
+        st.metric(
+            "MP médio",
+            _br(resumo["manpower_medio"], 2) if resumo["manpower_medio"] else "—",
+            delta=resumo["delta_mp"],
+            delta_color=resumo["mp_delta_color"],
+        )
+    with c4:
+        st.metric(
+            "Eficiência média",
+            _br(resumo["eficiencia_media"], 1) if resumo["eficiencia_media"] else "—",
+            delta=resumo["delta_eficiencia"],
+        )
+    with c5:
+        st.metric("% Meta média", _br_pct(resumo["pct_medio"] * 100, 1) if resumo["pct_medio"] else "—")
+
+
+tab_overview, tab_perf, tab_mw, tab_score = st.tabs(["Overview", "Eficiência", "Manpower", "Volume (Score)"])
+
+with tab_overview:
+    st.subheader(f"Overview - {departamento_selecionado}")
+
+    if not tem_dados_departamento:
+        _render_metricas_vazias(
+            [
+                ("Meses", "0"),
+                ("Volume médio", "0"),
+                ("MP médio", "0,00"),
+                ("Eficiência média", "0,0"),
+                ("% Meta média", "0,0%"),
+            ]
+        )
+        st.info("Esse departamento ainda nao possui base de KPIs carregada.")
+    else:
+        performance = listar_performance()
+
+        if not performance:
+            st.info("Nenhum dado de eficiencia registrado.")
+        else:
+            df_perf = pd.DataFrame(performance).sort_values(["ano", "mes"], ascending=[True, True]).reset_index(drop=True)
+            anos = sorted(df_perf["ano"].unique(), reverse=True)
+            ano_overview = st.selectbox(
+                "Ano em destaque",
+                anos,
+                format_func=lambda val: str(int(val)),
+                key="overview_ano",
+            )
+            df_ano = df_perf[df_perf["ano"] == ano_overview].copy()
+            df_prev_full = df_perf[df_perf["ano"] == ano_overview - 1].copy()
+            df_prev = df_prev_full if not df_prev_full.empty else None
+            resumo = resumir_eficiencia_ano(df_ano, df_prev, ano_overview)
+
+            render_metricas_eficiencia(resumo)
+            st.divider()
+
+            df_chart = df_ano.copy()
+            df_chart["periodo"] = df_chart["mes"].apply(lambda mes: MESES_PT[int(mes)])
+            df_chart = df_chart.set_index("periodo")
+
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.caption("**Eficiência vs Meta**")
+                st.altair_chart(chart_perf_meta(df_chart), use_container_width=True)
+            with col2:
+                label_prev = f" - vs {int(ano_overview) - 1}" if df_prev is not None else ""
+                st.caption(f"**Volume (Score){label_prev}**")
+                st.altair_chart(chart_volume_yoy(df_ano, df_prev, ano_overview), use_container_width=True)
+            with col3:
+                st.caption("**Manpower no período**")
+                st.altair_chart(chart_mp_ano(df_chart), use_container_width=True)
+
+            if df_prev is not None:
+                st.divider()
+                st.markdown(f"#### Comparativo {int(ano_overview)} vs {int(ano_overview) - 1}")
+                cy1, cy2 = st.columns(2)
+                with cy1:
+                    st.caption("**Eficiência**")
+                    st.altair_chart(
+                        chart_yoy_line(df_ano, df_prev, ano_overview, "performance", "Eficiência"),
+                        use_container_width=True,
+                    )
+                with cy2:
+                    st.caption("**Manpower**")
+                    st.altair_chart(
+                        chart_yoy_line(df_ano, df_prev, ano_overview, "manpower", "Manpower", fmt=",.2f"),
+                        use_container_width=True,
+                    )
+
+            st.divider()
+            st.markdown("#### Trajetória do Manpower - histórico completo")
+            st.altair_chart(chart_mp_historico(df_perf), use_container_width=True)
 
 with tab_perf:
     st.subheader(f"Eficiência - {departamento_selecionado}")
@@ -350,123 +506,19 @@ with tab_perf:
 
             for tab_widget, ano in zip(year_tabs, anos):
                 df_ano = df_perf[df_perf["ano"] == ano].copy()
-                df_prev_full = df_perf[df_perf["ano"] == ano - 1].copy()
-                df_prev = df_prev_full if not df_prev_full.empty else None
-                registros = df_ano.to_dict("records")
-
-                volumes = [registro["volume_score"] for registro in registros if registro.get("volume_score")]
-                performances = [registro["performance"] for registro in registros if registro.get("performance")]
-                manpowers = [registro["manpower"] for registro in registros if registro.get("manpower")]
-                pcts = [registro["pct_meta"] for registro in registros if registro.get("pct_meta")]
-
-                performance_media = sum(performances) / len(performances) if performances else None
-                manpower_medio = sum(manpowers) / len(manpowers) if manpowers else None
-                volume_medio = sum(volumes) / len(volumes) if volumes else None
-                pct_medio = sum(pcts) / len(pcts) if pcts else None
-
-                delta_volume = None
-                delta_perf = None
-                delta_mp = None
-                mp_delta_color = "normal"
-
-                if df_prev is not None:
-                    meses_com_volume = set(
-                        df_ano.loc[
-                            df_ano["volume_score"].notna() & (df_ano["volume_score"] > 0),
-                            "mes",
-                        ].tolist()
-                    )
-                    prev_registros = df_prev.to_dict("records")
-                    prev_volumes = [
-                        registro["volume_score"]
-                        for registro in prev_registros
-                        if registro.get("volume_score") and registro.get("mes") in meses_com_volume
-                    ]
-                    prev_performances = [registro["performance"] for registro in prev_registros if registro.get("performance")]
-                    prev_manpowers = [registro["manpower"] for registro in prev_registros if registro.get("manpower")]
-
-                    if prev_volumes and volume_medio:
-                        prev_volume_medio = sum(prev_volumes) / len(prev_volumes)
-                        delta_volume_pct = (volume_medio - prev_volume_medio) / prev_volume_medio * 100
-                        delta_volume = f"{delta_volume_pct:+.1f}% vs {int(ano) - 1}".replace(".", ",")
-
-                    if prev_performances and performance_media:
-                        prev_media = sum(prev_performances) / len(prev_performances)
-                        delta_pct = (performance_media - prev_media) / prev_media * 100
-                        delta_perf = f"{delta_pct:+.1f}% vs {int(ano) - 1}".replace(".", ",")
-
-                    if prev_manpowers and manpower_medio:
-                        prev_mp_medio = sum(prev_manpowers) / len(prev_manpowers)
-                        delta_mp_pct = (manpower_medio - prev_mp_medio) / prev_mp_medio * 100
-                        delta_mp = f"{delta_mp_pct:+.1f}% vs {int(ano) - 1}".replace(".", ",")
-                        mp_delta_color = "inverse"
+                resumo = resumir_eficiencia_ano(
+                    df_ano,
+                    df_perf[df_perf["ano"] == ano - 1].copy(),
+                    ano,
+                )
 
                 with tab_widget:
-                    c1, c2, c3, c4, c5 = st.columns(5)
-                    with c1:
-                        st.metric("Meses", len(registros))
-                    with c2:
-                        st.metric(
-                            "Volume médio",
-                            _br_int(volume_medio) if volume_medio else "—",
-                            delta=delta_volume,
-                        )
-                    with c3:
-                        st.metric(
-                            "MP médio",
-                            _br(manpower_medio, 2) if manpower_medio else "—",
-                            delta=delta_mp,
-                            delta_color=mp_delta_color,
-                        )
-                    with c4:
-                        st.metric(
-                            "Eficiência média",
-                            _br(performance_media, 1) if performance_media else "—",
-                            delta=delta_perf,
-                        )
-                    with c5:
-                        st.metric("% Meta média", _br_pct(pct_medio * 100, 1) if pct_medio else "—")
-
-                    st.divider()
+                    st.caption("Leitura detalhada mês a mês do ano selecionado.")
                     render_tabela_performance(df_ano)
-                    st.divider()
-
-                    df_chart = df_ano.copy()
-                    df_chart["periodo"] = df_chart["mes"].apply(lambda mes: MESES_PT[int(mes)])
-                    df_chart = df_chart.set_index("periodo")
-
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.caption("**Eficiência vs Meta**")
-                        st.altair_chart(chart_perf_meta(df_chart), use_container_width=True)
-                    with col2:
-                        label_prev = f" - vs {int(ano) - 1}" if df_prev is not None else ""
-                        st.caption(f"**Volume (Score){label_prev}**")
-                        st.altair_chart(chart_volume_yoy(df_ano, df_prev, ano), use_container_width=True)
-                    with col3:
-                        st.caption("**Manpower no período**")
-                        st.altair_chart(chart_mp_ano(df_chart), use_container_width=True)
-
-                    if df_prev is not None:
-                        st.divider()
-                        st.markdown(f"#### Comparativo {int(ano)} vs {int(ano) - 1}")
-                        cy1, cy2 = st.columns(2)
-                        with cy1:
-                            st.caption("**Eficiência**")
-                            st.altair_chart(
-                                chart_yoy_line(df_ano, df_prev, ano, "performance", "Eficiência"),
-                                use_container_width=True,
-                            )
-                        with cy2:
-                            st.caption("**Manpower**")
-                            st.altair_chart(
-                                chart_yoy_line(df_ano, df_prev, ano, "manpower", "Manpower", fmt=",.2f"),
-                                use_container_width=True,
-                            )
-
-                    st.divider()
-                    st.markdown("#### Trajetória do Manpower - histórico completo")
-                    st.altair_chart(chart_mp_historico(df_perf), use_container_width=True)
+                    st.caption(
+                        f"Resumo do ano: volume médio {_br_int(resumo['volume_medio']) if resumo['volume_medio'] else '—'}"
+                        f" | eficiência média {_br(resumo['eficiencia_media'], 1) if resumo['eficiencia_media'] else '—'}"
+                    )
 
         st.divider()
         st.subheader("Lançar Eficiência Mensal")
