@@ -64,9 +64,8 @@ USUARIOS_INICIAIS = [
 ]
 
 SESSION_USER_KEY = "auth_usuario"
-_COOKIE_CTRL_KEY = "_portal_cookie_ctrl"
-_SESSION_COOKIE  = "portal_session"
-_COOKIE_EMAIL    = "portal_email"
+_QP_TOKEN        = "s"    # query param para token de sessão
+_QP_EMAIL        = "e"    # query param para lembrar email
 
 
 def _secret_key() -> str:
@@ -299,39 +298,32 @@ def excluir_usuario(email: str, email_solicitante: str):
     salvar_workbook(wb)
 
 
-def _cookies():
-    """Retorna o CookieController armazenado no session_state pelo app.py."""
-    return st.session_state.get(_COOKIE_CTRL_KEY)
-
-
 def iniciar_sessao(usuario: dict):
     st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
-    ctrl = _cookies()
-    if ctrl:
-        token = _gerar_token(usuario["email"])
-        # ctrl.set atualiza st.session_state["portal_cookies"] in-place (dict mutável),
-        # então o token fica disponível no próximo rerun sem race condition.
-        ctrl.set(_SESSION_COOKIE, token, max_age=60 * 60 * 24 * 7)
+    # Token assinado no query param — sobrevive a F5 (URL mantida) e a navegação
+    # entre páginas (Streamlit preserva query params no st.navigation())
+    try:
+        st.query_params[_QP_TOKEN] = _gerar_token(usuario["email"])
+    except Exception:
+        pass
 
 
 def sair_sessao():
     st.session_state.pop(SESSION_USER_KEY, None)
-    ctrl = _cookies()
-    if ctrl:
-        try:
-            ctrl.remove(_SESSION_COOKIE)
-        except Exception:
-            pass
+    try:
+        st.query_params.clear()
+    except Exception:
+        pass
 
 
-def restaurar_sessao_do_cookie():
-    """Chamado no app.py após o CookieController inicializar — restaura sessão do cookie."""
+def restaurar_sessao():
+    """Lê o query param 's' e restaura a sessão sem depender de cookies."""
     if obter_usuario_atual():
         return
-    ctrl = _cookies()
-    if not ctrl:
+    try:
+        token = st.query_params.get(_QP_TOKEN)
+    except Exception:
         return
-    token = ctrl.get(_SESSION_COOKIE)
     if not token:
         return
     email = _validar_token(str(token))
@@ -489,11 +481,11 @@ def renderizar_login():
         unsafe_allow_html=True,
     )
 
-    # ── Lembrar email (controller separado, inicializado junto com portal_cookies no app.py) ──
-    from streamlit_cookies_controller import CookieController
-    ctrl_email = CookieController(key="portal_email_cookie")
-    # Na 2ª renderização (após _auth_checked rerun), o cookie já está disponível
-    email_salvo = ctrl_email.get(_COOKIE_EMAIL) or ""
+    # Email salvo no query param "e" — sem cookies, sem dependências externas
+    try:
+        email_salvo = st.query_params.get(_QP_EMAIL, "")
+    except Exception:
+        email_salvo = ""
 
     with st.form("form_login"):
         email = st.text_input("Email", value=email_salvo, placeholder="voce@empresa.com")
@@ -507,13 +499,15 @@ def renderizar_login():
     if submitted:
         usuario = autenticar_usuario(email, senha)
         if usuario:
-            if lembrar:
-                # set atualiza st.session_state in-place — disponível no próximo rerun
-                ctrl_email.set(_COOKIE_EMAIL, _normalizar_email(email), max_age=60 * 60 * 24 * 30)
-            elif email_salvo:
-                ctrl_email.remove(_COOKIE_EMAIL)
             iniciar_sessao(usuario)
             registrar_login(usuario["email"])
+            try:
+                if lembrar:
+                    st.query_params[_QP_EMAIL] = _normalizar_email(email)
+                elif _QP_EMAIL in st.query_params:
+                    del st.query_params[_QP_EMAIL]
+            except Exception:
+                pass
             st.rerun()
         st.error("Email ou senha inválidos.")
 
