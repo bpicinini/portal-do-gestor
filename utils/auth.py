@@ -260,75 +260,27 @@ def renderizar_login():
             display: none;
         }
 
-        .login-layout {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 24px;
-            min-height: calc(100vh - 110px);
+        .block-container {
+            padding-top: 1.2rem !important;
         }
 
-        .login-brand {
-            background: linear-gradient(180deg, #fcfaf5 0%, #f4ecdf 100%);
-            border: 1px solid #e3d8c5;
-            border-radius: 28px;
-            padding: 28px 22px;
-            box-shadow: 0 18px 40px rgba(35, 64, 85, 0.08);
-        }
-
-        .login-brand-mark {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 28px;
-            font-weight: 800;
-            color: #234055;
-            letter-spacing: -0.03em;
-        }
-
-        .login-brand-sub {
-            margin-top: 16px;
-            color: #6f7a84;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .login-brand-stack {
-            margin-top: 26px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .login-brand-pill {
-            background: rgba(255, 255, 255, 0.78);
-            border: 1px solid #e3d8c5;
-            color: #36586f;
-            border-radius: 16px;
-            padding: 12px 14px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .login-main {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
+        .login-shell {
+            max-width: 560px;
+            margin: 0 auto;
         }
 
         .login-topbar {
             background: linear-gradient(135deg, rgba(255,253,248,0.98) 0%, rgba(243,237,226,0.95) 100%);
             border: 1px solid #e3d8c5;
             border-radius: 24px;
-            padding: 22px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 18px 22px;
             box-shadow: 0 18px 40px rgba(35, 64, 85, 0.08);
+            margin-bottom: 14px;
         }
 
         .login-topbar-title {
             color: #234055;
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 800;
             letter-spacing: -0.03em;
             margin: 0;
@@ -340,23 +292,11 @@ def renderizar_login():
             margin-top: 6px;
         }
 
-        .login-status {
-            border-radius: 999px;
-            padding: 10px 16px;
-            background: linear-gradient(135deg, #e3f0de 0%, #eff8ea 100%);
-            border: 1px solid #cddfc8;
-            color: #5e8668;
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
         .login-panel {
             background: #fffdf8;
             border: 1px solid #e3d8c5;
             border-radius: 28px;
-            padding: 26px 24px;
+            padding: 20px 22px 22px;
             box-shadow: 0 18px 40px rgba(35, 64, 85, 0.08);
         }
 
@@ -371,7 +311,23 @@ def renderizar_login():
             color: #6f7a84;
             font-size: 14px;
             margin-top: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 2px;
+        }
+
+        .login-mini {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 0.36rem 0.7rem;
+            background: #f5ecda;
+            border: 1px solid #e2cfaa;
+            color: #7c5a18;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
         }
         </style>
         """,
@@ -380,38 +336,23 @@ def renderizar_login():
 
     st.markdown(
         """
-        <div class="login-layout">
-            <div class="login-brand">
-                <div class="login-brand-mark">3S <span style="color:#c79536;">Portal</span></div>
-                <div class="login-brand-sub">
-                    Acesso protegido ao Portal do Gestor, com login individual e trilha inicial de controle de usuários.
-                </div>
-                <div class="login-brand-stack">
-                    <div class="login-brand-pill">Login com email corporativo</div>
-                    <div class="login-brand-pill">Perfis Admin e Usuário</div>
-                    <div class="login-brand-pill">Base inicial pronta para evolução</div>
-                </div>
+        <div class="login-shell">
+            <div class="login-topbar">
+                <div class="login-mini">Acesso restrito</div>
+                <div class="login-topbar-title">Portal do Gestor</div>
+                <div class="login-topbar-sub">Entre com seu email e senha.</div>
             </div>
-            <div class="login-main">
-                <div class="login-topbar">
-                    <div>
-                        <div class="login-topbar-title">Acesso ao Portal</div>
-                        <div class="login-topbar-sub">Faça login para entrar no ambiente de gestão da operação.</div>
-                    </div>
-                    <div class="login-status">Acesso restrito</div>
-                </div>
-                <div class="login-panel">
-                    <div class="login-panel-title">Login e senha</div>
-                    <div class="login-panel-sub">Somente usuários cadastrados conseguem acessar o portal.</div>
-                </div>
+            <div class="login-panel">
+                <div class="login-panel-title">Login</div>
+                <div class="login-panel-sub">Use seu acesso cadastrado.</div>
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    login_col, info_col = st.columns([1.25, 1], gap="large")
-    with login_col:
+    left, center, right = st.columns([1, 1.35, 1])
+    with center:
         with st.form("form_login"):
             email = st.text_input("Email", placeholder="voce@empresa.com")
             senha = st.text_input("Senha", type="password")
@@ -424,9 +365,6 @@ def renderizar_login():
                 registrar_login(usuario["email"])
                 st.rerun()
             st.error("Email ou senha inválidos.")
-
-    with info_col:
-        st.info("Os acessos iniciais já estão cadastrados e podem ser gerenciados por um perfil Admin.")
 
 
 def renderizar_usuario_sidebar():
