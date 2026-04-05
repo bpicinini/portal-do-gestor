@@ -16,6 +16,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# Auth gate central do portal.
 seed_usuarios_iniciais()
 
 if not obter_usuario_atual():
