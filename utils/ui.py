@@ -243,6 +243,104 @@ def aplicar_estilos_globais():
             font-size: 0.84rem;
             font-weight: 700;
         }
+
+        /* ── Responsividade mobile ── */
+        @media (max-width: 768px) {
+            .block-container {
+                padding-left: 0.6rem !important;
+                padding-right: 0.6rem !important;
+                padding-top: 0.75rem !important;
+            }
+
+            .dashboard-shell {
+                padding: 0.85rem 1rem;
+                border-radius: 18px;
+                margin-bottom: 1rem;
+            }
+
+            .dashboard-shell-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .dashboard-badge {
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+            }
+
+            .dashboard-title {
+                font-size: 1.45rem;
+            }
+
+            .dashboard-desc {
+                font-size: 0.9rem;
+            }
+
+            .dashboard-meta {
+                gap: 0.5rem;
+            }
+
+            .dashboard-pill {
+                font-size: 0.78rem;
+                padding: 0.35rem 0.6rem;
+            }
+
+            div[data-testid="stMetric"] {
+                padding: 0.75rem 0.85rem;
+                border-radius: 16px;
+            }
+
+            /* tabs com scroll horizontal */
+            .stTabs [data-baseweb="tab-list"] {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding-bottom: 2px;
+            }
+
+            .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
+                display: none;
+            }
+
+            .stTabs [data-baseweb="tab"] {
+                white-space: nowrap;
+                flex-shrink: 0;
+                padding: 0.4rem 0.75rem;
+                font-size: 0.82rem;
+            }
+
+            /* sidebar nav — alvos maiores no touch */
+            [data-testid="stSidebarNav"] a {
+                padding: 0.75rem 0.85rem;
+                margin: 0.22rem 0 0.32rem 0;
+            }
+
+            [data-testid="stSidebarNav"] span {
+                font-size: 1rem;
+            }
+
+            /* botões mais fáceis de tocar */
+            .stButton button,
+            .stFormSubmitButton button {
+                min-height: 44px;
+            }
+
+            /* formulários sem overflow */
+            .stTextInput > div > div,
+            .stSelectbox > div > div,
+            .stDateInput > div > div {
+                font-size: 1rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-title {
+                font-size: 1.25rem;
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True,

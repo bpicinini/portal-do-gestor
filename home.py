@@ -164,6 +164,43 @@ st.markdown("""
 .quick-link-icon  { font-size: 20px; margin-bottom: 4px; }
 .quick-link-title { font-weight: 700; font-size: 14px; }
 .quick-link-desc  { font-size: 12px; color: #7d8790; margin-top: 2px; }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+    .banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 18px 18px;
+        border-radius: 18px;
+    }
+    .banner-title { font-size: 22px; }
+    .banner-badge { width: auto; align-self: flex-start; }
+
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+    .kpi-value { font-size: 24px; }
+
+    .dept-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+    .dept-pessoas { font-size: 22px; }
+
+    .perf-value { font-size: 30px; }
+}
+
+@media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .dept-grid { grid-template-columns: repeat(2, 1fr); }
+    .banner-title { font-size: 18px; }
+    .banner-sub { font-size: 12px; }
+    .kpi-value { font-size: 20px; }
+}
 </style>
 """, unsafe_allow_html=True)
 

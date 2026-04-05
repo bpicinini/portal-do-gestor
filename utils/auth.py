@@ -329,6 +329,30 @@ def renderizar_login():
             letter-spacing: 0.08em;
             margin-bottom: 10px;
         }
+
+        /* centraliza o form nativo do Streamlit */
+        [data-testid="stForm"] {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .login-shell {
+                max-width: 100%;
+                padding: 0 0.25rem;
+            }
+            .login-topbar,
+            .login-panel {
+                border-radius: 18px;
+                padding: 16px 16px;
+            }
+            .login-topbar-title {
+                font-size: 22px;
+            }
+            [data-testid="stForm"] {
+                max-width: 100%;
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -351,20 +375,18 @@ def renderizar_login():
         unsafe_allow_html=True,
     )
 
-    left, center, right = st.columns([1, 1.35, 1])
-    with center:
-        with st.form("form_login"):
-            email = st.text_input("Email", placeholder="voce@empresa.com")
-            senha = st.text_input("Senha", type="password")
-            submitted = st.form_submit_button("Entrar", type="primary", use_container_width=True)
+    with st.form("form_login"):
+        email = st.text_input("Email", placeholder="voce@empresa.com")
+        senha = st.text_input("Senha", type="password")
+        submitted = st.form_submit_button("Entrar", type="primary", use_container_width=True)
 
-        if submitted:
-            usuario = autenticar_usuario(email, senha)
-            if usuario:
-                iniciar_sessao(usuario)
-                registrar_login(usuario["email"])
-                st.rerun()
-            st.error("Email ou senha inválidos.")
+    if submitted:
+        usuario = autenticar_usuario(email, senha)
+        if usuario:
+            iniciar_sessao(usuario)
+            registrar_login(usuario["email"])
+            st.rerun()
+        st.error("Email ou senha inválidos.")
 
 
 def renderizar_usuario_sidebar():
@@ -377,9 +399,9 @@ def renderizar_usuario_sidebar():
         <div style="
             background: linear-gradient(135deg, rgba(255,253,248,0.98) 0%, rgba(243,237,226,0.95) 100%);
             border: 1px solid #e3d8c5;
-            border-radius: 20px;
-            padding: 14px 14px 12px;
-            margin-bottom: 14px;
+            border-radius: 16px;
+            padding: 12px 12px 10px;
+            margin-bottom: 12px;
             box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
         ">
             <div style="font-size:12px; color:#6f7a84; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Sessão ativa</div>

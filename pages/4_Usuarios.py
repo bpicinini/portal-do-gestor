@@ -170,6 +170,19 @@ st.markdown(
         margin-top: 8px;
         line-height: 1.55;
     }
+
+    @media (max-width: 768px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+        .user-table {
+            font-size: 12px;
+        }
+        .user-table th,
+        .user-table td {
+            padding: 10px 8px;
+        }
+    }
     </style>
     """,
     unsafe_allow_html=True,
