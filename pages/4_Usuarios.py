@@ -226,59 +226,46 @@ with tab_usuarios:
                     except ValueError as exc:
                         st.warning(str(exc))
 
-    rows_html = []
-    for usuario in usuarios:
-        perfil_class = "user" if usuario.get("perfil") == "Usuário" else ""
-        status_class = "inativo" if usuario.get("status") != "Ativo" else ""
-        rows_html.append(
-            f"""
-            <tr>
-                <td>
-                    <div class="user-name">{escape(str(usuario.get("nome", "—")))}</div>
-                </td>
-                <td>
-                    <div class="user-email">{escape(str(usuario.get("email", "—")))}</div>
-                </td>
-                <td>
-                    <span class="user-role {perfil_class}">{escape(str(usuario.get("perfil", "—")))}</span>
-                </td>
-                <td>
-                    {_render_modulos_tags(usuario.get("modulos", []))}
-                </td>
-                <td>
-                    <span class="user-status {status_class}">{escape(str(usuario.get("status", "—")))}</span>
-                </td>
-                <td>{escape(_fmt_data(usuario.get("ultimo_login")))}</td>
-            </tr>
-            """
-        )
-
     st.markdown(
-        f"""
+        """
         <div class="user-panel">
             <div class="user-panel-title">Usuários</div>
             <div class="user-panel-sub">Acesso ao portal por email e senha, com módulos base por perfil.</div>
-            <div class="user-table-wrap">
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Email</th>
-                            <th>Perfil</th>
-                            <th>Módulos</th>
-                            <th>Status</th>
-                            <th>Último login</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {"".join(rows_html)}
-                    </tbody>
-                </table>
-            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+    df_usuarios = pd.DataFrame(
+        [
+            {
+                "Nome": usuario.get("nome", "—"),
+                "Email": usuario.get("email", "—"),
+                "Perfil": usuario.get("perfil", "—"),
+                "Módulos": " • ".join(usuario.get("modulos", [])),
+                "Status": usuario.get("status", "—"),
+                "Último login": _fmt_data(usuario.get("ultimo_login")),
+            }
+            for usuario in usuarios
+        ]
+    )
+
+    def estilo_status(valor):
+        if valor == "Ativo":
+            return "color: #5e8668; font-weight: 800"
+        return "color: #8a6f49; font-weight: 800"
+
+    def estilo_perfil(valor):
+        if valor == "Admin":
+            return "color: #8a661b; font-weight: 800"
+        return "color: #4d6c57; font-weight: 800"
+
+    styled = (
+        df_usuarios.style
+        .map(estilo_status, subset=["Status"])
+        .map(estilo_perfil, subset=["Perfil"])
+    )
+    st.dataframe(styled, use_container_width=True, hide_index=True)
 
 with tab_perfis:
     cards_html = []
