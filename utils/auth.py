@@ -63,11 +63,10 @@ USUARIOS_INICIAIS = [
     },
 ]
 
-SESSION_USER_KEY   = "auth_usuario"
-_COOKIE_CTRL_KEY   = "_portal_cookie_ctrl"   # mantido por compatibilidade (não usado para sessão)
-_SESSION_COOKIE    = "portal_session"          # idem
-_QUERY_PARAM_TOKEN = "s"
-_COOKIE_EMAIL      = "portal_email"
+SESSION_USER_KEY = "auth_usuario"
+_COOKIE_CTRL_KEY = "_portal_cookie_ctrl"
+_SESSION_COOKIE  = "portal_session"
+_COOKIE_EMAIL    = "portal_email"
 
 
 def _secret_key() -> str:
@@ -249,23 +248,90 @@ def criar_usuario(nome: str, email: str, perfil: str, senha: str, status: str = 
     return novo_id
 
 
+def alterar_perfil_usuario(email: str, novo_perfil: str):
+    if novo_perfil not in PERFIS_ACESSO:
+        raise ValueError("Perfil inválido.")
+    wb = carregar_workbook()
+    ws = wb[SHEET_USUARIOS]
+    row_num = encontrar_linha(ws, 3, _normalizar_email(email))
+    if not row_num:
+        raise ValueError("Usuário não encontrado.")
+    ws.cell(row=row_num, column=4, value=novo_perfil)
+    ws.cell(row=row_num, column=6, value=_serializar_modulos(None, novo_perfil))
+    salvar_workbook(wb)
+
+
+def redefinir_senha_usuario(email: str, nova_senha: str):
+    if len(nova_senha or "") < 6:
+        raise ValueError("A senha precisa ter pelo menos 6 caracteres.")
+    senha_hash, senha_salt = _gerar_hash_senha(nova_senha)
+    wb = carregar_workbook()
+    ws = wb[SHEET_USUARIOS]
+    row_num = encontrar_linha(ws, 3, _normalizar_email(email))
+    if not row_num:
+        raise ValueError("Usuário não encontrado.")
+    ws.cell(row=row_num, column=7, value=senha_hash)
+    ws.cell(row=row_num, column=8, value=senha_salt)
+    salvar_workbook(wb)
+
+
+def alterar_status_usuario(email: str, novo_status: str):
+    if novo_status not in ("Ativo", "Inativo"):
+        raise ValueError("Status inválido.")
+    wb = carregar_workbook()
+    ws = wb[SHEET_USUARIOS]
+    row_num = encontrar_linha(ws, 3, _normalizar_email(email))
+    if not row_num:
+        raise ValueError("Usuário não encontrado.")
+    ws.cell(row=row_num, column=5, value=novo_status)
+    salvar_workbook(wb)
+
+
+def excluir_usuario(email: str, email_solicitante: str):
+    if _normalizar_email(email) == _normalizar_email(email_solicitante):
+        raise ValueError("Não é possível excluir sua própria conta.")
+    wb = carregar_workbook()
+    ws = wb[SHEET_USUARIOS]
+    row_num = encontrar_linha(ws, 3, _normalizar_email(email))
+    if not row_num:
+        raise ValueError("Usuário não encontrado.")
+    ws.delete_rows(row_num)
+    salvar_workbook(wb)
+
+
+def _cookies():
+    """Retorna o CookieController armazenado no session_state pelo app.py."""
+    return st.session_state.get(_COOKIE_CTRL_KEY)
+
+
 def iniciar_sessao(usuario: dict):
     st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
-    # Persiste o token na URL — sobrevive ao F5 sem depender de timing de componente
-    st.query_params[_QUERY_PARAM_TOKEN] = _gerar_token(usuario["email"])
+    ctrl = _cookies()
+    if ctrl:
+        token = _gerar_token(usuario["email"])
+        # ctrl.set atualiza st.session_state["portal_cookies"] in-place (dict mutável),
+        # então o token fica disponível no próximo rerun sem race condition.
+        ctrl.set(_SESSION_COOKIE, token, max_age=60 * 60 * 24 * 7)
 
 
 def sair_sessao():
     st.session_state.pop(SESSION_USER_KEY, None)
-    if _QUERY_PARAM_TOKEN in st.query_params:
-        del st.query_params[_QUERY_PARAM_TOKEN]
+    ctrl = _cookies()
+    if ctrl:
+        try:
+            ctrl.remove(_SESSION_COOKIE)
+        except Exception:
+            pass
 
 
-def restaurar_sessao():
-    """Chamado no app.py — restaura sessão a partir do query param 's' na URL."""
+def restaurar_sessao_do_cookie():
+    """Chamado no app.py após o CookieController inicializar — restaura sessão do cookie."""
     if obter_usuario_atual():
         return
-    token = st.query_params.get(_QUERY_PARAM_TOKEN)
+    ctrl = _cookies()
+    if not ctrl:
+        return
+    token = ctrl.get(_SESSION_COOKIE)
     if not token:
         return
     email = _validar_token(str(token))
@@ -274,10 +340,6 @@ def restaurar_sessao():
     usuario = buscar_usuario_por_email(email)
     if usuario and usuario.get("status") == "Ativo":
         st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
-
-
-# Alias para não quebrar chamadas antigas
-restaurar_sessao_do_cookie = restaurar_sessao
 
 
 def obter_usuario_atual() -> dict | None:
@@ -427,18 +489,18 @@ def renderizar_login():
         unsafe_allow_html=True,
     )
 
-    # ── Lembrar email via cookie (timing de componente é aceitável aqui) ──
+    # ── Lembrar email (controller separado, inicializado junto com portal_cookies no app.py) ──
     from streamlit_cookies_controller import CookieController
     ctrl_email = CookieController(key="portal_email_cookie")
+    # Na 2ª renderização (após _auth_checked rerun), o cookie já está disponível
     email_salvo = ctrl_email.get(_COOKIE_EMAIL) or ""
-    tem_email_salvo = bool(email_salvo)
 
     with st.form("form_login"):
         email = st.text_input("Email", value=email_salvo, placeholder="voce@empresa.com")
         senha = st.text_input("Senha", type="password")
         col_check, col_btn = st.columns([1, 1])
         with col_check:
-            lembrar = st.checkbox("Lembrar email", value=tem_email_salvo)
+            lembrar = st.checkbox("Lembrar email", value=bool(email_salvo))
         with col_btn:
             submitted = st.form_submit_button("Entrar", type="primary", use_container_width=True)
 
@@ -446,8 +508,9 @@ def renderizar_login():
         usuario = autenticar_usuario(email, senha)
         if usuario:
             if lembrar:
+                # set atualiza st.session_state in-place — disponível no próximo rerun
                 ctrl_email.set(_COOKIE_EMAIL, _normalizar_email(email), max_age=60 * 60 * 24 * 30)
-            else:
+            elif email_salvo:
                 ctrl_email.remove(_COOKIE_EMAIL)
             iniciar_sessao(usuario)
             registrar_login(usuario["email"])

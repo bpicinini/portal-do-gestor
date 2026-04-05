@@ -1,10 +1,12 @@
 import streamlit as st
+from streamlit_cookies_controller import CookieController
 
 from utils.auth import (
+    _COOKIE_CTRL_KEY,
     obter_usuario_atual,
     renderizar_login,
     renderizar_usuario_sidebar,
-    restaurar_sessao,
+    restaurar_sessao_do_cookie,
     seed_usuarios_iniciais,
     usuario_admin,
 )
@@ -17,8 +19,18 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# CookieController precisa renderizar ANTES de qualquer verificação de auth.
+# Na primeira execução após F5, o componente JS ainda não respondeu (retorna {}).
+# Forçamos um rerun com a flag _auth_checked, dando tempo ao JS enviar os cookies.
+cookies = CookieController(key="portal_cookies")
+st.session_state[_COOKIE_CTRL_KEY] = cookies
+
+if "_auth_checked" not in st.session_state:
+    st.session_state["_auth_checked"] = True
+    st.rerun()
+
 seed_usuarios_iniciais()
-restaurar_sessao()
+restaurar_sessao_do_cookie()
 
 if not obter_usuario_atual():
     renderizar_login()

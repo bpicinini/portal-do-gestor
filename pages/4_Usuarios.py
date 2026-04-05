@@ -3,7 +3,17 @@ from html import escape
 import pandas as pd
 import streamlit as st
 
-from utils.auth import PERFIS_ACESSO, criar_usuario, garantir_autenticado, listar_usuarios
+from utils.auth import (
+    PERFIS_ACESSO,
+    alterar_perfil_usuario,
+    alterar_status_usuario,
+    criar_usuario,
+    excluir_usuario,
+    garantir_autenticado,
+    listar_usuarios,
+    obter_usuario_atual,
+    redefinir_senha_usuario,
+)
 from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
 
 
@@ -255,7 +265,6 @@ with tab_usuarios:
                 "Nome": usuario.get("nome", "—"),
                 "Email": usuario.get("email", "—"),
                 "Perfil": usuario.get("perfil", "—"),
-                "Módulos": " • ".join(usuario.get("modulos", [])),
                 "Status": usuario.get("status", "—"),
                 "Último login": _fmt_data(usuario.get("ultimo_login")),
             }
@@ -279,6 +288,74 @@ with tab_usuarios:
         .map(estilo_perfil, subset=["Perfil"])
     )
     st.dataframe(styled, use_container_width=True, hide_index=True)
+
+    # ── Gerenciar usuário ──────────────────────────────────────────────────────
+    st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+    with st.expander("⚙️ Gerenciar usuário", expanded=False):
+        eu = obter_usuario_atual() or {}
+        opcoes = {f"{u.get('nome')} — {u.get('email')}": u for u in usuarios}
+        selecionado_label = st.selectbox("Selecionar usuário", list(opcoes.keys()), key="sel_usuario")
+        alvo = opcoes[selecionado_label]
+        email_alvo = alvo.get("email", "")
+
+        aba_perfil, aba_senha, aba_status, aba_excluir = st.tabs(
+            ["Alterar perfil", "Redefinir senha", "Ativar / Desativar", "Excluir"]
+        )
+
+        with aba_perfil:
+            perfil_atual = alvo.get("perfil", "Usuário")
+            novo_perfil = st.selectbox(
+                "Novo perfil",
+                list(PERFIS_ACESSO.keys()),
+                index=list(PERFIS_ACESSO.keys()).index(perfil_atual) if perfil_atual in PERFIS_ACESSO else 1,
+                key="novo_perfil",
+            )
+            if st.button("Salvar perfil", key="btn_perfil", type="primary"):
+                try:
+                    alterar_perfil_usuario(email_alvo, novo_perfil)
+                    st.success(f"Perfil de {alvo.get('nome')} alterado para {novo_perfil}.")
+                    st.rerun()
+                except ValueError as exc:
+                    st.warning(str(exc))
+
+        with aba_senha:
+            nova_senha = st.text_input("Nova senha", type="password", key="nova_senha")
+            confirmar = st.text_input("Confirmar senha", type="password", key="confirmar_senha")
+            if st.button("Redefinir senha", key="btn_senha", type="primary"):
+                if nova_senha != confirmar:
+                    st.warning("As senhas não coincidem.")
+                else:
+                    try:
+                        redefinir_senha_usuario(email_alvo, nova_senha)
+                        st.success(f"Senha de {alvo.get('nome')} redefinida.")
+                    except ValueError as exc:
+                        st.warning(str(exc))
+
+        with aba_status:
+            status_atual = alvo.get("status", "Ativo")
+            novo_status = "Inativo" if status_atual == "Ativo" else "Ativo"
+            label_btn = f"Desativar {alvo.get('nome')}" if status_atual == "Ativo" else f"Reativar {alvo.get('nome')}"
+            if st.button(label_btn, key="btn_status", type="primary"):
+                try:
+                    alterar_status_usuario(email_alvo, novo_status)
+                    st.success(f"Status de {alvo.get('nome')} alterado para {novo_status}.")
+                    st.rerun()
+                except ValueError as exc:
+                    st.warning(str(exc))
+
+        with aba_excluir:
+            st.warning(f"Isso remove permanentemente o usuário **{alvo.get('nome')}** do sistema.")
+            confirmacao = st.text_input("Digite EXCLUIR para confirmar", key="confirmar_excluir")
+            if st.button("Excluir usuário", key="btn_excluir"):
+                if confirmacao != "EXCLUIR":
+                    st.warning("Digite exatamente EXCLUIR para confirmar.")
+                else:
+                    try:
+                        excluir_usuario(email_alvo, eu.get("email", ""))
+                        st.success(f"Usuário {alvo.get('nome')} excluído.")
+                        st.rerun()
+                    except ValueError as exc:
+                        st.warning(str(exc))
 
 with tab_perfis:
     st.markdown(
