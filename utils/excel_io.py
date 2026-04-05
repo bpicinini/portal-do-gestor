@@ -176,8 +176,10 @@ def sheet_to_list(ws):
 
 def encontrar_linha(ws, col_idx, valor):
     """Encontra o número da linha onde ws[row][col_idx] == valor. Retorna None se não achar."""
+    _v = str(valor).strip() if valor is not None else None
     for row in ws.iter_rows(min_row=2):
         cell = row[col_idx - 1]
-        if cell.value == valor:
+        _c = str(cell.value).strip() if cell.value is not None else None
+        if _c == _v:
             return cell.row
     return None

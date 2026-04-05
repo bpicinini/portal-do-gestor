@@ -1,9 +1,12 @@
 import streamlit as st
+from streamlit_cookies_controller import CookieController
 
 from utils.auth import (
+    _COOKIE_CTRL_KEY,
     obter_usuario_atual,
     renderizar_login,
     renderizar_usuario_sidebar,
+    restaurar_sessao_do_cookie,
     seed_usuarios_iniciais,
     usuario_admin,
 )
@@ -16,8 +19,11 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Auth gate central do portal.
+# Instancia o controller de cookies antes de qualquer lógica de auth.
+st.session_state[_COOKIE_CTRL_KEY] = CookieController(key="portal_cookies")
+
 seed_usuarios_iniciais()
+restaurar_sessao_do_cookie()
 
 if not obter_usuario_atual():
     renderizar_login()

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 import hmac
 import os
@@ -63,6 +64,39 @@ USUARIOS_INICIAIS = [
 ]
 
 SESSION_USER_KEY = "auth_usuario"
+_COOKIE_CTRL_KEY = "_portal_cookie_ctrl"
+_SESSION_COOKIE  = "portal_session"
+
+
+# ── Cookies ────────────────────────────────────────────────────────────────────
+
+def _cookies():
+    """Retorna o CookieController armazenado na session_state pelo app.py."""
+    return st.session_state.get(_COOKIE_CTRL_KEY)
+
+
+def _secret_key() -> str:
+    try:
+        return str(st.secrets.get("SECRET_KEY", "portal-do-gestor-2026"))
+    except Exception:
+        return "portal-do-gestor-2026"
+
+
+def _gerar_token(email: str) -> str:
+    email_b64 = base64.urlsafe_b64encode(email.encode()).decode()
+    sig = hmac.new(_secret_key().encode(), email_b64.encode(), hashlib.sha256).hexdigest()
+    return f"{email_b64}.{sig}"
+
+
+def _validar_token(token: str) -> str | None:
+    try:
+        email_b64, sig = token.rsplit(".", 1)
+        expected = hmac.new(_secret_key().encode(), email_b64.encode(), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(sig, expected):
+            return None
+        return base64.urlsafe_b64decode(email_b64).decode()
+    except Exception:
+        return None
 
 
 def _normalizar_email(email: str | None) -> str:
@@ -222,10 +256,43 @@ def criar_usuario(nome: str, email: str, perfil: str, senha: str, status: str = 
 
 def iniciar_sessao(usuario: dict):
     st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
+    ctrl = _cookies()
+    if ctrl:
+        try:
+            ctrl.set(_SESSION_COOKIE, _gerar_token(usuario["email"]), max_age=60 * 60 * 24 * 7)
+        except Exception:
+            pass
 
 
 def sair_sessao():
     st.session_state.pop(SESSION_USER_KEY, None)
+    ctrl = _cookies()
+    if ctrl:
+        try:
+            ctrl.remove(_SESSION_COOKIE)
+        except Exception:
+            pass
+
+
+def restaurar_sessao_do_cookie():
+    """Chamado no app.py antes do gate de auth — restaura sessão a partir do cookie."""
+    if obter_usuario_atual():
+        return
+    ctrl = _cookies()
+    if not ctrl:
+        return
+    try:
+        token = ctrl.get(_SESSION_COOKIE)
+    except Exception:
+        return
+    if not token:
+        return
+    email = _validar_token(str(token))
+    if not email:
+        return
+    usuario = buscar_usuario_por_email(email)
+    if usuario and usuario.get("status") == "Ativo":
+        st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
 
 
 def obter_usuario_atual() -> dict | None:
