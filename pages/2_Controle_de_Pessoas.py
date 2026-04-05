@@ -1,10 +1,12 @@
 import streamlit as st
 import pandas as pd
 from datetime import date, datetime
+from utils.auth import garantir_autenticado
 from utils.departamentos import listar_departamentos, listar_cargos
 from utils.pessoas import listar_colaboradores, contratar, desligar, atualizar_colaborador, listar_historico
 from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
 
+garantir_autenticado()
 aplicar_estilos_globais()
 renderizar_cabecalho_pagina(
     "Controle de Pessoas",

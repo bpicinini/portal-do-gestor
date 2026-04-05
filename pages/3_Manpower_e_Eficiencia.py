@@ -5,6 +5,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+from utils.auth import garantir_autenticado
 from utils.departamentos import listar_departamentos
 from utils.manpower import (
     calcular_manpower_por_departamento,
@@ -23,6 +24,7 @@ COLOR_NAVY_DARK = "#234055"
 COLOR_GOLD = "#d6b36a"
 COLOR_GREEN = "#6d8e65"
 
+garantir_autenticado()
 aplicar_estilos_globais()
 renderizar_cabecalho_pagina(
     "KPIs",

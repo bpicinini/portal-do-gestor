@@ -3,6 +3,7 @@ from html import escape
 import pandas as pd
 import streamlit as st
 
+from utils.auth import garantir_autenticado
 from utils.departamentos import (
     listar_cargos,
     listar_departamentos,
@@ -13,6 +14,7 @@ from utils.pessoas import listar_colaboradores
 from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
 
 
+garantir_autenticado()
 aplicar_estilos_globais()
 renderizar_cabecalho_pagina(
     "Organograma",

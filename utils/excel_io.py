@@ -16,6 +16,7 @@ SHEET_COLABORADORES = "Colaboradores"
 SHEET_HISTORICO = "Historico"
 SHEET_MANPOWER_MENSAL = "ManpowerMensal"
 SHEET_PERFORMANCE = "Performance"
+SHEET_USUARIOS = "Usuarios"
 
 # Headers de cada sheet
 HEADERS = {
@@ -28,6 +29,18 @@ HEADERS = {
     SHEET_HISTORICO: ["id", "colaborador_id", "nome", "tipo", "cargo", "data", "observacao"],
     SHEET_MANPOWER_MENSAL: ["ano", "mes", "departamento_id", "manpower_total"],
     SHEET_PERFORMANCE: ["ano", "mes", "volume_score", "manpower", "performance", "meta", "pct_meta"],
+    SHEET_USUARIOS: [
+        "id",
+        "nome",
+        "email",
+        "perfil",
+        "status",
+        "modulos",
+        "senha_hash",
+        "senha_salt",
+        "ultimo_login",
+        "criado_em",
+    ],
 }
 
 # Raiz do projeto — resolve tanto via __file__ quanto via CWD

@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import date
+from utils.auth import garantir_autenticado, obter_usuario_atual, usuario_admin
 from utils.excel_io import ler_bytes_workbook
 from utils.departamentos import listar_departamentos
 from utils.pessoas import listar_colaboradores, listar_historico
@@ -9,6 +10,8 @@ from utils.ui import aplicar_estilos_globais, saudacao_periodo
 
 # ── Dados ──────────────────────────────────────────────────────────────────────
 aplicar_estilos_globais()
+garantir_autenticado()
+usuario_logado = obter_usuario_atual() or {}
 
 ativos       = listar_colaboradores(status="Ativo")
 departamentos = listar_departamentos()
@@ -182,7 +185,10 @@ if ultima_perf:
 else:
     badge_html = ""
 
-st.markdown(f'<div class="banner"><div><div class="banner-title">{saudacao_periodo()}, Bruno Picinini</div><div class="banner-sub">Portal do Gestor &nbsp;&middot;&nbsp; operação, pessoas e performance centralizadas em um único painel &nbsp;&middot;&nbsp; {data_fmt}</div></div>{badge_html}</div>', unsafe_allow_html=True)
+st.markdown(
+    f'<div class="banner"><div><div class="banner-title">{saudacao_periodo()}, {usuario_logado.get("nome", "Usuário")}</div><div class="banner-sub">Portal do Gestor &nbsp;&middot;&nbsp; operação, pessoas e performance centralizadas em um único painel &nbsp;&middot;&nbsp; {data_fmt}</div></div>{badge_html}</div>',
+    unsafe_allow_html=True,
+)
 
 # ── KPI cards ──────────────────────────────────────────────────────────────────
 pct_meta_str = "—"
@@ -313,7 +319,7 @@ with col_right:
 
 # ── Backup ─────────────────────────────────────────────────────────────────────
 st.divider()
-dados_bytes = ler_bytes_workbook()
+dados_bytes = ler_bytes_workbook() if usuario_admin() else None
 if dados_bytes:
     st.download_button(
         label="⬇ Baixar dados.xlsx (backup)",
