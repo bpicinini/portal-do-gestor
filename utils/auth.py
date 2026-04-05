@@ -63,16 +63,11 @@ USUARIOS_INICIAIS = [
     },
 ]
 
-SESSION_USER_KEY = "auth_usuario"
-_COOKIE_CTRL_KEY = "_portal_cookie_ctrl"
-_SESSION_COOKIE  = "portal_session"
-
-
-# ── Cookies ────────────────────────────────────────────────────────────────────
-
-def _cookies():
-    """Retorna o CookieController armazenado na session_state pelo app.py."""
-    return st.session_state.get(_COOKIE_CTRL_KEY)
+SESSION_USER_KEY   = "auth_usuario"
+_COOKIE_CTRL_KEY   = "_portal_cookie_ctrl"   # mantido por compatibilidade (não usado para sessão)
+_SESSION_COOKIE    = "portal_session"          # idem
+_QUERY_PARAM_TOKEN = "s"
+_COOKIE_EMAIL      = "portal_email"
 
 
 def _secret_key() -> str:
@@ -256,35 +251,21 @@ def criar_usuario(nome: str, email: str, perfil: str, senha: str, status: str = 
 
 def iniciar_sessao(usuario: dict):
     st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
-    ctrl = _cookies()
-    if ctrl:
-        try:
-            ctrl.set(_SESSION_COOKIE, _gerar_token(usuario["email"]), max_age=60 * 60 * 24 * 7)
-        except Exception:
-            pass
+    # Persiste o token na URL — sobrevive ao F5 sem depender de timing de componente
+    st.query_params[_QUERY_PARAM_TOKEN] = _gerar_token(usuario["email"])
 
 
 def sair_sessao():
     st.session_state.pop(SESSION_USER_KEY, None)
-    ctrl = _cookies()
-    if ctrl:
-        try:
-            ctrl.remove(_SESSION_COOKIE)
-        except Exception:
-            pass
+    if _QUERY_PARAM_TOKEN in st.query_params:
+        del st.query_params[_QUERY_PARAM_TOKEN]
 
 
-def restaurar_sessao_do_cookie():
-    """Chamado no app.py antes do gate de auth — restaura sessão a partir do cookie."""
+def restaurar_sessao():
+    """Chamado no app.py — restaura sessão a partir do query param 's' na URL."""
     if obter_usuario_atual():
         return
-    ctrl = _cookies()
-    if not ctrl:
-        return
-    try:
-        token = ctrl.get(_SESSION_COOKIE)
-    except Exception:
-        return
+    token = st.query_params.get(_QUERY_PARAM_TOKEN)
     if not token:
         return
     email = _validar_token(str(token))
@@ -293,6 +274,10 @@ def restaurar_sessao_do_cookie():
     usuario = buscar_usuario_por_email(email)
     if usuario and usuario.get("status") == "Ativo":
         st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
+
+
+# Alias para não quebrar chamadas antigas
+restaurar_sessao_do_cookie = restaurar_sessao
 
 
 def obter_usuario_atual() -> dict | None:
@@ -442,14 +427,28 @@ def renderizar_login():
         unsafe_allow_html=True,
     )
 
+    # ── Lembrar email via cookie (timing de componente é aceitável aqui) ──
+    from streamlit_cookies_controller import CookieController
+    ctrl_email = CookieController(key="portal_email_cookie")
+    email_salvo = ctrl_email.get(_COOKIE_EMAIL) or ""
+    tem_email_salvo = bool(email_salvo)
+
     with st.form("form_login"):
-        email = st.text_input("Email", placeholder="voce@empresa.com")
+        email = st.text_input("Email", value=email_salvo, placeholder="voce@empresa.com")
         senha = st.text_input("Senha", type="password")
-        submitted = st.form_submit_button("Entrar", type="primary", use_container_width=True)
+        col_check, col_btn = st.columns([1, 1])
+        with col_check:
+            lembrar = st.checkbox("Lembrar email", value=tem_email_salvo)
+        with col_btn:
+            submitted = st.form_submit_button("Entrar", type="primary", use_container_width=True)
 
     if submitted:
         usuario = autenticar_usuario(email, senha)
         if usuario:
+            if lembrar:
+                ctrl_email.set(_COOKIE_EMAIL, _normalizar_email(email), max_age=60 * 60 * 24 * 30)
+            else:
+                ctrl_email.remove(_COOKIE_EMAIL)
             iniciar_sessao(usuario)
             registrar_login(usuario["email"])
             st.rerun()
