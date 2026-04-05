@@ -268,27 +268,27 @@ with tab_usuarios:
     st.dataframe(styled, use_container_width=True, hide_index=True)
 
 with tab_perfis:
-    cards_html = []
-    for perfil, dados in PERFIS_ACESSO.items():
-        cards_html.append(
-            f"""
-            <div class="profile-card">
-                <div class="profile-title">{escape(perfil)}</div>
-                <div class="profile-desc">{escape(dados["descricao"])}</div>
-                <div style="margin-top:14px;">{_render_modulos_tags(dados["modulos"])}</div>
-            </div>
-            """
-        )
-
     st.markdown(
-        f"""
+        """
         <div class="user-panel">
             <div class="user-panel-title">Perfis de acesso</div>
             <div class="user-panel-sub">Estrutura inicial pronta para evoluir futuramente para permissões mais granulares.</div>
-            <div class="profile-grid">
-                {"".join(cards_html)}
-            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+    perfis = list(PERFIS_ACESSO.items())
+    cols = st.columns(2)
+    for idx, (perfil, dados) in enumerate(perfis):
+        with cols[idx % 2]:
+            st.markdown(
+                f"""
+                <div class="profile-card">
+                    <div class="profile-title">{escape(perfil)}</div>
+                    <div class="profile-desc">{escape(dados["descricao"])}</div>
+                    <div style="margin-top:14px;">{_render_modulos_tags(dados["modulos"])}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
