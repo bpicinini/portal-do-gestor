@@ -418,6 +418,70 @@ with tab_reportes:
             else:
                 st.info("Nao ha analistas cadastrados neste setor para montar a visao de reportes.")
 
+    st.divider()
+    st.markdown("#### Tabela de analistas e assistentes")
+    st.caption(
+        "Visao simplificada para os coordenadores ajustarem os reportes diretos. "
+        "Linhas marcadas como 'Distribuicao provisoria' ainda precisam ser confirmadas."
+    )
+
+    rows_tab = []
+    for bloco in estrutura_reportes:
+        if filtro_dept != "Todos" and bloco["departamento"] != filtro_dept:
+            continue
+        dept = bloco["departamento"]
+        for grupo in bloco["grupos"]:
+            analista = grupo["analista"]
+            if grupo["reportes"]:
+                for item in grupo["reportes"]:
+                    sub = item["pessoa"]
+                    rows_tab.append(
+                        {
+                            "Departamento": dept,
+                            "Analista": analista["nome"],
+                            "Cargo Analista": analista["cargo_nome"],
+                            "Assistente / Estagiario": sub["nome"],
+                            "Cargo": sub["cargo_nome"],
+                            "Origem": item["origem"],
+                        }
+                    )
+            else:
+                rows_tab.append(
+                    {
+                        "Departamento": dept,
+                        "Analista": analista["nome"],
+                        "Cargo Analista": analista["cargo_nome"],
+                        "Assistente / Estagiario": "—",
+                        "Cargo": "—",
+                        "Origem": "—",
+                    }
+                )
+
+    if rows_tab:
+        df_tab = pd.DataFrame(rows_tab)
+
+        def _colorir_origem(val):
+            if val == "Planilha-base":
+                return "background-color: #e5f1dd; color: #3d6b40;"
+            if val == "Distribuição provisória":
+                return "background-color: #fef3dc; color: #8a5e10;"
+            return ""
+
+        st.dataframe(
+            df_tab.style.applymap(_colorir_origem, subset=["Origem"]),
+            use_container_width=True,
+            hide_index=True,
+        )
+        csv_bytes = df_tab.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
+        st.download_button(
+            label="Baixar tabela (.csv)",
+            data=csv_bytes,
+            file_name="reportes_organograma.csv",
+            mime="text/csv",
+        )
+    else:
+        st.info("Nenhum dado de reportes para exibir.")
+
 with tab_quadro:
     st.subheader("Quadro completo")
     if todos_ativos:
