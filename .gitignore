@@ -10,3 +10,6 @@ Arquivos Base/
 streamlit.pid
 streamlit.stdout.log
 streamlit.stderr.log
+data/processos_360.csv
+data/processos_360_meta.json
+data/backups/

@@ -29,6 +29,7 @@ pages = [
     st.Page("pages/1_Organograma.py", title="Organograma", icon="🗂️"),
     st.Page("pages/3_Manpower_e_Eficiencia.py", title="KPIs", icon="📊"),
     st.Page("pages/2_Controle_de_Pessoas.py", title="Controle de Pessoas", icon="👥"),
+    st.Page("pages/5_Processos_360.py", title="Processos 360", icon="🚢"),
 ]
 
 if usuario_admin():
