@@ -6,8 +6,11 @@ import hmac
 import os
 from datetime import datetime
 
+import json as _json
+
 import streamlit as st
 import streamlit.components.v1 as _components
+from streamlit_js_eval import streamlit_js_eval as _sje
 
 from utils.excel_io import (
     SHEET_USUARIOS,
@@ -73,61 +76,62 @@ _LS_TOKEN = "portal_auth_token"
 _LS_EMAIL = "portal_remember_email"
 
 
-def _js_auto_login():
-    """Componente invisível: lê localStorage e redireciona com token+email na URL."""
-    _components.html(
-        f"""
-<script>
-(function() {{
-  var token = localStorage.getItem('{_LS_TOKEN}');
-  var email = localStorage.getItem('{_LS_EMAIL}');
-  var url = new URL(window.parent.location.href);
-  var changed = false;
-  if (token && url.searchParams.get('s') !== token) {{
-    url.searchParams.set('s', token);
-    changed = true;
-  }}
-  if (email && url.searchParams.get('e') !== email) {{
-    url.searchParams.set('e', email);
-    changed = true;
-  }}
-  if (changed) {{ window.parent.location.replace(url.toString()); }}
-}})();
-</script>
-""",
-        height=0,
+def _ler_ls() -> tuple[str | None, str]:
+    """Lê token e email do localStorage via streamlit_js_eval.
+    Retorna (None, "") enquanto o JS ainda não executou (primeiro render).
+    Retorna ("", "") se localStorage está vazio.
+    """
+    raw = _sje(
+        js_expressions=(
+            f"JSON.stringify([localStorage.getItem('{_LS_TOKEN}'),"
+            f"localStorage.getItem('{_LS_EMAIL}')])"
+        ),
+        key="_ls_read",
+        want_output=True,
     )
+    if raw is None:
+        return None, ""  # JS ainda não executou
+    try:
+        parts = _json.loads(raw)
+        return parts[0] or "", parts[1] or ""
+    except Exception:
+        return "", ""
 
 
-def _js_salvar_sessao(token: str, email: str = "", lembrar: bool = False):
+def _salvar_ls(token: str, email: str = "", lembrar: bool = False):
     """Salva token (e opcionalmente email) no localStorage."""
     email_js = (
         f"localStorage.setItem('{_LS_EMAIL}', {repr(str(email))});"
         if lembrar and email
         else f"localStorage.removeItem('{_LS_EMAIL}');"
     )
-    _components.html(
-        f"""
-<script>
-localStorage.setItem('{_LS_TOKEN}', {repr(str(token))});
-{email_js}
-</script>
-""",
-        height=0,
+    _sje(
+        js_expressions=(
+            f"localStorage.setItem('{_LS_TOKEN}', {repr(str(token))});"
+            f"{email_js} true;"
+        ),
+        key="_ls_save",
     )
 
 
-def _js_limpar_sessao():
+def _limpar_ls():
     """Remove token e email do localStorage (logout)."""
-    _components.html(
-        f"""
-<script>
-localStorage.removeItem('{_LS_TOKEN}');
-localStorage.removeItem('{_LS_EMAIL}');
-</script>
-""",
-        height=0,
+    _sje(
+        js_expressions=(
+            f"localStorage.removeItem('{_LS_TOKEN}');"
+            f"localStorage.removeItem('{_LS_EMAIL}'); true;"
+        ),
+        key="_ls_clear",
     )
+
+
+def processar_pendencias():
+    """Executa salvamentos no localStorage pendentes do ciclo de login.
+    Deve ser chamado em app.py logo após confirmar que o usuário está logado.
+    """
+    if "_pending_ls" in st.session_state:
+        token, email, lembrar = st.session_state.pop("_pending_ls")
+        _salvar_ls(token, email, lembrar)
 
 
 def _secret_key() -> str:
@@ -372,7 +376,7 @@ def iniciar_sessao(usuario: dict):
 
 def sair_sessao():
     st.session_state.pop(SESSION_USER_KEY, None)
-    st.session_state["_limpar_ls"] = True
+    st.session_state["_logout"] = True
     try:
         st.query_params.clear()
     except Exception:
@@ -391,14 +395,10 @@ def restaurar_sessao():
         return
     email = _validar_token(str(token))
     if not email:
-        # Token inválido → sinaliza para limpar localStorage
-        st.session_state["_limpar_ls"] = True
         return
     usuario = buscar_usuario_por_email(email)
     if usuario and usuario.get("status") == "Ativo":
         st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
-    else:
-        st.session_state["_limpar_ls"] = True
 
 
 def obter_usuario_atual() -> dict | None:
@@ -548,24 +548,42 @@ def renderizar_login():
         unsafe_allow_html=True,
     )
 
-    # Persistência via localStorage: limpa ou restaura sessão/email automaticamente
-    if st.session_state.pop("_limpar_ls", False):
-        _js_limpar_sessao()
+    # Logout: limpar localStorage
+    if st.session_state.pop("_logout", False):
+        _limpar_ls()
+        ls_token, ls_email = "", ""
     else:
-        _js_auto_login()
+        # Ler localStorage — primeiro render retorna (None, ""), aguardar
+        ls_token, ls_email = _ler_ls()
 
-    # Email salvo no query param "e" (preenchido pelo localStorage via redirect)
-    try:
-        email_salvo = st.query_params.get(_QP_EMAIL, "")
-    except Exception:
-        email_salvo = ""
+        if ls_token is None:
+            # JS ainda não executou: mostrar loading e aguardar rerun automático
+            st.markdown(
+                "<div style='text-align:center;padding:4rem;color:#6f7a84;"
+                "font-size:1rem;font-weight:500;'>Carregando...</div>",
+                unsafe_allow_html=True,
+            )
+            st.stop()
+
+        if ls_token:
+            # Tentar restaurar sessão automaticamente
+            email_from_token = _validar_token(str(ls_token))
+            if email_from_token:
+                usuario = buscar_usuario_por_email(email_from_token)
+                if usuario and usuario.get("status") == "Ativo":
+                    st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
+                    st.rerun()
+                    return
+            # Token inválido ou usuário inativo: limpar
+            _limpar_ls()
+            ls_token, ls_email = "", ""
 
     with st.form("form_login"):
-        email = st.text_input("Email", value=email_salvo, placeholder="voce@empresa.com")
+        email = st.text_input("Email", value=ls_email, placeholder="voce@empresa.com")
         senha = st.text_input("Senha", type="password")
         col_check, col_btn = st.columns([1, 1])
         with col_check:
-            lembrar = st.checkbox("Lembrar email", value=bool(email_salvo))
+            lembrar = st.checkbox("Lembrar email", value=bool(ls_email))
         with col_btn:
             submitted = st.form_submit_button("Entrar", type="primary", use_container_width=True)
 
@@ -575,14 +593,8 @@ def renderizar_login():
             iniciar_sessao(usuario)
             registrar_login(usuario["email"])
             token = _gerar_token(usuario["email"])
-            _js_salvar_sessao(token, _normalizar_email(email), lembrar)
-            try:
-                if lembrar:
-                    st.query_params[_QP_EMAIL] = _normalizar_email(email)
-                elif _QP_EMAIL in st.query_params:
-                    del st.query_params[_QP_EMAIL]
-            except Exception:
-                pass
+            # Salva no localStorage no próximo render (evita race condition com st.rerun)
+            st.session_state["_pending_ls"] = (token, _normalizar_email(email), lembrar)
             st.rerun()
         st.error("Email ou senha inválidos.")
 

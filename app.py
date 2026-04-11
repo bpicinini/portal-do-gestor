@@ -2,6 +2,7 @@ import streamlit as st
 
 from utils.auth import (
     obter_usuario_atual,
+    processar_pendencias,
     renderizar_login,
     renderizar_usuario_sidebar,
     restaurar_sessao,
@@ -23,6 +24,9 @@ restaurar_sessao()
 if not obter_usuario_atual():
     renderizar_login()
     st.stop()
+
+# Salva token no localStorage após login (evita race condition com st.rerun)
+processar_pendencias()
 
 pages = [
     st.Page("home.py", title="Home", icon="🏠", default=True),
