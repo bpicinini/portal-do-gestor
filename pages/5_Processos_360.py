@@ -234,7 +234,7 @@ with tab_geral:
                     .mark_bar(cornerRadiusEnd=8)
                     .encode(
                         x=alt.X("Quantidade:Q", title="Processos"),
-                        y=alt.Y("Account:N", sort="-x", title=None),
+                        y=alt.Y("Account:N", sort="-x", title=None, axis=alt.Axis(labelLimit=300)),
                         color=alt.Color(
                             "Account:N",
                             scale=alt.Scale(domain=acc_domain, range=acc_range),
@@ -430,7 +430,7 @@ with tab_analista:
                 .mark_bar(cornerRadiusEnd=4)
                 .encode(
                     x=alt.X("Quantidade:Q", title="Processos", stack="zero"),
-                    y=alt.Y("Account:N", sort=ordem_analistas, title=None),
+                    y=alt.Y("Account:N", sort=ordem_analistas, title=None, axis=alt.Axis(labelLimit=300)),
                     color=alt.Color(
                         "Status:N",
                         scale=alt.Scale(domain=list(STATUS_CORES.keys()), range=list(STATUS_CORES.values())),
