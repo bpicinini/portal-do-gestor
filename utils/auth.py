@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 
 import streamlit as st
+import streamlit.components.v1 as _components
 
 from utils.excel_io import (
     SHEET_USUARIOS,
@@ -66,6 +67,67 @@ USUARIOS_INICIAIS = [
 SESSION_USER_KEY = "auth_usuario"
 _QP_TOKEN        = "s"    # query param para token de sessão
 _QP_EMAIL        = "e"    # query param para lembrar email
+
+# Chaves do localStorage do browser (persistência além da URL)
+_LS_TOKEN = "portal_auth_token"
+_LS_EMAIL = "portal_remember_email"
+
+
+def _js_auto_login():
+    """Componente invisível: lê localStorage e redireciona com token+email na URL."""
+    _components.html(
+        f"""
+<script>
+(function() {{
+  var token = localStorage.getItem('{_LS_TOKEN}');
+  var email = localStorage.getItem('{_LS_EMAIL}');
+  var url = new URL(window.parent.location.href);
+  var changed = false;
+  if (token && url.searchParams.get('s') !== token) {{
+    url.searchParams.set('s', token);
+    changed = true;
+  }}
+  if (email && url.searchParams.get('e') !== email) {{
+    url.searchParams.set('e', email);
+    changed = true;
+  }}
+  if (changed) {{ window.parent.location.replace(url.toString()); }}
+}})();
+</script>
+""",
+        height=0,
+    )
+
+
+def _js_salvar_sessao(token: str, email: str = "", lembrar: bool = False):
+    """Salva token (e opcionalmente email) no localStorage."""
+    email_js = (
+        f"localStorage.setItem('{_LS_EMAIL}', {repr(str(email))});"
+        if lembrar and email
+        else f"localStorage.removeItem('{_LS_EMAIL}');"
+    )
+    _components.html(
+        f"""
+<script>
+localStorage.setItem('{_LS_TOKEN}', {repr(str(token))});
+{email_js}
+</script>
+""",
+        height=0,
+    )
+
+
+def _js_limpar_sessao():
+    """Remove token e email do localStorage (logout)."""
+    _components.html(
+        f"""
+<script>
+localStorage.removeItem('{_LS_TOKEN}');
+localStorage.removeItem('{_LS_EMAIL}');
+</script>
+""",
+        height=0,
+    )
 
 
 def _secret_key() -> str:
@@ -310,6 +372,7 @@ def iniciar_sessao(usuario: dict):
 
 def sair_sessao():
     st.session_state.pop(SESSION_USER_KEY, None)
+    st.session_state["_limpar_ls"] = True
     try:
         st.query_params.clear()
     except Exception:
@@ -328,10 +391,14 @@ def restaurar_sessao():
         return
     email = _validar_token(str(token))
     if not email:
+        # Token inválido → sinaliza para limpar localStorage
+        st.session_state["_limpar_ls"] = True
         return
     usuario = buscar_usuario_por_email(email)
     if usuario and usuario.get("status") == "Ativo":
         st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
+    else:
+        st.session_state["_limpar_ls"] = True
 
 
 def obter_usuario_atual() -> dict | None:
@@ -481,7 +548,13 @@ def renderizar_login():
         unsafe_allow_html=True,
     )
 
-    # Email salvo no query param "e" — sem cookies, sem dependências externas
+    # Persistência via localStorage: limpa ou restaura sessão/email automaticamente
+    if st.session_state.pop("_limpar_ls", False):
+        _js_limpar_sessao()
+    else:
+        _js_auto_login()
+
+    # Email salvo no query param "e" (preenchido pelo localStorage via redirect)
     try:
         email_salvo = st.query_params.get(_QP_EMAIL, "")
     except Exception:
@@ -501,6 +574,8 @@ def renderizar_login():
         if usuario:
             iniciar_sessao(usuario)
             registrar_login(usuario["email"])
+            token = _gerar_token(usuario["email"])
+            _js_salvar_sessao(token, _normalizar_email(email), lembrar)
             try:
                 if lembrar:
                     st.query_params[_QP_EMAIL] = _normalizar_email(email)

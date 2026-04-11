@@ -311,6 +311,26 @@ with tab_analista:
                 valor_aduaneiro=("Valor Aduaneiro", "sum"),
             ).reset_index().sort_values("processos", ascending=False)
 
+            # Calcular processos ativos por analista:
+            # - Encerramento, Carregamento, Registrado/Ag.Desembaraço, Chegada → todos
+            # - Embarque → apenas com Prev. Chegada entre hoje e hoje+10 dias
+            # - Pré-embarque → excluído
+            _hoje = pd.Timestamp.now().normalize()
+            _status_ativos_sempre = {"Encerramento", "Carregamento", "Registrado/Ag.Desembaraço", "Chegada"}
+            _mask_ativos = df["Status"].isin(_status_ativos_sempre)
+            if "Prev. Chegada" in df.columns:
+                _dias_chegada = (df["Prev. Chegada"] - _hoje).dt.days
+                _mask_embarque_ativo = (
+                    (df["Status"] == "Embarque")
+                    & _dias_chegada.notna()
+                    & (_dias_chegada >= 0)
+                    & (_dias_chegada <= 10)
+                )
+            else:
+                _mask_embarque_ativo = pd.Series(False, index=df.index)
+            _df_ativos = df[_mask_ativos | _mask_embarque_ativo]
+            _ativos_por_analista = _df_ativos.groupby("Account").size().rename("ativos")
+
             st.markdown(f"#### {len(analistas)} Analistas")
 
             # Cards em grid com expander para clientes
@@ -330,6 +350,7 @@ with tab_analista:
                             for s in STATUS_ORDEM
                             if status_counts.get(s, 0) > 0
                         )
+                        n_ativos = int(_ativos_por_analista.get(row["Account"], 0))
 
                         st.markdown(
                             f"""
@@ -348,6 +369,10 @@ with tab_analista:
                                     <div>
                                         <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Processos</span><br/>
                                         <span style="color: #234055; font-size: 1.3rem; font-weight: 800;">{int(row['processos'])}</span>
+                                    </div>
+                                    <div>
+                                        <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ativos</span><br/>
+                                        <span style="color: #5e8668; font-size: 1.3rem; font-weight: 800;">{n_ativos}</span>
                                     </div>
                                     <div>
                                         <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Clientes</span><br/>
