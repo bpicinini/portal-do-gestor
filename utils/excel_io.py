@@ -5,7 +5,6 @@ ou arquivo local (desenvolvimento).
 import io
 import os
 import json
-import base64
 import streamlit as st
 from openpyxl import Workbook, load_workbook
 
@@ -201,11 +200,10 @@ def github_persist(repo_path: str, file_bytes: bytes, msg: str = "Atualização 
         from github import Github
         g = Github(st.secrets["GITHUB_TOKEN"])
         repo = g.get_repo(st.secrets["GITHUB_REPO"])
-        encoded = base64.b64encode(file_bytes).decode()
         try:
             contents = repo.get_contents(repo_path)
-            repo.update_file(repo_path, msg, encoded, contents.sha)
+            repo.update_file(repo_path, msg, file_bytes, contents.sha)
         except Exception:
-            repo.create_file(repo_path, msg, encoded)
+            repo.create_file(repo_path, msg, file_bytes)
     except Exception:
         pass
