@@ -403,11 +403,11 @@ with tab_analista:
 
             # ── Filtro por tipo (tags clicáveis) ─────────────────────────
             # Renderizar filtro ANTES de qualquer agregação
+            filtro_tipo = []
             _col_hdr, _col_filt = st.columns([2, 3])
             with _col_filt:
                 if _tem_tipo:
                     _fcols = st.columns(len(TIPOS_ORDEM) + 1)
-                    filtro_tipo = []
                     for _fi, _ft in enumerate(TIPOS_ORDEM):
                         with _fcols[_fi]:
                             _cor_tag = TIPO_CORES[_ft]
@@ -421,8 +421,6 @@ with tab_analista:
                                 f'<div style="background:{_cor_tag};height:4px;border-radius:2px;margin-top:-10px;"></div>',
                                 unsafe_allow_html=True,
                             )
-                else:
-                    filtro_tipo = []
 
             # Aplicar filtro no DataFrame inteiro (tudo reflete o filtro)
             if filtro_tipo:
