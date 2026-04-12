@@ -15,6 +15,8 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from utils.excel_io import github_persist
+
 _DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 _XLSX_PATH = _DATA_DIR / "agenciamento_processos.xlsx"
 _BACKUP_DIR = _DATA_DIR / "backups"
@@ -340,6 +342,11 @@ def salvar_upload(uploaded_file) -> tuple[bool, str]:
         with open(_META_PATH, "w", encoding="utf-8") as f:
             json.dump(meta, f, ensure_ascii=False, indent=2)
 
+        # Persistir no GitHub (Streamlit Cloud)
+        github_persist("data/agenciamento_processos.xlsx", conteudo, "Upload agenciamento")
+        meta_bytes = json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8")
+        github_persist("data/agenciamento_meta.json", meta_bytes, "Meta agenciamento")
+
         # Limpar caches
         _carregar_resumo_sheet.clear()
         _carregar_faturados_sheet.clear()
@@ -412,8 +419,10 @@ def salvar_performance(ano: int, mes: int, volume_score: float, manpower: float,
 
     records.sort(key=lambda r: (r["ano"], r["mes"]))
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
-    with open(_PERF_PATH, "w", encoding="utf-8") as f:
-        json.dump(records, f, ensure_ascii=False, indent=2)
+    perf_bytes = json.dumps(records, ensure_ascii=False, indent=2).encode("utf-8")
+    with open(_PERF_PATH, "wb") as f:
+        f.write(perf_bytes)
+    github_persist("data/agenciamento_performance.json", perf_bytes, "Performance agenciamento")
 
 
 def obter_mp_atual() -> float:

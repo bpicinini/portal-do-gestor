@@ -15,6 +15,8 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from utils.excel_io import github_persist
+
 _DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 _BACKUP_DIR = _DATA_DIR / "backups"
 _CSV_PATH = _DATA_DIR / "processos_360.csv"
@@ -221,6 +223,11 @@ def salvar_upload(uploaded_file) -> tuple[int, list[str]]:
     }
     with open(_META_PATH, "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)
+
+    # Persistir no GitHub (Streamlit Cloud)
+    github_persist("data/processos_360.csv", conteudo, "Upload processos 360")
+    meta_bytes = json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8")
+    github_persist("data/processos_360_meta.json", meta_bytes, "Meta processos 360")
 
     # Limpar cache
     carregar_processos.clear()

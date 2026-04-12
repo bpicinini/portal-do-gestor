@@ -183,3 +183,29 @@ def encontrar_linha(ws, col_idx, valor):
         if _c == _v:
             return cell.row
     return None
+
+
+# ── Persistência genérica via GitHub ──────────────────────────────────
+
+
+def github_persist(repo_path: str, file_bytes: bytes, msg: str = "Atualização de dados"):
+    """Persiste qualquer arquivo no GitHub (se configurado).
+
+    *repo_path* é o caminho relativo dentro do repositório
+    (ex: ``data/processos_360.csv``).  Funciona como fire-and-forget:
+    se GitHub não estiver configurado ou falhar, não levanta exceção.
+    """
+    if not _usar_github():
+        return
+    try:
+        from github import Github
+        g = Github(st.secrets["GITHUB_TOKEN"])
+        repo = g.get_repo(st.secrets["GITHUB_REPO"])
+        encoded = base64.b64encode(file_bytes).decode()
+        try:
+            contents = repo.get_contents(repo_path)
+            repo.update_file(repo_path, msg, encoded, contents.sha)
+        except Exception:
+            repo.create_file(repo_path, msg, encoded)
+    except Exception:
+        pass
