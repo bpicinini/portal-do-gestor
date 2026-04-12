@@ -693,90 +693,89 @@ def _render_agenciamento():
         ano_ov = st.selectbox("Ano", anos, format_func=lambda x: str(int(x)), key="ag_ov_ano")
         dados = ag.carregar_dados(int(ano_ov))
         if not dados or "resumo" not in dados:
-            st.info("Dados não encontrados.")
-            return
+            st.info("Dados não encontrados para este ano.")
+        else:
+            resumo = dados["resumo"]
+            # Carregar ano anterior para comparativos
+            dados_prev = ag.carregar_dados(int(ano_ov) - 1)
+            resumo_prev = dados_prev["resumo"] if dados_prev and "resumo" in dados_prev else None
 
-        resumo = dados["resumo"]
-        # Carregar ano anterior para comparativos
-        dados_prev = ag.carregar_dados(int(ano_ov) - 1)
-        resumo_prev = dados_prev["resumo"] if dados_prev and "resumo" in dados_prev else None
+            total_and = resumo["total_andamento"]
+            cap_max = resumo["capacidade_max"]
+            cap_min = resumo["capacidade_min"]
+            pct_cap = round(total_and / cap_max * 100, 1) if cap_max else 0
 
-        total_and = resumo["total_andamento"]
-        cap_max = resumo["capacidade_max"]
-        cap_min = resumo["capacidade_min"]
-        pct_cap = round(total_and / cap_max * 100, 1) if cap_max else 0
+            analistas_ativos = [a for a in resumo["andamento"] if a["total"] > 0]
+            total_chegadas = sum(c["total"] for c in resumo["chegadas"])
+            totais_mes = _ag_totais_mes(resumo["chegadas"])
+            meses_com_dados = len([v for v in totais_mes.values() if v > 0])
+            media_mensal = round(total_chegadas / meses_com_dados) if meses_com_dados else 0
 
-        analistas_ativos = [a for a in resumo["andamento"] if a["total"] > 0]
-        total_chegadas = sum(c["total"] for c in resumo["chegadas"])
-        totais_mes = _ag_totais_mes(resumo["chegadas"])
-        meses_com_dados = len([v for v in totais_mes.values() if v > 0])
-        media_mensal = round(total_chegadas / meses_com_dados) if meses_com_dados else 0
+            # KPI Cards HTML
+            cards_html = '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">'
+            cards_html += _ag_card_html("Processos em Andamento", _br_int(total_and), COLOR_NAVY_DARK, "📦")
+            cards_html += _ag_card_html(
+                "Capacidade", f"{_br(pct_cap, 1)}%",
+                COLOR_GREEN if pct_cap >= 80 else (COLOR_GOLD if pct_cap >= 60 else "#b5423a"),
+                "📊"
+            )
+            cards_html += _ag_card_html("Faturados YTD", _br_int(total_chegadas), COLOR_NAVY, "✅")
+            cards_html += _ag_card_html("Média/mês", _br_int(media_mensal), "#4a8ab5", "📅")
+            cards_html += _ag_card_html("Analistas Ativos", str(len(analistas_ativos)), COLOR_GREEN, "👤")
+            cards_html += _ag_card_html(
+                "Faixa Capacidade", f"{cap_min} - {cap_max}", "#6f7a84", "🎯"
+            )
+            cards_html += '</div>'
+            st.markdown(cards_html, unsafe_allow_html=True)
 
-        # KPI Cards HTML
-        cards_html = '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">'
-        cards_html += _ag_card_html("Processos em Andamento", _br_int(total_and), COLOR_NAVY_DARK, "📦")
-        cards_html += _ag_card_html(
-            "Capacidade", f"{_br(pct_cap, 1)}%",
-            COLOR_GREEN if pct_cap >= 80 else (COLOR_GOLD if pct_cap >= 60 else "#b5423a"),
-            "📊"
-        )
-        cards_html += _ag_card_html("Faturados YTD", _br_int(total_chegadas), COLOR_NAVY, "✅")
-        cards_html += _ag_card_html("Média/mês", _br_int(media_mensal), "#4a8ab5", "📅")
-        cards_html += _ag_card_html("Analistas Ativos", str(len(analistas_ativos)), COLOR_GREEN, "👤")
-        cards_html += _ag_card_html(
-            "Faixa Capacidade", f"{cap_min} - {cap_max}", "#6f7a84", "🎯"
-        )
-        cards_html += '</div>'
-        st.markdown(cards_html, unsafe_allow_html=True)
+            # YoY delta
+            if resumo_prev:
+                total_chegadas_prev = sum(c["total"] for c in resumo_prev["chegadas"])
+                totais_prev = _ag_totais_mes(resumo_prev["chegadas"])
+                # Comparar apenas meses equivalentes
+                meses_comp = [m for m in totais_mes if totais_mes[m] > 0]
+                vol_comp = sum(totais_mes.get(m, 0) for m in meses_comp)
+                vol_prev_comp = sum(totais_prev.get(m, 0) for m in meses_comp)
+                if vol_prev_comp > 0:
+                    delta_pct = (vol_comp - vol_prev_comp) / vol_prev_comp * 100
+                    sinal = "+" if delta_pct > 0 else ""
+                    cor_delta = COLOR_GREEN if delta_pct > 0 else "#b5423a"
+                    st.markdown(
+                        f'<p style="color:{cor_delta};font-weight:600;margin:0 0 0.5rem 0;">'
+                        f'{sinal}{_br(delta_pct, 1)}% vs mesmo período de {int(ano_ov) - 1} '
+                        f'({_br_int(vol_comp)} vs {_br_int(vol_prev_comp)})</p>',
+                        unsafe_allow_html=True,
+                    )
 
-        # YoY delta
-        if resumo_prev:
-            total_chegadas_prev = sum(c["total"] for c in resumo_prev["chegadas"])
-            totais_prev = _ag_totais_mes(resumo_prev["chegadas"])
-            # Comparar apenas meses equivalentes
-            meses_comp = [m for m in totais_mes if totais_mes[m] > 0]
-            vol_comp = sum(totais_mes.get(m, 0) for m in meses_comp)
-            vol_prev_comp = sum(totais_prev.get(m, 0) for m in meses_comp)
-            if vol_prev_comp > 0:
-                delta_pct = (vol_comp - vol_prev_comp) / vol_prev_comp * 100
-                sinal = "+" if delta_pct > 0 else ""
-                cor_delta = COLOR_GREEN if delta_pct > 0 else "#b5423a"
-                st.markdown(
-                    f'<p style="color:{cor_delta};font-weight:600;margin:0 0 0.5rem 0;">'
-                    f'{sinal}{_br(delta_pct, 1)}% vs mesmo período de {int(ano_ov) - 1} '
-                    f'({_br_int(vol_comp)} vs {_br_int(vol_prev_comp)})</p>',
-                    unsafe_allow_html=True,
-                )
+            st.divider()
 
-        st.divider()
+            # Charts row
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.caption("**Chegadas por mês**")
+                chart = _ag_chart_chegadas_mes(resumo, resumo_prev, int(ano_ov))
+                if chart:
+                    st.altair_chart(chart, use_container_width=True)
 
-        # Charts row
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.caption("**Chegadas por mês**")
-            chart = _ag_chart_chegadas_mes(resumo, resumo_prev, int(ano_ov))
+            with col2:
+                st.caption("**Processos por etapa**")
+                chart = _ag_chart_etapas(resumo)
+                if chart:
+                    st.altair_chart(chart, use_container_width=True)
+
+            with col3:
+                st.caption("**Carga por analista vs Meta**")
+                chart = _ag_chart_carga_analista(resumo)
+                if chart:
+                    st.altair_chart(chart, use_container_width=True)
+                st.caption("🟡 Meta mín. &nbsp; 🔴 Meta máx.")
+
+            # Andamento detalhado
+            st.divider()
+            st.markdown("#### Processos em andamento por analista")
+            chart = _ag_chart_andamento_stacked(resumo)
             if chart:
                 st.altair_chart(chart, use_container_width=True)
-
-        with col2:
-            st.caption("**Processos por etapa**")
-            chart = _ag_chart_etapas(resumo)
-            if chart:
-                st.altair_chart(chart, use_container_width=True)
-
-        with col3:
-            st.caption("**Carga por analista vs Meta**")
-            chart = _ag_chart_carga_analista(resumo)
-            if chart:
-                st.altair_chart(chart, use_container_width=True)
-            st.caption("🟡 Meta mín. &nbsp; 🔴 Meta máx.")
-
-        # Andamento detalhado
-        st.divider()
-        st.markdown("#### Processos em andamento por analista")
-        chart = _ag_chart_andamento_stacked(resumo)
-        if chart:
-            st.altair_chart(chart, use_container_width=True)
 
     # ── Analistas ────────────────────────────────────────────────────
     with tab_an:
