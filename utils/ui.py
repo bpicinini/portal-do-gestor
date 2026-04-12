@@ -913,17 +913,26 @@ def _aplicar_dark_mode():
         .btn-secondary:hover { background: var(--surface-soft) !important; color: var(--navy) !important; }
 
         /* ══ USUARIOS ══ */
-        .user-toolbar { border-color: var(--line) !important; }
+        .user-toolbar {
+            background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(28, 35, 51, 0.95) 100%) !important;
+            border-color: var(--line) !important;
+        }
+        .user-toolbar strong { color: var(--navy) !important; }
         .user-panel { background: var(--surface) !important; border-color: var(--line) !important; }
         .user-panel-title { color: var(--navy) !important; }
         .user-panel-sub   { color: var(--muted) !important; }
+        .user-table { background: var(--surface) !important; }
         .user-table thead th { color: var(--muted) !important; border-bottom-color: var(--line) !important; background: var(--surface-soft) !important; }
+        .user-table td { color: var(--text) !important; border-bottom-color: var(--line) !important; background: transparent !important; }
         .user-table tbody tr { border-bottom-color: var(--line) !important; }
         .user-table tbody tr:hover { background: rgba(255, 255, 255, 0.03) !important; }
         .user-name  { color: var(--navy) !important; }
         .user-email { color: var(--muted) !important; }
+        .user-status { color: var(--green) !important; }
+        .user-status.inativo { color: var(--gold) !important; }
+        .user-role { background: rgba(224, 168, 61, 0.12) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
         .user-role.admin { background: rgba(224, 168, 61, 0.12) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
-        .user-role.usuario { background: rgba(122, 173, 134, 0.12) !important; border-color: rgba(122, 173, 134, 0.2) !important; color: var(--green) !important; }
+        .user-role.usuario, .user-role.user { background: rgba(122, 173, 134, 0.12) !important; border-color: rgba(122, 173, 134, 0.2) !important; color: var(--green) !important; }
         .user-tag { background: rgba(224, 168, 61, 0.1) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
         .profile-card { background: var(--surface) !important; border-color: var(--line) !important; }
 
@@ -933,6 +942,18 @@ def _aplicar_dark_mode():
         [style*="background:#f6f1e7"], [style*="background: #f6f1e7"] { background: var(--surface-soft) !important; }
         [style*="background:#f0e8d8"], [style*="background: #f0e8d8"] { background: var(--surface-soft) !important; }
         [style*="background:#e3d8c5"], [style*="border-color:#e3d8c5"] { border-color: var(--line) !important; }
+        /* Pipeline KPI strip (Processos 360 Visão Geral) */
+        [style*="background: linear-gradient(135deg, rgba(255,253,248"],
+        [style*="background:linear-gradient(135deg,rgba(255,253,248"],
+        [style*="background: linear-gradient(135deg, rgba(255, 253, 248"] {
+            background: linear-gradient(135deg, #161b22, #1c2333) !important;
+            border-color: var(--line) !important;
+        }
+        [style*="background: rgba(255,255,255,0.6)"],
+        [style*="background:rgba(255,255,255,0.6)"] {
+            background: var(--surface-soft) !important;
+            border-color: var(--line) !important;
+        }
 
         /* ══ Gráficos Altair/Vega — fundo transparente ══ */
         [data-testid="stVegaLiteChart"],
@@ -946,17 +967,11 @@ def _aplicar_dark_mode():
         .vega-embed .vega-bindings * {
             color: var(--text) !important;
         }
-        /* SVG inside vega charts */
-        .vega-embed svg {
-            background: transparent !important;
-        }
-        /* Vega canvas */
-        .vega-embed canvas {
-            background: transparent !important;
-        }
-        /* Mark background rect inside vega */
-        .vega-embed .mark-rect path,
-        .vega-embed .background {
+        .vega-embed svg { background: transparent !important; }
+        .vega-embed canvas { background: transparent !important; }
+        /* Only the outermost background rect, NOT data marks */
+        .vega-embed svg > g > rect.background,
+        .vega-embed svg > rect {
             fill: transparent !important;
         }
 

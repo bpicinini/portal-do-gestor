@@ -249,22 +249,43 @@ with tab_geral:
                     df_mod.columns = ["Modalidade", "Quantidade"]
                     mod_domain = df_mod["Modalidade"].tolist()
                     mod_range = [MODALIDADE_CORES.get(m, "#6f7a84") for m in mod_domain]
-                    chart_mod = (
+                    _total_mod = df_mod["Quantidade"].sum()
+                    df_mod["Pct"] = (df_mod["Quantidade"] / _total_mod * 100).round(1)
+                    df_mod["Label"] = df_mod["Pct"].apply(lambda v: f"{v:.1f}%")
+                    pie_mod = (
                         alt.Chart(df_mod)
-                        .mark_bar(cornerRadiusEnd=8)
+                        .mark_arc(innerRadius=0, outerRadius=90, cornerRadius=3)
                         .encode(
-                            x=alt.X("Quantidade:Q", title="Processos"),
-                            y=alt.Y("Modalidade:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
+                            theta=alt.Theta("Quantidade:Q", stack=True),
+                            color=alt.Color(
+                                "Modalidade:N",
+                                scale=alt.Scale(domain=mod_domain, range=mod_range),
+                                legend=alt.Legend(title=None, orient="bottom", columns=3),
+                            ),
+                            tooltip=[
+                                alt.Tooltip("Modalidade:N"),
+                                alt.Tooltip("Quantidade:Q", format=",d"),
+                                alt.Tooltip("Pct:Q", title="%", format=".1f"),
+                            ],
+                        )
+                    )
+                    text_mod = (
+                        alt.Chart(df_mod)
+                        .mark_text(radius=110, size=12, fontWeight="bold")
+                        .encode(
+                            theta=alt.Theta("Quantidade:Q", stack=True),
+                            text="Label:N",
                             color=alt.Color(
                                 "Modalidade:N",
                                 scale=alt.Scale(domain=mod_domain, range=mod_range),
                                 legend=None,
                             ),
-                            tooltip=[alt.Tooltip("Modalidade:N"), alt.Tooltip("Quantidade:Q", format=",d")],
                         )
-                        .properties(height=220)
                     )
-                    st.altair_chart(chart_mod, use_container_width=True)
+                    st.altair_chart(
+                        (pie_mod + text_mod).properties(height=240, padding={"top": 20, "bottom": 10}),
+                        use_container_width=True,
+                    )
 
             col_esq2, col_dir2 = st.columns(2)
 
@@ -302,7 +323,10 @@ with tab_geral:
                     df_tipo.columns = ["Tipo", "Quantidade"]
                     tipo_domain = df_tipo["Tipo"].tolist()
                     tipo_range = [TIPO_OP_CORES.get(t, "#6f7a84") for t in tipo_domain]
-                    chart_tipo = (
+                    _total_tipo = df_tipo["Quantidade"].sum()
+                    df_tipo["Pct"] = (df_tipo["Quantidade"] / _total_tipo * 100).round(1)
+                    df_tipo["Label"] = df_tipo["Pct"].apply(lambda v: f"{v:.1f}%")
+                    pie_tipo = (
                         alt.Chart(df_tipo)
                         .mark_arc(innerRadius=0, outerRadius=90, cornerRadius=3)
                         .encode(
@@ -312,11 +336,22 @@ with tab_geral:
                                 scale=alt.Scale(domain=tipo_domain, range=tipo_range),
                                 legend=alt.Legend(title=None, orient="bottom"),
                             ),
-                            tooltip=[alt.Tooltip("Tipo:N"), alt.Tooltip("Quantidade:Q", format=",d")],
+                            tooltip=[alt.Tooltip("Tipo:N"), alt.Tooltip("Quantidade:Q", format=",d"), alt.Tooltip("Pct:Q", format=".1f", title="%")],
                         )
-                        .properties(height=220, padding={"top": 20, "bottom": 10})
                     )
-                    st.altair_chart(chart_tipo, use_container_width=True)
+                    text_tipo = (
+                        alt.Chart(df_tipo)
+                        .mark_text(radius=110, size=12, fontWeight="bold")
+                        .encode(
+                            theta=alt.Theta("Quantidade:Q", stack=True),
+                            text="Label:N",
+                            color=alt.Color("Tipo:N", scale=alt.Scale(domain=tipo_domain, range=tipo_range), legend=None),
+                        )
+                    )
+                    st.altair_chart(
+                        (pie_tipo + text_tipo).properties(height=240, padding={"top": 20, "bottom": 10}),
+                        use_container_width=True,
+                    )
 
             # Timeline de aberturas por mês
             if "Abertura" in df.columns:
