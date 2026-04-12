@@ -455,11 +455,11 @@ with tab_analista:
                                     </div>
                                     <div>
                                         <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ativos</span><br/>
-                                        <span style="color: #5e8668; font-size: 1.3rem; font-weight: 800;">{n_ativos}</span>
+                                        <span style="color: #234055; font-size: 1.3rem; font-weight: 800;">{n_ativos}</span>
                                     </div>
                                     <div>
                                         <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Clientes</span><br/>
-                                        <span style="color: #234055; font-size: 1.3rem; font-weight: 800;">{int(row['clientes'])}</span>
+                                        <span style="color: #5e8668; font-size: 1.3rem; font-weight: 800;">{int(row['clientes'])}</span>
                                     </div>
                                     <div>
                                         <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</span><br/>
