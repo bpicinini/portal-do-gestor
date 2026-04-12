@@ -123,13 +123,23 @@ renderizar_cabecalho_pagina(
 
 # ── Sub-abas ─────────────────────────────────────────────────────────
 
-tab_geral, tab_analista, tab_alertas, tab_tabela, tab_upload = st.tabs(
-    ["Visão Geral", "Visão por Analista", "Alertas e Prazos", "Tabela de Processos", "Upload"]
+tab_geral, tab_analista, tab_clientes, tab_alertas, tab_tabela, tab_upload = st.tabs(
+    ["Visão Geral", "Analistas", "Clientes", "Alertas e Prazos", "Tabela", "Upload"]
 )
 
 
 def _msg_sem_dados():
     st.info("Nenhum dado carregado. Acesse a aba **Upload** para importar a planilha.")
+
+
+def _tag_html(tipo):
+    """Gera HTML de tag colorida para tipo de operação (Direto/CO3/Encomenda)."""
+    cor = TIPO_CORES.get(tipo, "#6f7a84")
+    return (
+        f'<span style="background:{cor};color:#fff;border-radius:5px;'
+        f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
+        f'letter-spacing:0.04em;margin-left:4px;">{tipo}</span>'
+    )
 
 
 def _filtro_multiselect(df, coluna, label, key):
@@ -404,14 +414,6 @@ with tab_analista:
                 _analistas_filtrados = analistas
 
             # ── Cards ─────────────────────────────────────────────────────
-            def _tag_html(tipo):
-                cor = TIPO_CORES.get(tipo, "#6f7a84")
-                return (
-                    f'<span style="background:{cor};color:#fff;border-radius:5px;'
-                    f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
-                    f'letter-spacing:0.04em;margin-left:4px;">{tipo}</span>'
-                )
-
             cols_por_linha = 3
             for i in range(0, len(_analistas_filtrados), cols_por_linha):
                 cols = st.columns(cols_por_linha)
@@ -604,7 +606,454 @@ with tab_analista:
 
 
 # ══════════════════════════════════════════════════════════════════════
-# SUB-ABA 3: ALERTAS E PRAZOS CRÍTICOS
+# SUB-ABA 3: VISÃO POR CLIENTES
+# ══════════════════════════════════════════════════════════════════════
+
+with tab_clientes:
+    if not dados_existem():
+        _msg_sem_dados()
+    else:
+        df = obter_processos()
+        if df.empty:
+            _msg_sem_dados()
+        else:
+            # ── Preparação de dados ──────────────────────────────────────
+            df_cli = df.copy()
+            df_cli["_ClienteBase"] = df_cli["Cliente"].apply(_consolidar_cliente)
+
+            _tem_tipo_cli = "Tipo de Operação" in df_cli.columns
+            if _tem_tipo_cli:
+                df_cli["_Tipo"] = df_cli["Tipo de Operação"].map(TIPO_LABELS).fillna("Outro")
+
+            total_clientes = df_cli["_ClienteBase"].nunique()
+            total_processos_cli = len(df_cli)
+
+            # Clientes por tipo
+            if _tem_tipo_cli:
+                _cli_direto = df_cli[df_cli["_Tipo"] == "Direto"]["_ClienteBase"].nunique()
+                _cli_co3 = df_cli[df_cli["_Tipo"] == "CO3"]["_ClienteBase"].nunique()
+                _cli_encomenda = df_cli[df_cli["_Tipo"] == "Encomenda"]["_ClienteBase"].nunique()
+            else:
+                _cli_direto = _cli_co3 = _cli_encomenda = 0
+
+            _val_total = df_cli["Valor Aduaneiro"].sum() if "Valor Aduaneiro" in df_cli.columns else 0
+
+            # ── Seção A: KPIs ────────────────────────────────────────────
+            st.markdown(
+                f"""
+                <div style="
+                    background: linear-gradient(135deg, rgba(255,253,248,0.96), rgba(243,237,226,0.96));
+                    border: 1px solid #e3d8c5; border-radius: 20px;
+                    padding: 1rem 1.4rem; margin-bottom: 1rem;
+                    box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+                    display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
+                ">
+                    <div style="flex: 0 0 auto; margin-right: 0.8rem;">
+                        <span style="color: #6f7a84; font-size: 0.7rem; text-transform: uppercase; font-weight: 800;">Clientes</span><br/>
+                        <span style="color: #5e8668; font-size: 1.8rem; font-weight: 800;">{total_clientes}</span>
+                    </div>
+                    <div style="
+                        flex: 1 1 0; min-width: 110px;
+                        background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
+                        padding: 0.55rem 0.75rem; text-align: center;
+                        border-left: 4px solid #4a8ab5;
+                    ">
+                        <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Direto</div>
+                        <div style="color: #4a8ab5; font-size: 1.25rem; font-weight: 800;">{_cli_direto}</div>
+                    </div>
+                    <div style="
+                        flex: 1 1 0; min-width: 110px;
+                        background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
+                        padding: 0.55rem 0.75rem; text-align: center;
+                        border-left: 4px solid #234055;
+                    ">
+                        <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">CO3</div>
+                        <div style="color: #234055; font-size: 1.25rem; font-weight: 800;">{_cli_co3}</div>
+                    </div>
+                    <div style="
+                        flex: 1 1 0; min-width: 110px;
+                        background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
+                        padding: 0.55rem 0.75rem; text-align: center;
+                        border-left: 4px solid #c79536;
+                    ">
+                        <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Encomenda</div>
+                        <div style="color: #c79536; font-size: 1.25rem; font-weight: 800;">{_cli_encomenda}</div>
+                    </div>
+                    <div style="
+                        flex: 1 1 0; min-width: 150px;
+                        background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
+                        padding: 0.55rem 0.75rem; text-align: center;
+                        border-left: 4px solid #234055;
+                    ">
+                        <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</div>
+                        <div style="color: #234055; font-size: 1.05rem; font-weight: 800;">{_br_moeda(_val_total, 0)}</div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            # ── Seção B: Representatividade + Top 10 geral ──────────────
+            if _tem_tipo_cli:
+                col_donut, col_top10 = st.columns(2)
+
+                with col_donut:
+                    st.caption("**Representatividade por Tipo de Operação**")
+                    df_repr = (
+                        df_cli[df_cli["_Tipo"].isin(TIPOS_ORDEM)]
+                        .groupby("_Tipo")
+                        .size()
+                        .reset_index(name="Processos")
+                    )
+                    df_repr = df_repr.rename(columns={"_Tipo": "Tipo"})
+                    df_repr["Percentual"] = (df_repr["Processos"] / df_repr["Processos"].sum() * 100).round(1)
+
+                    donut = (
+                        alt.Chart(df_repr)
+                        .mark_arc(innerRadius=60, outerRadius=110, cornerRadius=4)
+                        .encode(
+                            theta=alt.Theta("Processos:Q", stack=True),
+                            color=alt.Color(
+                                "Tipo:N",
+                                scale=alt.Scale(
+                                    domain=TIPOS_ORDEM,
+                                    range=[TIPO_CORES[t] for t in TIPOS_ORDEM],
+                                ),
+                                legend=alt.Legend(title="Tipo", orient="bottom"),
+                            ),
+                            tooltip=[
+                                alt.Tooltip("Tipo:N"),
+                                alt.Tooltip("Processos:Q", format=",d"),
+                                alt.Tooltip("Percentual:Q", format=".1f", title="% do total"),
+                            ],
+                        )
+                        .properties(height=260)
+                    )
+
+                    # Texto central
+                    texto_central = (
+                        alt.Chart(pd.DataFrame({"label": [str(total_processos_cli)]}))
+                        .mark_text(fontSize=28, fontWeight="bold", color="#234055")
+                        .encode(text="label:N")
+                    )
+
+                    st.altair_chart(donut + texto_central, use_container_width=True)
+
+                with col_top10:
+                    st.caption("**Top 10 Clientes — Volume de Processos**")
+                    df_top10 = (
+                        df_cli.groupby("_ClienteBase")
+                        .agg(Processos=("Processo", "count"))
+                        .reset_index()
+                        .sort_values("Processos", ascending=False)
+                        .head(10)
+                    )
+                    df_top10 = df_top10.rename(columns={"_ClienteBase": "Cliente"})
+
+                    # Tipo predominante de cada cliente (para cor)
+                    _tipo_predominante = (
+                        df_cli[df_cli["_Tipo"].isin(TIPOS_ORDEM)]
+                        .groupby("_ClienteBase")["_Tipo"]
+                        .agg(lambda s: s.value_counts().index[0])
+                        .to_dict()
+                    )
+                    df_top10["Tipo"] = df_top10["Cliente"].map(_tipo_predominante).fillna("Outro")
+
+                    chart_top10 = (
+                        alt.Chart(df_top10)
+                        .mark_bar(cornerRadiusEnd=8)
+                        .encode(
+                            x=alt.X("Processos:Q", title="Processos"),
+                            y=alt.Y("Cliente:N", sort="-x", title=None, axis=alt.Axis(labelLimit=300)),
+                            color=alt.Color(
+                                "Tipo:N",
+                                scale=alt.Scale(
+                                    domain=TIPOS_ORDEM,
+                                    range=[TIPO_CORES[t] for t in TIPOS_ORDEM],
+                                ),
+                                legend=alt.Legend(title="Tipo predominante", orient="bottom"),
+                            ),
+                            tooltip=[
+                                alt.Tooltip("Cliente:N"),
+                                alt.Tooltip("Processos:Q", format=",d"),
+                                alt.Tooltip("Tipo:N", title="Tipo predominante"),
+                            ],
+                        )
+                        .properties(height=280)
+                    )
+                    st.altair_chart(chart_top10, use_container_width=True)
+
+            st.divider()
+
+            # ── Seção C: Top 10 por Tipo ─────────────────────────────────
+            if _tem_tipo_cli:
+                st.caption("**Top 10 Clientes por Tipo de Operação**")
+                col_d, col_c, col_e = st.columns(3)
+
+                for _col_st, _tipo_label, _tipo_cor in [
+                    (col_d, "Direto", TIPO_CORES["Direto"]),
+                    (col_c, "CO3", TIPO_CORES["CO3"]),
+                    (col_e, "Encomenda", TIPO_CORES["Encomenda"]),
+                ]:
+                    with _col_st:
+                        st.markdown(
+                            f'<div style="text-align:center;margin-bottom:0.3rem;">'
+                            f'<span style="background:{_tipo_cor};color:#fff;border-radius:6px;'
+                            f'padding:3px 12px;font-size:0.75rem;font-weight:800;">{_tipo_label}</span></div>',
+                            unsafe_allow_html=True,
+                        )
+                        df_tipo_top = (
+                            df_cli[df_cli["_Tipo"] == _tipo_label]
+                            .groupby("_ClienteBase")
+                            .agg(Processos=("Processo", "count"))
+                            .reset_index()
+                            .sort_values("Processos", ascending=False)
+                            .head(10)
+                            .rename(columns={"_ClienteBase": "Cliente"})
+                        )
+
+                        if len(df_tipo_top) == 0:
+                            st.caption("Sem dados")
+                        else:
+                            chart_tipo_top = (
+                                alt.Chart(df_tipo_top)
+                                .mark_bar(cornerRadiusEnd=8, color=_tipo_cor)
+                                .encode(
+                                    x=alt.X("Processos:Q", title="Processos"),
+                                    y=alt.Y("Cliente:N", sort="-x", title=None, axis=alt.Axis(labelLimit=220)),
+                                    tooltip=[
+                                        alt.Tooltip("Cliente:N"),
+                                        alt.Tooltip("Processos:Q", format=",d"),
+                                    ],
+                                )
+                                .properties(height=max(200, len(df_tipo_top) * 25))
+                            )
+                            st.altair_chart(chart_tipo_top, use_container_width=True)
+
+                st.divider()
+
+            # ── Seção D: Distribuição por Modalidade (Top 15) ────────────
+            if "Modalidade" in df_cli.columns:
+                st.caption("**Distribuição por Modalidade — Top 15 Clientes**")
+                # Pegar top 15 clientes por volume
+                _top15_nomes = (
+                    df_cli.groupby("_ClienteBase")
+                    .size()
+                    .sort_values(ascending=False)
+                    .head(15)
+                    .index.tolist()
+                )
+                df_mod_cli = (
+                    df_cli[df_cli["_ClienteBase"].isin(_top15_nomes)]
+                    .groupby(["_ClienteBase", "Modalidade"])
+                    .size()
+                    .reset_index(name="Processos")
+                )
+                df_mod_cli = df_mod_cli.rename(columns={"_ClienteBase": "Cliente"})
+
+                _mod_domain = list(MODALIDADE_CORES.keys())
+                _mod_range = list(MODALIDADE_CORES.values())
+                # Adicionar modalidades não mapeadas
+                _mods_extra = set(df_mod_cli["Modalidade"].unique()) - set(_mod_domain)
+                _palette_extra = ["#6f7a84", "#a1887f", "#78909c", "#8d6e63", "#90a4ae"]
+                for i, m in enumerate(_mods_extra):
+                    _mod_domain.append(m)
+                    _mod_range.append(_palette_extra[i % len(_palette_extra)])
+
+                _sort_mod = alt.EncodingSortField(field="Processos", op="sum", order="descending")
+
+                chart_mod_cli = (
+                    alt.Chart(df_mod_cli)
+                    .mark_bar(cornerRadiusEnd=4)
+                    .encode(
+                        x=alt.X("Processos:Q", title="Processos", stack="zero"),
+                        y=alt.Y("Cliente:N", sort=_sort_mod, title=None, axis=alt.Axis(labelLimit=300)),
+                        color=alt.Color(
+                            "Modalidade:N",
+                            scale=alt.Scale(domain=_mod_domain, range=_mod_range),
+                            legend=alt.Legend(title="Modalidade", orient="bottom", columns=3),
+                        ),
+                        tooltip=[
+                            alt.Tooltip("Cliente:N"),
+                            alt.Tooltip("Modalidade:N"),
+                            alt.Tooltip("Processos:Q", format=",d"),
+                        ],
+                    )
+                    .properties(height=max(300, len(_top15_nomes) * 28))
+                )
+                st.altair_chart(chart_mod_cli, use_container_width=True)
+
+                st.divider()
+
+            # ── Seção E: Concentração de Carteira (Pareto) ───────────────
+            st.caption("**Concentração de Carteira**")
+
+            df_pareto = (
+                df_cli.groupby("_ClienteBase")
+                .agg(Processos=("Processo", "count"))
+                .reset_index()
+                .sort_values("Processos", ascending=False)
+                .reset_index(drop=True)
+                .rename(columns={"_ClienteBase": "Cliente"})
+            )
+            df_pareto["Acumulado"] = df_pareto["Processos"].cumsum()
+            df_pareto["% Acumulado"] = (df_pareto["Acumulado"] / df_pareto["Processos"].sum() * 100).round(1)
+            df_pareto["Rank"] = range(1, len(df_pareto) + 1)
+
+            # Encontrar quantos clientes = 80% dos processos
+            _idx_80 = (df_pareto["% Acumulado"] >= 80).idxmax()
+            _n_80 = int(df_pareto.loc[_idx_80, "Rank"])
+            _pct_80 = df_pareto.loc[_idx_80, "% Acumulado"]
+
+            st.markdown(
+                f'<div style="background:rgba(199,149,54,0.08);border:1px solid #e3d8c5;'
+                f'border-radius:12px;padding:0.7rem 1rem;margin-bottom:0.8rem;'
+                f'font-size:0.88rem;color:#234055;">'
+                f'📊 Os <b>top {_n_80} clientes</b> ({(_n_80 / total_clientes * 100):.0f}% da base) '
+                f'representam <b>{_pct_80:.1f}%</b> dos processos.'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+
+            # Gráfico top 20 + curva acumulativa
+            df_pareto_20 = df_pareto.head(20).copy()
+            df_pareto_20["ClienteLabel"] = df_pareto_20["Rank"].astype(str) + ". " + df_pareto_20["Cliente"]
+            _ordem_pareto = df_pareto_20["ClienteLabel"].tolist()
+
+            barras = (
+                alt.Chart(df_pareto_20)
+                .mark_bar(cornerRadiusEnd=6, color=COLOR_NAVY)
+                .encode(
+                    x=alt.X("Processos:Q", title="Processos"),
+                    y=alt.Y("ClienteLabel:N", sort=_ordem_pareto, title=None, axis=alt.Axis(labelLimit=300)),
+                    tooltip=[
+                        alt.Tooltip("Cliente:N"),
+                        alt.Tooltip("Processos:Q", format=",d"),
+                        alt.Tooltip("% Acumulado:Q", format=".1f", title="% acumulado"),
+                    ],
+                )
+            )
+
+            linha = (
+                alt.Chart(df_pareto_20)
+                .mark_line(color=COLOR_GOLD, strokeWidth=3, point=alt.OverlayMarkDef(size=50, color=COLOR_GOLD))
+                .encode(
+                    x=alt.X("% Acumulado:Q", title="% Acumulado", scale=alt.Scale(domain=[0, 100])),
+                    y=alt.Y("ClienteLabel:N", sort=_ordem_pareto, title=None),
+                    tooltip=[
+                        alt.Tooltip("Cliente:N"),
+                        alt.Tooltip("% Acumulado:Q", format=".1f"),
+                    ],
+                )
+            )
+
+            chart_pareto = alt.layer(barras, linha).resolve_scale(x="independent").properties(
+                height=max(350, len(df_pareto_20) * 26)
+            )
+            st.altair_chart(chart_pareto, use_container_width=True)
+
+            st.divider()
+
+            # ── Seção F: Tabela completa de clientes ─────────────────────
+            st.caption("**Todos os Clientes**")
+
+            # Busca por nome
+            _busca_cli = st.text_input(
+                "Buscar cliente", key="busca_cliente_tab", placeholder="Digite o nome do cliente..."
+            )
+
+            # Agregar dados por cliente consolidado
+            agg_dict = {"Processo": "count"}
+            if "Valor Aduaneiro" in df_cli.columns:
+                agg_dict["Valor Aduaneiro"] = "sum"
+            if "Qtd. Container" in df_cli.columns:
+                agg_dict["Qtd. Container"] = "sum"
+
+            df_tabela_cli = (
+                df_cli.groupby("_ClienteBase")
+                .agg(**{
+                    "Processos": ("Processo", "count"),
+                    **({
+                        "Valor Aduaneiro": ("Valor Aduaneiro", "sum"),
+                    } if "Valor Aduaneiro" in df_cli.columns else {}),
+                    **({
+                        "Containers": ("Qtd. Container", "sum"),
+                    } if "Qtd. Container" in df_cli.columns else {}),
+                })
+                .reset_index()
+                .rename(columns={"_ClienteBase": "Cliente"})
+                .sort_values("Processos", ascending=False)
+            )
+
+            # Tags por cliente
+            if _tem_tipo_cli:
+                _tipos_por_cliente = (
+                    df_cli.groupby("_ClienteBase")["_Tipo"]
+                    .apply(lambda s: [t for t in TIPOS_ORDEM if t in set(s)])
+                    .to_dict()
+                )
+            else:
+                _tipos_por_cliente = {}
+
+            # Status por cliente
+            _status_por_cliente = (
+                df_cli.groupby("_ClienteBase")["Status"]
+                .apply(lambda s: " | ".join(
+                    f"{st_name}: {cnt}" for st_name in STATUS_ORDEM
+                    if (cnt := s.value_counts().get(st_name, 0)) > 0
+                ))
+                .to_dict()
+            )
+
+            # Filtrar por busca
+            if _busca_cli:
+                df_tabela_cli = df_tabela_cli[
+                    df_tabela_cli["Cliente"].str.contains(_busca_cli, case=False, na=False)
+                ]
+
+            st.caption(f"**{len(df_tabela_cli)}** clientes")
+
+            # Renderizar como tabela HTML com tags
+            _rows_html_cli = ""
+            for _, _r in df_tabela_cli.iterrows():
+                _tags_cli = " ".join(
+                    f'<span style="background:{TIPO_CORES[t]};color:#fff;'
+                    f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
+                    f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
+                    for t in _tipos_por_cliente.get(_r["Cliente"], [])
+                )
+                _val_ad = _br_moeda(_r["Valor Aduaneiro"], 0) if "Valor Aduaneiro" in _r.index and pd.notna(_r.get("Valor Aduaneiro")) else "—"
+                _cnt = int(_r["Containers"]) if "Containers" in _r.index and pd.notna(_r.get("Containers")) else "—"
+                _st_info = _status_por_cliente.get(_r["Cliente"], "")
+
+                _rows_html_cli += (
+                    f'<tr style="border-bottom:1px solid #f0e8d8;">'
+                    f'<td style="padding:6px 8px;font-size:0.82rem;color:#234055;font-weight:600;">{_r["Cliente"]}</td>'
+                    f'<td style="padding:6px 8px;font-size:0.82rem;text-align:center;color:#234055;font-weight:800;">{int(_r["Processos"])}</td>'
+                    f'<td style="padding:6px 8px;font-size:0.8rem;color:#234055;">{_val_ad}</td>'
+                    f'<td style="padding:6px 8px;font-size:0.8rem;text-align:center;color:#234055;">{_cnt}</td>'
+                    f'<td style="padding:6px 8px;">{_tags_cli}</td>'
+                    f'<td style="padding:6px 8px;font-size:0.7rem;color:#6f7a84;">{_st_info}</td>'
+                    f'</tr>'
+                )
+
+            st.markdown(
+                f'<div style="max-height:500px;overflow-y:auto;border:1px solid #e3d8c5;border-radius:12px;">'
+                f'<table style="width:100%;border-collapse:collapse;">'
+                f'<thead><tr style="background:#f6f0e4;position:sticky;top:0;">'
+                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Cliente</th>'
+                f'<th style="text-align:center;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Proc.</th>'
+                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Valor Aduaneiro</th>'
+                f'<th style="text-align:center;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Cnt.</th>'
+                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Tipo</th>'
+                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Status</th>'
+                f'</tr></thead><tbody>{_rows_html_cli}</tbody></table></div>',
+                unsafe_allow_html=True,
+            )
+
+
+# ══════════════════════════════════════════════════════════════════════
+# SUB-ABA 4: ALERTAS E PRAZOS
 # ══════════════════════════════════════════════════════════════════════
 
 with tab_alertas:
@@ -741,7 +1190,7 @@ with tab_alertas:
 
 
 # ══════════════════════════════════════════════════════════════════════
-# SUB-ABA 4: TABELA DE PROCESSOS
+# SUB-ABA 5: TABELA DE PROCESSOS
 # ══════════════════════════════════════════════════════════════════════
 
 with tab_tabela:
@@ -863,7 +1312,7 @@ with tab_tabela:
 
 
 # ══════════════════════════════════════════════════════════════════════
-# SUB-ABA 5: UPLOAD
+# SUB-ABA 6: UPLOAD
 # ══════════════════════════════════════════════════════════════════════
 
 with tab_upload:
