@@ -14,7 +14,7 @@ from utils.manpower import (
     salvar_performance,
 )
 from utils.pessoas import listar_colaboradores
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
 from utils.excel_io import github_persist
 from utils import agenciamento as ag
 
@@ -403,7 +403,7 @@ def render_tabela_performance(df_ano):
     )
     n_linhas = len(df_show)
     height = min(38 + n_linhas * 37 + 6, 493)
-    st.dataframe(styled, use_container_width=True, hide_index=True, height=height)
+    renderizar_dataframe(styled, use_container_width=True, hide_index=True, height=height)
 
 
 def resumir_eficiencia_ano(df_ano, df_prev, ano):
@@ -999,7 +999,7 @@ def _render_agenciamento():
                 "Volume": lambda v: _br_int(v) if pd.notna(v) and v > 0 else "—",
                 "Eficiência": lambda v: _br(v, 1) if pd.notna(v) else "—",
             })
-            st.dataframe(styled, use_container_width=True, hide_index=True,
+            renderizar_dataframe(styled, use_container_width=True, hide_index=True,
                          height=min(38 + len(df_mp_show) * 37, 400))
 
             st.caption(
@@ -1076,7 +1076,7 @@ def _render_agenciamento():
                     "Média/mês": lambda v: _br(v, 1) if pd.notna(v) else "—",
                     "% Meta": lambda v: _br_pct(v) if v is not None and pd.notna(v) else "—",
                 })
-                st.dataframe(styled, use_container_width=True, hide_index=True,
+                renderizar_dataframe(styled, use_container_width=True, hide_index=True,
                              height=min(38 + len(df_tab) * 37, 500))
 
             # Chegadas mensais
@@ -1096,7 +1096,7 @@ def _render_agenciamento():
                     total_row[MESES_PT[m]] = totais_m.get(m, "")
                 total_row["Total"] = sum(c["total"] for c in resumo["chegadas"])
                 cheg_rows.append(total_row)
-                st.dataframe(pd.DataFrame(cheg_rows), use_container_width=True, hide_index=True,
+                renderizar_dataframe(pd.DataFrame(cheg_rows), use_container_width=True, hide_index=True,
                              height=min(38 + len(cheg_rows) * 37, 500))
 
     # ── Faturados ────────────────────────────────────────────────────
@@ -1451,12 +1451,12 @@ else:
 
                 st.markdown(f"**Colaboradores com peso MP** ({len(df_conta)})")
                 if not df_conta.empty:
-                    st.dataframe(df_conta, use_container_width=True, hide_index=True)
+                    renderizar_dataframe(df_conta, use_container_width=True, hide_index=True)
                     st.caption(f"Manpower total: **{_br(total_mp, 2)}**")
 
                 if not df_nao_conta.empty:
                     with st.expander(f"Colaboradores sem peso MP ({len(df_nao_conta)})"):
-                        st.dataframe(df_nao_conta, use_container_width=True, hide_index=True)
+                        renderizar_dataframe(df_nao_conta, use_container_width=True, hide_index=True)
             else:
                 st.info("Nenhum colaborador ativo encontrado para o departamento selecionado.")
 
@@ -1538,7 +1538,7 @@ else:
                     }
                 )
                 height = min(38 + len(df_show) * 35 + 6, 900)
-                st.dataframe(styled, use_container_width=True, hide_index=True, height=height)
+                renderizar_dataframe(styled, use_container_width=True, hide_index=True, height=height)
 
             # Upload de score
             st.divider()

@@ -20,7 +20,7 @@ from utils.processos360 import (
     salvar_upload,
     validar_csv,
 )
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
 
 COLOR_NAVY = "#234055"
 COLOR_NAVY_SOFT = "#36586f"
@@ -1159,9 +1159,9 @@ with tab_alertas:
                                 fmt[col] = fn
                     if fmt:
                         styled = df_show.style.format(fmt)
-                        st.dataframe(styled, use_container_width=True, hide_index=True)
+                        renderizar_dataframe(styled, use_container_width=True, hide_index=True)
                     else:
-                        st.dataframe(df_show, use_container_width=True, hide_index=True)
+                        renderizar_dataframe(df_show, use_container_width=True, hide_index=True)
 
             fmt_moeda = lambda v: _br_moeda(v) if pd.notna(v) else ""
             fmt_data = lambda v: v.strftime("%d/%m/%Y") if pd.notna(v) else ""
@@ -1372,7 +1372,7 @@ with tab_tabela:
                 styled = styled.map(_estilo_canal, subset=["Canal"])
 
             height = min(38 + len(df_show) * 35 + 6, 700)
-            st.dataframe(styled, use_container_width=True, hide_index=True, height=height)
+            renderizar_dataframe(styled, use_container_width=True, hide_index=True, height=height)
 
             # Download filtrado
             csv_download = df_f.to_csv(index=False).encode("utf-8-sig")
@@ -1411,7 +1411,7 @@ with tab_upload:
             uploaded.seek(0)
 
             st.caption(f"**Preview** — {len(df_full)} registros, {len(df_full.columns)} colunas")
-            st.dataframe(df_preview, use_container_width=True, hide_index=True)
+            renderizar_dataframe(df_preview, use_container_width=True, hide_index=True)
 
             # Validação
             valido, avisos = validar_csv(df_full)

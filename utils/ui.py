@@ -436,6 +436,55 @@ def aplicar_estilos_globais():
         alt.themes.enable("portal_light")
 
 
+def renderizar_dataframe(df, use_container_width=True, hide_index=True, height=None):
+    """Renderiza DataFrame como HTML estilizado (dark-mode-aware) ou st.dataframe."""
+    import pandas as pd
+
+    if not is_dark_mode():
+        kwargs = dict(use_container_width=use_container_width, hide_index=hide_index)
+        if height is not None:
+            kwargs["height"] = height
+        if isinstance(df, pd.io.formats.style.Styler):
+            st.dataframe(df, **kwargs)
+        else:
+            st.dataframe(df, **kwargs)
+        return
+
+    # Dark mode: render HTML table
+    if isinstance(df, pd.io.formats.style.Styler):
+        data = df.data
+    else:
+        data = df
+
+    max_height_css = f"max-height:{height}px;overflow-y:auto;" if height else ""
+
+    rows_html = ""
+    for _, row in data.iterrows():
+        cells = "".join(
+            f'<td style="padding:10px 12px;border-bottom:1px solid #30363d;color:#d4dae2;font-size:13px;">'
+            f'{v if v is not None else "—"}</td>'
+            for v in row
+        )
+        rows_html += f"<tr>{cells}</tr>"
+
+    header_cells = "".join(
+        f'<th style="text-align:left;padding:10px 12px;font-size:11px;'
+        f'color:#8b949e;text-transform:uppercase;font-weight:700;letter-spacing:0.08em;'
+        f'border-bottom:1px solid #30363d;background:#1c2333;position:sticky;top:0;">{col}</th>'
+        for col in data.columns
+    )
+
+    html = f"""
+    <div style="border:1px solid #30363d;border-radius:10px;overflow:hidden;{max_height_css}">
+        <table style="width:100%;border-collapse:collapse;background:#161b22;">
+            <thead><tr>{header_cells}</tr></thead>
+            <tbody>{rows_html}</tbody>
+        </table>
+    </div>
+    """
+    st.markdown(html, unsafe_allow_html=True)
+
+
 def _aplicar_dark_mode():
     st.markdown(
         """
@@ -694,9 +743,40 @@ def _aplicar_dark_mode():
 
         .stAlert { border-color: var(--line) !important; }
 
-        /* st.dataframe */
+        /* st.dataframe — glide-data-grid theme via CSS custom props */
         [data-testid="stDataFrame"],
-        .stDataFrame { color: var(--text) !important; }
+        .stDataFrame {
+            color: var(--text) !important;
+            background: var(--surface) !important;
+            border-radius: 8px;
+        }
+        [data-testid="stDataFrame"] [data-testid="stDataFrameResizable"],
+        [data-testid="stDataFrame"] .dvn-scroller {
+            background: var(--surface) !important;
+        }
+        /* Override glide-data-grid canvas theme */
+        .stApp {
+            --gdg-bg-cell: #161b22 !important;
+            --gdg-bg-cell-medium: #1c2333 !important;
+            --gdg-bg-header: #1c2333 !important;
+            --gdg-bg-header-has-focus: #242d3d !important;
+            --gdg-bg-header-hovered: #242d3d !important;
+            --gdg-border-color: #30363d !important;
+            --gdg-horizontal-border-color: #30363d !important;
+            --gdg-text-dark: #d4dae2 !important;
+            --gdg-text-medium: #8b949e !important;
+            --gdg-text-light: #6e7a86 !important;
+            --gdg-text-header: #8b949e !important;
+            --gdg-text-header-selected: #c9d6e0 !important;
+            --gdg-text-group-header: #8b949e !important;
+            --gdg-bg-search-result: rgba(224, 168, 61, 0.15) !important;
+            --gdg-accent-color: #c98e23 !important;
+            --gdg-accent-light: rgba(201, 142, 35, 0.15) !important;
+            --gdg-accent-fg: #fff !important;
+            --gdg-link-color: #58a6ff !important;
+            --gdg-cell-horizontal-padding: 10px !important;
+            --gdg-cell-vertical-padding: 8px !important;
+        }
 
         /* st.caption, markdown */
         .stMarkdown p, .stCaption, [data-testid="stCaption"] {
@@ -935,6 +1015,32 @@ def _aplicar_dark_mode():
         .user-role.usuario, .user-role.user { background: rgba(122, 173, 134, 0.12) !important; border-color: rgba(122, 173, 134, 0.2) !important; color: var(--green) !important; }
         .user-tag { background: rgba(224, 168, 61, 0.1) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
         .profile-card { background: var(--surface) !important; border-color: var(--line) !important; }
+
+        /* ══ HTML tables (global dark override) ══ */
+        .stApp table {
+            background: var(--surface) !important;
+        }
+        .stApp table thead tr {
+            background: var(--surface-soft) !important;
+        }
+        .stApp table th {
+            color: var(--muted) !important;
+            background: var(--surface-soft) !important;
+            border-bottom-color: var(--line) !important;
+        }
+        .stApp table td {
+            color: var(--text) !important;
+            border-bottom-color: var(--line) !important;
+        }
+        .stApp table tr {
+            border-bottom-color: var(--line) !important;
+        }
+        [style*="border-bottom:1px solid #f0e8d8"],
+        [style*="border-bottom: 1px solid #f0e8d8"],
+        [style*="border-bottom:1px solid #efe7da"],
+        [style*="border-bottom: 1px solid #efe7da"] {
+            border-bottom-color: var(--line) !important;
+        }
 
         /* ══ PROCESSOS 360 — inline style overrides ══ */
         [style*="background:#f6f0e4"], [style*="background: #f6f0e4"] { background: var(--surface-soft) !important; }

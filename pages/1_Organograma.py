@@ -11,7 +11,7 @@ from utils.departamentos import (
 )
 from utils.organograma import construir_estrutura_reportes
 from utils.pessoas import listar_colaboradores
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
 
 
 garantir_autenticado()
@@ -431,7 +431,7 @@ with tab_quadro:
             df = df[df["Departamento"] == filtro_dept]
         df = df.sort_values(["Departamento", "Nivel", "Nome"])
 
-        st.dataframe(
+        renderizar_dataframe(
             df,
             use_container_width=True,
             hide_index=True,
@@ -452,7 +452,7 @@ with tab_gestao:
         if departamentos:
             df_dept = pd.DataFrame(departamentos)
             df_dept.columns = ["ID", "Nome"]
-            st.dataframe(df_dept, use_container_width=True, hide_index=True)
+            renderizar_dataframe(df_dept, use_container_width=True, hide_index=True)
 
     with tab_cargo:
         col1, col2 = st.columns([2, 1])
@@ -463,7 +463,7 @@ with tab_gestao:
                 df_cargos["departamento"] = df_cargos["departamento_id"].map(deptos_map)
                 df_cargos = df_cargos[["id", "nome", "nivel", "peso_manpower", "departamento"]]
                 df_cargos.columns = ["ID", "Cargo", "Nivel", "Peso MP", "Departamento"]
-                st.dataframe(df_cargos, use_container_width=True, hide_index=True)
+                renderizar_dataframe(df_cargos, use_container_width=True, hide_index=True)
 
         with col2:
             with st.form("form_cargo", clear_on_submit=True):
