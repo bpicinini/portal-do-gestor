@@ -1098,6 +1098,7 @@ with tab_alertas:
                 ("Canal Vermelho", len(alertas["canal_vermelho"]), COLOR_RED),
                 ("Canal Amarelo", len(alertas["canal_amarelo"]), COLOR_GOLD),
                 ("Saldo Negativo", len(alertas["saldo_negativo"]), COLOR_RED),
+                ("Proc. Parado", len(alertas.get("processo_parado", [])), "#6f7a84"),
                 ("Follow > 10d", len(alertas["follow_desatualizado"]), "#b58c23"),
                 ("Valor > R$ 1M", len(alertas["valor_alto"]), COLOR_GOLD),
                 ("LI Indeferida", len(alertas["li_indeferida"]), "#6f7a84"),
@@ -1145,9 +1146,6 @@ with tab_alertas:
                 return df_a
 
             # Container VENCIDO (mais crítico — data limite já passou)
-            _n_vencido = len(alertas.get("container_vencido", []))
-            if _n_vencido > 0:
-                st.error(f"🚨 {_n_vencido} container(s) com prazo de devolução já vencido!")
             _render_alerta(
                 "Container Vencido — Prazo Expirado",
                 _safe_sort(alertas.get("container_vencido", pd.DataFrame()), "Dias Vencido", ascending=False),
@@ -1157,8 +1155,6 @@ with tab_alertas:
             )
 
             # Perdimento próximo — ordenado por dias restantes
-            if len(alertas["perdimento_proximo"]) > 0:
-                st.error(f"⏰ {len(alertas['perdimento_proximo'])} processo(s) com limite de perdimento nos próximos 10 dias!")
             _render_alerta(
                 "Limite para Perdimento (< 10 dias)",
                 _safe_sort(alertas["perdimento_proximo"], "Dias Restantes"),
@@ -1200,7 +1196,16 @@ with tab_alertas:
                 _safe_sort(alertas["saldo_negativo"], "Saldo"),
                 ["Processo", "Account", "Cliente", "Saldo", "Valor Aduaneiro"],
                 {"Saldo": fmt_moeda, "Valor Aduaneiro": fmt_moeda},
-                icon="➖",
+                icon="🔻",
+            )
+
+            # Processo parado (Pré-embarque > 30 dias sem previsão de embarque)
+            _render_alerta(
+                "Processo Parado — Pré-embarque sem previsão (> 30 dias)",
+                _safe_sort(alertas.get("processo_parado", pd.DataFrame()), "Dias Parado", ascending=False),
+                ["Processo", "Account", "Cliente", "Abertura", "Dias Parado"],
+                {"Abertura": fmt_data},
+                icon="💤",
             )
 
             # Valor aduaneiro alto — ordenado por valor (maior primeiro)

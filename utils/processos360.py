@@ -336,4 +336,20 @@ def calcular_alertas(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     else:
         alertas["li_indeferida"] = pd.DataFrame()
 
+    # 8. Processo parado (Pré-embarque > 30 dias sem previsão de embarque)
+    if "Abertura" in df.columns:
+        dias_aberto = (hoje - df["Abertura"]).dt.days
+        mask_parado = (
+            (df["Status"] == "Pré-embarque")
+            & dias_aberto.notna()
+            & (dias_aberto > 30)
+        )
+        if "Prev. de embarque" in df.columns:
+            mask_parado = mask_parado & df["Prev. de embarque"].isna()
+        resultado = df[mask_parado].copy()
+        resultado["Dias Parado"] = dias_aberto[mask_parado].astype(int)
+        alertas["processo_parado"] = resultado
+    else:
+        alertas["processo_parado"] = pd.DataFrame()
+
     return alertas
