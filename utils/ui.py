@@ -409,6 +409,15 @@ def _aplicar_dark_mode():
             --shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
         }
 
+        /* ── Kill all backdrop-filter (light theme bleeds through) ── */
+        [class*="hm-"],
+        .dashboard-shell,
+        .dashboard-badge,
+        .dashboard-pill {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
         /* ── NUCLEAR: force light text everywhere ── */
         .stApp,
         .stApp *,
@@ -673,7 +682,9 @@ def _aplicar_dark_mode():
 
         /* ── Dashboard shell (cabeçalhos de página) ── */
         .dashboard-shell {
-            background: linear-gradient(135deg, rgba(22, 27, 34, 0.96) 0%, rgba(28, 35, 51, 0.96) 100%) !important;
+            background: linear-gradient(135deg, #161b22 0%, #1c2333 100%) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
             border-color: var(--line) !important;
         }
         .dashboard-kicker { color: var(--muted) !important; }
@@ -692,22 +703,26 @@ def _aplicar_dark_mode():
 
         /* ══ HOME — Hero / KPIs / Pipeline / Cards ══ */
         .hm-banner {
-            background: rgba(22, 27, 34, 0.75) !important;
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
             border-color: var(--line) !important;
         }
         .hm-banner-title { color: var(--navy) !important; }
         .hm-banner-sub   { color: var(--muted) !important; }
         .hm-banner-date  {
-            background: rgba(255, 255, 255, 0.06) !important;
+            background: #1c2333 !important;
             border-color: var(--line) !important;
             color: var(--navy) !important;
         }
         .hm-kpi {
-            background: rgba(22, 27, 34, 0.7) !important;
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
             border-color: var(--line) !important;
         }
         .hm-kpi:hover {
-            background: rgba(22, 27, 34, 0.85) !important;
+            background: #1c2333 !important;
             border-color: rgba(224, 168, 61, 0.4) !important;
         }
         .hm-kpi-label { color: var(--muted) !important; }
@@ -717,26 +732,30 @@ def _aplicar_dark_mode():
         .hm-kpi-value.amber { color: var(--gold) !important; }
 
         .hm-pipeline {
-            background: rgba(22, 27, 34, 0.65) !important;
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
             border-color: var(--line) !important;
         }
-        .hm-pipeline:hover { background: rgba(22, 27, 34, 0.8) !important; }
+        .hm-pipeline:hover { background: #1c2333 !important; }
         .hm-pipeline-header { color: var(--navy) !important; }
         .hm-pipeline-header span { color: var(--gold) !important; }
         .hm-pipeline-leg-item { color: var(--muted) !important; }
 
         .hm-sec {
-            background: rgba(22, 27, 34, 0.7) !important;
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
             border-color: var(--line) !important;
         }
         .hm-sec:hover {
-            background: rgba(22, 27, 34, 0.85) !important;
+            background: #1c2333 !important;
             border-color: rgba(224, 168, 61, 0.4) !important;
         }
         .hm-sec-title { color: var(--navy) !important; }
         .hm-sec-desc  { color: var(--muted) !important; }
         .hm-sec-metric {
-            background: rgba(255, 255, 255, 0.04) !important;
+            background: #1c2333 !important;
             border-color: var(--line) !important;
         }
         .hm-sec-metric-label { color: var(--muted) !important; }
@@ -765,12 +784,14 @@ def _aplicar_dark_mode():
         .hm-hier-seg { color: #fff !important; }
 
         .hm-dept-card {
-            background: rgba(22, 27, 34, 0.7) !important;
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
             border-color: var(--line) !important;
             border-top-color: rgba(224, 168, 61, 0.5) !important;
         }
         .hm-dept-card:hover {
-            background: rgba(22, 27, 34, 0.85) !important;
+            background: #1c2333 !important;
             border-color: rgba(224, 168, 61, 0.4) !important;
         }
         .hm-dept-card-name     { color: var(--navy) !important; }
@@ -861,6 +882,14 @@ def _aplicar_dark_mode():
         [style*="background:#f6f1e7"], [style*="background: #f6f1e7"] { background: var(--surface-soft) !important; }
         [style*="background:#f0e8d8"], [style*="background: #f0e8d8"] { background: var(--surface-soft) !important; }
         [style*="background:#e3d8c5"], [style*="border-color:#e3d8c5"] { border-color: var(--line) !important; }
+
+        /* Inline bg overrides for tags/pills with light bg */
+        [style*="background:rgba(35,64,85,0.07)"],
+        [style*="background: rgba(35,64,85,0.07)"],
+        [style*="background:rgba(35, 64, 85, 0.07)"] {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: var(--navy) !important;
+        }
 
         /* Inline color overrides for common light-mode colors */
         [style*="color:#234055"], [style*="color: #234055"] { color: var(--navy) !important; }

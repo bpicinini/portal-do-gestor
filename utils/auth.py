@@ -604,20 +604,42 @@ def renderizar_usuario_sidebar():
     if not usuario:
         return
 
+    dark = st.session_state.get("dark_mode", False)
+    if dark:
+        card_bg = "linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(28, 35, 51, 0.95) 100%)"
+        card_border = "#30363d"
+        card_shadow = "0 14px 35px rgba(0, 0, 0, 0.3)"
+        label_color = "#8b949e"
+        name_color = "#c9d6e0"
+        email_color = "#8b949e"
+        badge_bg = "rgba(122, 173, 134, 0.12)"
+        badge_border = "rgba(122, 173, 134, 0.2)"
+        badge_color = "#8faabb"
+    else:
+        card_bg = "linear-gradient(135deg, rgba(255,253,248,0.98) 0%, rgba(243,237,226,0.95) 100%)"
+        card_border = "#e3d8c5"
+        card_shadow = "0 14px 35px rgba(35, 64, 85, 0.08)"
+        label_color = "#6f7a84"
+        name_color = "#234055"
+        email_color = "#6f7a84"
+        badge_bg = "#eef5f0"
+        badge_border = "#d9e7de"
+        badge_color = "#36586f"
+
     st.sidebar.markdown(
         f"""
         <div style="
-            background: linear-gradient(135deg, rgba(255,253,248,0.98) 0%, rgba(243,237,226,0.95) 100%);
-            border: 1px solid #e3d8c5;
+            background: {card_bg};
+            border: 1px solid {card_border};
             border-radius: 16px;
             padding: 12px 12px 10px;
             margin-bottom: 12px;
-            box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+            box-shadow: {card_shadow};
         ">
-            <div style="font-size:12px; color:#6f7a84; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Sessão ativa</div>
-            <div style="margin-top:6px; font-size:16px; color:#234055; font-weight:800;">{usuario.get("nome", "Usuário")}</div>
-            <div style="margin-top:2px; font-size:12px; color:#6f7a84;">{usuario.get("email", "")}</div>
-            <div style="margin-top:10px; display:inline-flex; border-radius:999px; padding:6px 10px; background:#eef5f0; border:1px solid #d9e7de; color:#36586f; font-size:11px; font-weight:800;">
+            <div style="font-size:12px; color:{label_color}; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Sessão ativa</div>
+            <div style="margin-top:6px; font-size:16px; color:{name_color}; font-weight:800;">{usuario.get("nome", "Usuário")}</div>
+            <div style="margin-top:2px; font-size:12px; color:{email_color};">{usuario.get("email", "")}</div>
+            <div style="margin-top:10px; display:inline-flex; border-radius:999px; padding:6px 10px; background:{badge_bg}; border:1px solid {badge_border}; color:{badge_color}; font-size:11px; font-weight:800;">
                 {usuario.get("perfil", "Usuário")}
             </div>
         </div>
