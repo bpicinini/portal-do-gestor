@@ -41,5 +41,10 @@ if usuario_admin():
 
 renderizar_usuario_sidebar()
 
+st.sidebar.toggle(
+    "🌙 Dark Mode",
+    key="dark_mode",
+)
+
 pg = st.navigation(pages)
 pg.run()
