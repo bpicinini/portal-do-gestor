@@ -49,8 +49,8 @@ MODALIDADE_CORES = {
 }
 
 TIPO_OP_CORES = {
-    "Importação Própria": "#234055",
-    "Importação por Conta e Ordem": "#4a8ab5",
+    "Importação Própria": "#4a8ab5",
+    "Importação por Conta e Ordem": "#234055",
     "Encomenda": "#c79536",
 }
 
@@ -314,7 +314,7 @@ with tab_geral:
                             ),
                             tooltip=[alt.Tooltip("Tipo:N"), alt.Tooltip("Quantidade:Q", format=",d")],
                         )
-                        .properties(height=220)
+                        .properties(height=220, padding={"top": 20, "bottom": 10})
                     )
                     st.altair_chart(chart_tipo, use_container_width=True)
 
