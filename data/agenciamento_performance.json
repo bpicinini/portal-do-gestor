@@ -1,0 +1,29 @@
+[
+  {
+    "ano": 2026,
+    "mes": 1,
+    "volume_score": 1429,
+    "manpower": 11.3,
+    "performance": 141.87,
+    "meta": 138,
+    "pct_meta": 1.028
+  },
+  {
+    "ano": 2026,
+    "mes": 2,
+    "volume_score": 1491,
+    "manpower": 11.25,
+    "performance": 132.53,
+    "meta": 85,
+    "pct_meta": 1.5592
+  },
+  {
+    "ano": 2026,
+    "mes": 3,
+    "volume_score": 1242,
+    "manpower": 9.75,
+    "performance": 127.38,
+    "meta": 79,
+    "pct_meta": 1.6124
+  }
+]

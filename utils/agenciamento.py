@@ -356,3 +356,66 @@ def carregar_meta() -> dict | None:
         return None
     with open(_META_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+# ── Performance (Eficiência) — persistência JSON ────────────────────
+
+_PERF_PATH = _DATA_DIR / "agenciamento_performance.json"
+
+# MP padrão da equipe (conforme quadro atual)
+MP_PADRAO = 9.75  # 7.0 analistas + 2.75 performance (assistentes + estagiário)
+
+
+def listar_performance() -> list[dict]:
+    """Lista todos os registros de performance do agenciamento."""
+    if not _PERF_PATH.exists():
+        return []
+    with open(_PERF_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def salvar_performance(ano: int, mes: int, volume_score: float, manpower: float, meta: float, eficiencia: float | None = None):
+    """Upsert de um registro de performance mensal do agenciamento.
+
+    Se *eficiencia* for informada, usa o valor diretamente (vindo do BI).
+    Caso contrário calcula como volume_score / manpower.
+    """
+    records = listar_performance()
+
+    if eficiencia is not None and eficiencia > 0:
+        performance = round(eficiencia, 2)
+    else:
+        performance = round(volume_score / manpower, 2) if manpower and manpower > 0 else 0
+    pct_meta = round(performance / meta, 4) if meta and meta > 0 else None
+
+    # Buscar registro existente
+    found = False
+    for r in records:
+        if r["ano"] == ano and r["mes"] == mes:
+            r["volume_score"] = volume_score
+            r["manpower"] = round(manpower, 2)
+            r["performance"] = performance
+            r["meta"] = meta
+            r["pct_meta"] = pct_meta
+            found = True
+            break
+
+    if not found:
+        records.append({
+            "ano": ano, "mes": mes,
+            "volume_score": volume_score,
+            "manpower": round(manpower, 2),
+            "performance": performance,
+            "meta": meta,
+            "pct_meta": pct_meta,
+        })
+
+    records.sort(key=lambda r: (r["ano"], r["mes"]))
+    _DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with open(_PERF_PATH, "w", encoding="utf-8") as f:
+        json.dump(records, f, ensure_ascii=False, indent=2)
+
+
+def obter_mp_atual() -> float:
+    """Retorna o MP atual calculado do quadro de agenciamento."""
+    return MP_PADRAO

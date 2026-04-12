@@ -666,53 +666,16 @@ def _ag_chart_chegadas_analista_mes(chegadas, ano):
     )
 
 
-def _ag_card_html(label, valor, cor=COLOR_NAVY_DARK, icone=""):
-    """Card HTML estilizado para KPIs."""
-    return f"""
-    <div style="background:linear-gradient(135deg,{cor}ee,{cor}bb);border-radius:14px;
-    padding:1rem 1.2rem;color:white;text-align:center;min-width:120px;">
-        <div style="font-size:0.8rem;opacity:0.85;">{icone} {label}</div>
-        <div style="font-size:1.6rem;font-weight:700;margin-top:0.2rem;">{valor}</div>
-    </div>"""
-
-
-def _ag_gerar_performance(resumo: dict, ano: int) -> pd.DataFrame:
-    """Gera DataFrame de performance mensal no mesmo formato da importação.
-
-    Usa chegadas como volume, calcula manpower pelos analistas ativos ponderados
-    por senioridade, e deriva eficiência = volume / manpower.
-    """
-    AG_PESO = {
-        "Senior": 1.10, "Pleno": 0.80, "Junior": 0.70,
-        "Assistente": 0.12, "Supervisor": 0.80, "Coordenador": 0.0,
-    }
-    AG_META = 79.0  # Meta de eficiência departamental
-
-    # Mapa analista → peso (do quadro de andamento)
-    peso_map: dict[str, float] = {}
-    for a in resumo.get("andamento", []):
-        peso_map[a["analista"]] = AG_PESO.get(a["senioridade"], 0.5)
-
-    chegadas = resumo.get("chegadas", [])
-    totais = _ag_totais_mes(chegadas)
-    records = []
-    for mes in range(1, 13):
-        volume = totais.get(mes, 0)
-        if volume == 0:
-            continue
-        # Manpower = soma dos pesos dos analistas com chegadas neste mês
-        mp = sum(
-            peso_map.get(c["analista"], 0.5)
-            for c in chegadas if c["meses"].get(mes, 0) > 0
-        )
-        mp = round(mp, 2) if mp > 0 else 1
-        perf = round(volume / mp, 2)
-        pct = round(perf / AG_META, 4) if AG_META > 0 else None
-        records.append({
-            "ano": ano, "mes": mes, "volume_score": volume,
-            "manpower": mp, "performance": perf, "meta": AG_META, "pct_meta": pct,
-        })
-    return pd.DataFrame(records)
+def _ag_carregar_performance() -> pd.DataFrame:
+    """Carrega performance do agenciamento (dados lançados manualmente, igual importação)."""
+    records = ag.listar_performance()
+    if not records:
+        return pd.DataFrame()
+    df = pd.DataFrame(records).sort_values(["ano", "mes"]).reset_index(drop=True)
+    for col in ["volume_score", "manpower", "performance", "meta", "pct_meta"]:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
 
 
 def _render_agenciamento():
@@ -722,46 +685,48 @@ def _render_agenciamento():
         st.info("Nenhum dado de agenciamento encontrado. Faça upload da planilha na aba Upload.")
         return
 
-    tab_ov, tab_ef, tab_an, tab_vol, tab_up = st.tabs(
-        ["Overview", "Eficiência", "Analistas", "Faturados", "Upload"]
+    tab_ov, tab_ef, tab_mp, tab_an, tab_vol, tab_up = st.tabs(
+        ["Overview", "Eficiência", "Manpower", "Analistas", "Faturados", "Upload"]
     )
 
     # ── Overview (mesma lógica da Importação) ────────────────────────
     with tab_ov:
         st.subheader("Overview - Agenciamento")
-        ano_ov = st.selectbox("Ano", anos, format_func=lambda x: str(int(x)), key="ag_ov_ano")
-        dados = ag.carregar_dados(int(ano_ov))
-        if not dados or "resumo" not in dados:
-            st.info("Dados não encontrados para este ano.")
-        else:
-            resumo = dados["resumo"]
-            df_perf = _ag_gerar_performance(resumo, int(ano_ov))
 
-            # Carregar ano anterior
-            dados_prev = ag.carregar_dados(int(ano_ov) - 1)
-            df_prev = None
-            if dados_prev and "resumo" in dados_prev:
-                df_prev = _ag_gerar_performance(dados_prev["resumo"], int(ano_ov) - 1)
-                if df_prev.empty:
-                    df_prev = None
+        df_perf_all = _ag_carregar_performance()
+        if df_perf_all.empty:
+            _render_metricas_vazias([
+                ("Meses", "0"), ("Volume médio", "0"),
+                ("MP médio", "0,00"), ("Eficiência média", "0,0"), ("% Meta média", "0,0%"),
+            ])
+            st.info("Nenhum dado de eficiência lançado. Use a aba Eficiência para lançar.")
+        else:
+            anos_perf = sorted(df_perf_all["ano"].unique(), reverse=True)
+            ano_ov = st.selectbox("Ano", anos_perf, format_func=lambda x: str(int(x)), key="ag_ov_ano")
+            df_perf = df_perf_all[df_perf_all["ano"] == ano_ov].copy()
+            df_prev = df_perf_all[df_perf_all["ano"] == ano_ov - 1].copy()
+            df_prev = df_prev if not df_prev.empty else None
 
             # Métricas — reusa a mesma função da importação
             resumo_ef = resumir_eficiencia_ano(df_perf, df_prev, int(ano_ov))
             render_metricas_eficiencia(resumo_ef)
 
-            # Carteira — cards resumo do andamento
-            total_and = resumo["total_andamento"]
-            cap_max = resumo["capacidade_max"]
-            cap_min = resumo["capacidade_min"]
-            pct_cap = round(total_and / cap_max * 100, 1) if cap_max else 0
-            analistas_ativos = len([a for a in resumo["andamento"] if a["total"] > 0])
-            st.markdown(
-                f'<p style="margin:0.3rem 0 0.8rem 0;color:#6f7a84;">'
-                f'📦 <b>{_br_int(total_and)}</b> processos em andamento '
-                f'({_br(pct_cap, 1)}% da capacidade {cap_min}-{cap_max}) · '
-                f'<b>{analistas_ativos}</b> analistas ativos</p>',
-                unsafe_allow_html=True,
-            )
+            # Carteira — dados do Resumo (se disponível)
+            dados_ov = ag.carregar_dados(int(ano_ov))
+            if dados_ov and "resumo" in dados_ov:
+                res = dados_ov["resumo"]
+                total_and = res["total_andamento"]
+                cap_max = res["capacidade_max"]
+                cap_min = res["capacidade_min"]
+                pct_cap = round(total_and / cap_max * 100, 1) if cap_max else 0
+                analistas_ativos = len([a for a in res["andamento"] if a["total"] > 0])
+                st.markdown(
+                    f'<p style="margin:0.3rem 0 0.8rem 0;color:#6f7a84;">'
+                    f'Carteira: <b>{_br_int(total_and)}</b> processos em andamento '
+                    f'({_br(pct_cap, 1)}% da capacidade {cap_min}-{cap_max}) · '
+                    f'<b>{analistas_ativos}</b> analistas ativos</p>',
+                    unsafe_allow_html=True,
+                )
             st.divider()
 
             # 3 gráficos — mesmos da importação
@@ -775,7 +740,7 @@ def _render_agenciamento():
                 st.altair_chart(chart_perf_meta(df_chart), use_container_width=True)
             with col2:
                 label_prev = f" - vs {int(ano_ov) - 1}" if df_prev is not None else ""
-                st.caption(f"**Volume (Chegadas){label_prev}**")
+                st.caption(f"**Volume (Score){label_prev}**")
                 st.altair_chart(chart_volume_yoy(df_perf, df_prev, int(ano_ov)), use_container_width=True)
             with col3:
                 st.caption("**Manpower no período**")
@@ -799,46 +764,43 @@ def _render_agenciamento():
                         use_container_width=True,
                     )
 
-            # Andamento por etapa e analista
+            # Trajetória do Manpower — histórico completo (igual importação)
             st.divider()
-            col_etapa, col_carga = st.columns(2)
-            with col_etapa:
-                st.caption("**Processos por etapa**")
-                ch = _ag_chart_etapas(resumo)
-                if ch:
-                    st.altair_chart(ch, use_container_width=True)
-            with col_carga:
-                st.caption("**Carga por analista vs Meta**")
-                ch = _ag_chart_carga_analista(resumo)
-                if ch:
-                    st.altair_chart(ch, use_container_width=True)
-                st.caption("🟡 Meta mín. · 🔴 Meta máx.")
+            st.markdown("#### Trajetória do Manpower - histórico completo")
+            st.altair_chart(chart_mp_historico(df_perf_all), use_container_width=True)
+
+            # Andamento por etapa e analista
+            if dados_ov and "resumo" in dados_ov:
+                st.divider()
+                col_etapa, col_carga = st.columns(2)
+                with col_etapa:
+                    st.caption("**Processos por etapa**")
+                    ch = _ag_chart_etapas(dados_ov["resumo"])
+                    if ch:
+                        st.altair_chart(ch, use_container_width=True)
+                with col_carga:
+                    st.caption("**Carga por analista vs Meta**")
+                    ch = _ag_chart_carga_analista(dados_ov["resumo"])
+                    if ch:
+                        st.altair_chart(ch, use_container_width=True)
+                    st.caption("Meta min. (amarelo) · Meta max. (vermelho)")
 
     # ── Eficiência (mesma lógica da Importação) ──────────────────────
     with tab_ef:
         st.subheader("Eficiência - Agenciamento")
 
-        # Gerar performance para todos os anos disponíveis
-        all_records = []
-        for a in anos:
-            d = ag.carregar_dados(int(a))
-            if d and "resumo" in d:
-                df_a = _ag_gerar_performance(d["resumo"], int(a))
-                if not df_a.empty:
-                    all_records.append(df_a)
-
-        if not all_records:
-            st.info("Nenhum dado de eficiência disponível.")
+        df_perf_ef = _ag_carregar_performance()
+        if df_perf_ef.empty:
+            st.info("Nenhum dado de eficiência lançado ainda.")
         else:
-            df_all = pd.concat(all_records, ignore_index=True).sort_values(["ano", "mes"])
-            anos_ef = sorted(df_all["ano"].unique(), reverse=True)
+            anos_ef = sorted(df_perf_ef["ano"].unique(), reverse=True)
             year_tabs = st.tabs([str(int(a)) for a in anos_ef])
 
             for tab_widget, a in zip(year_tabs, anos_ef):
-                df_ano = df_all[df_all["ano"] == a].copy()
+                df_ano = df_perf_ef[df_perf_ef["ano"] == a].copy()
                 resumo_ef = resumir_eficiencia_ano(
                     df_ano,
-                    df_all[df_all["ano"] == a - 1].copy(),
+                    df_perf_ef[df_perf_ef["ano"] == a - 1].copy(),
                     a,
                 )
                 with tab_widget:
@@ -849,14 +811,108 @@ def _render_agenciamento():
                         f" | eficiência média {_br(resumo_ef['eficiencia_media'], 1) if resumo_ef['eficiencia_media'] else '—'}"
                     )
 
-        # Andamento stacked bar
+        # Formulário — Lançar Eficiência Mensal (igual importação)
         st.divider()
-        st.markdown("#### Processos em andamento por analista")
-        dados_ref = ag.carregar_dados(int(anos[0]))
-        if dados_ref and "resumo" in dados_ref:
-            ch = _ag_chart_andamento_stacked(dados_ref["resumo"])
-            if ch:
-                st.altair_chart(ch, use_container_width=True)
+        st.subheader("Lançar Eficiência Mensal")
+        st.caption(
+            "Registro de eficiência do agenciamento. "
+            "Volume (Score) = soma das etapas operacionais do BI. "
+            f"MP padrão atual: **{_br(ag.MP_PADRAO, 2)}**."
+        )
+
+        with st.form("form_ag_performance"):
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                ag_ano = st.number_input("Ano", min_value=2024, max_value=2030, value=date.today().year, key="ag_ef_ano")
+            with c2:
+                ag_mes = st.number_input("Mês", min_value=1, max_value=12, value=date.today().month, key="ag_ef_mes")
+            with c3:
+                ag_vol = st.number_input("Volume (Score)", min_value=0, value=0, step=50, key="ag_ef_vol")
+
+            c4, c5, c6 = st.columns(3)
+            with c4:
+                ag_mp = st.number_input(
+                    "Manpower",
+                    min_value=0.0, value=float(ag.MP_PADRAO), step=0.25, key="ag_ef_mp",
+                )
+                st.info(f"MP padrão: **{_br(ag.MP_PADRAO, 2)}** (7,00 analistas + 2,75 performance)")
+            with c5:
+                ag_meta = st.number_input("Meta (eficiência)", min_value=0.0, value=79.0, step=1.0, key="ag_ef_meta")
+            with c6:
+                ag_ef_override = st.number_input(
+                    "Eficiência (do BI, opcional)",
+                    min_value=0.0, value=0.0, step=0.01, key="ag_ef_override",
+                    help="Se informado, usa este valor ao invés de calcular Score/MP.",
+                )
+
+            if st.form_submit_button("Salvar", type="primary"):
+                if ag_vol > 0 and ag_mp > 0:
+                    ef_override = ag_ef_override if ag_ef_override > 0 else None
+                    ag.salvar_performance(ag_ano, ag_mes, ag_vol, ag_mp, ag_meta, eficiencia=ef_override)
+                    ef_calc = ag_ef_override if ag_ef_override > 0 else round(ag_vol / ag_mp, 2)
+                    pct_calc = round(ef_calc / ag_meta * 100, 1) if ag_meta > 0 else 0
+                    st.success(
+                        f"Eficiência {ag_ano}-{ag_mes:02d}: **{_br(ef_calc, 2)}** "
+                        f"(Volume {_br_int(ag_vol)} / MP {_br(ag_mp, 2)}) — "
+                        f"**{_br_pct(pct_calc)}** da meta"
+                    )
+                    st.rerun()
+                else:
+                    st.warning("Preencha Volume e MP.")
+
+    # ── Manpower (espelho da importação) ─────────────────────────────
+    with tab_mp:
+        st.subheader("Manpower - Agenciamento")
+
+        df_perf_mp = _ag_carregar_performance()
+        if df_perf_mp.empty:
+            _render_metricas_vazias([
+                ("MP atual", "—"), ("MP médio", "—"),
+                ("MP mínimo", "—"), ("MP máximo", "—"),
+            ])
+            st.info("Nenhum dado de eficiência lançado. O manpower é registrado junto à eficiência mensal.")
+        else:
+            mp_atual = df_perf_mp.iloc[-1]["manpower"]
+            mp_medio = df_perf_mp["manpower"].mean()
+            mp_min = df_perf_mp["manpower"].min()
+            mp_max = df_perf_mp["manpower"].max()
+
+            c1, c2, c3, c4 = st.columns(4)
+            with c1:
+                st.metric("MP atual", _br(mp_atual, 2))
+            with c2:
+                st.metric("MP médio", _br(mp_medio, 2))
+            with c3:
+                st.metric("MP mínimo", _br(mp_min, 2))
+            with c4:
+                st.metric("MP máximo", _br(mp_max, 2))
+
+            st.divider()
+
+            # Trajetória do Manpower
+            st.markdown("#### Trajetória do Manpower")
+            st.altair_chart(chart_mp_historico(df_perf_mp), use_container_width=True)
+
+            # Tabela de MP por mês
+            st.divider()
+            st.markdown("#### Manpower mensal")
+            df_mp_show = df_perf_mp[["ano", "mes", "manpower", "volume_score", "performance"]].copy()
+            df_mp_show.columns = ["Ano", "Mês", "Manpower", "Volume", "Eficiência"]
+            df_mp_show["Mês"] = df_mp_show["Mês"].apply(_nome_mes)
+            styled = df_mp_show.style.format({
+                "Ano": lambda v: str(int(v)),
+                "Manpower": lambda v: _br(v, 2) if pd.notna(v) else "—",
+                "Volume": lambda v: _br_int(v) if pd.notna(v) else "—",
+                "Eficiência": lambda v: _br(v, 1) if pd.notna(v) else "—",
+            })
+            st.dataframe(styled, use_container_width=True, hide_index=True,
+                         height=min(38 + len(df_mp_show) * 37, 400))
+
+            st.caption(
+                f"MP padrão: **{_br(ag.MP_PADRAO, 2)}** "
+                f"(7,00 analistas + 2,75 performance). "
+                f"O MP varia conforme contratações e desligamentos."
+            )
 
     # ── Analistas ────────────────────────────────────────────────────
     with tab_an:
@@ -868,7 +924,14 @@ def _render_agenciamento():
         else:
             resumo = dados["resumo"]
 
+            # Andamento stacked bar
+            st.markdown("#### Processos em andamento por analista")
+            ch = _ag_chart_andamento_stacked(resumo)
+            if ch:
+                st.altair_chart(ch, use_container_width=True)
+
             # Ranking por chegadas
+            st.divider()
             st.markdown("#### Ranking por chegadas confirmadas")
             col_rank, col_heat = st.columns([1, 1])
             with col_rank:
