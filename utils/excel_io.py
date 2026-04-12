@@ -5,6 +5,7 @@ ou arquivo local (desenvolvimento).
 import io
 import os
 import json
+import base64
 import streamlit as st
 from openpyxl import Workbook, load_workbook
 
