@@ -736,7 +736,7 @@ with tab_clientes:
                                 alt.Tooltip("Percentual:Q", format=".1f", title="% do total"),
                             ],
                         )
-                        .properties(height=320, padding={"bottom": 40})
+                        .properties(height=320)
                     )
 
                     # Texto central
@@ -746,7 +746,12 @@ with tab_clientes:
                         .encode(text="label:N")
                     )
 
-                    st.altair_chart(donut + texto_central, use_container_width=True)
+                    st.altair_chart(
+                        alt.layer(donut, texto_central).properties(
+                            height=320, padding={"bottom": 40}
+                        ),
+                        use_container_width=True,
+                    )
 
                 with col_top10:
                     st.caption("**Top 10 Clientes — Volume de Processos**")
@@ -788,7 +793,7 @@ with tab_clientes:
                                 alt.Tooltip("Tipo:N", title="Tipo predominante"),
                             ],
                         )
-                        .properties(height=360, padding={"left": 10})
+                        .properties(height=360)
                     )
                     st.altair_chart(chart_top10, use_container_width=True)
 
