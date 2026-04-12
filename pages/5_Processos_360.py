@@ -53,6 +53,19 @@ TIPO_OP_CORES = {
     "Encomenda": "#c79536",
 }
 
+# Rótulos e cores para Direto / CO3 / Encomenda (usados em cards e tabelas)
+TIPO_LABELS = {
+    "Importação Própria": "Direto",
+    "Importação por Conta e Ordem": "CO3",
+    "Encomenda": "Encomenda",
+}
+TIPO_CORES = {
+    "Direto":    "#234055",
+    "CO3":       "#4a8ab5",
+    "Encomenda": "#c79536",
+}
+TIPOS_ORDEM = ["Direto", "CO3", "Encomenda"]
+
 garantir_autenticado()
 aplicar_estilos_globais()
 
@@ -304,16 +317,19 @@ with tab_analista:
         if df.empty:
             _msg_sem_dados()
         else:
+            # Coluna Tipo mapeada (Direto / CO3 / Encomenda)
+            _tem_tipo = "Tipo de Operação" in df.columns
+            if _tem_tipo:
+                df = df.copy()
+                df["_Tipo"] = df["Tipo de Operação"].map(TIPO_LABELS).fillna("Outro")
+
             analistas = df.groupby("Account").agg(
                 processos=("Processo", "count"),
                 clientes=("Cliente", "nunique"),
                 valor_aduaneiro=("Valor Aduaneiro", "sum"),
             ).reset_index().sort_values("processos", ascending=False)
 
-            # Calcular processos ativos por analista:
-            # - Encerramento, Carregamento, Registrado/Ag.Desembaraço, Chegada → todos
-            # - Embarque → apenas com Prev. Chegada entre hoje e hoje+10 dias
-            # - Pré-embarque → excluído
+            # Processos ativos por analista
             _hoje = pd.Timestamp.now().normalize()
             _status_ativos_sempre = {"Encerramento", "Carregamento", "Registrado/Ag.Desembaraço", "Chegada"}
             _mask_ativos = df["Status"].isin(_status_ativos_sempre)
@@ -330,17 +346,56 @@ with tab_analista:
             _df_ativos = df[_mask_ativos | _mask_embarque_ativo]
             _ativos_por_analista = _df_ativos.groupby("Account").size().rename("ativos")
 
-            st.markdown(f"#### {len(analistas)} Analistas")
+            # Tipos por analista (para tags e filtro)
+            if _tem_tipo:
+                _tipos_por_analista = (
+                    df.groupby("Account")["_Tipo"]
+                    .apply(lambda s: set(s) & set(TIPOS_ORDEM))
+                    .to_dict()
+                )
+            else:
+                _tipos_por_analista = {}
 
-            # Cards em grid com expander para clientes
+            # ── Filtro por tipo ───────────────────────────────────────────
+            _col_hdr, _col_filt = st.columns([2, 3])
+            with _col_hdr:
+                st.markdown(f"#### {len(analistas)} Analistas")
+            with _col_filt:
+                filtro_tipo = st.multiselect(
+                    "Filtrar por tipo",
+                    TIPOS_ORDEM,
+                    default=[],
+                    placeholder="Todos os tipos",
+                    label_visibility="collapsed",
+                )
+
+            # Aplicar filtro na lista de analistas
+            if filtro_tipo:
+                _analistas_filtrados = analistas[
+                    analistas["Account"].apply(
+                        lambda a: bool(_tipos_por_analista.get(a, set()) & set(filtro_tipo))
+                    )
+                ]
+            else:
+                _analistas_filtrados = analistas
+
+            # ── Cards ─────────────────────────────────────────────────────
+            def _tag_html(tipo):
+                cor = TIPO_CORES.get(tipo, "#6f7a84")
+                return (
+                    f'<span style="background:{cor};color:#fff;border-radius:5px;'
+                    f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
+                    f'letter-spacing:0.04em;margin-left:4px;">{tipo}</span>'
+                )
+
             cols_por_linha = 3
-            for i in range(0, len(analistas), cols_por_linha):
+            for i in range(0, len(_analistas_filtrados), cols_por_linha):
                 cols = st.columns(cols_por_linha)
                 for j, col in enumerate(cols):
                     idx = i + j
-                    if idx >= len(analistas):
+                    if idx >= len(_analistas_filtrados):
                         break
-                    row = analistas.iloc[idx]
+                    row = _analistas_filtrados.iloc[idx]
                     with col:
                         df_an = df[df["Account"] == row["Account"]]
                         status_counts = df_an["Status"].value_counts()
@@ -350,6 +405,10 @@ with tab_analista:
                             if status_counts.get(s, 0) > 0
                         )
                         n_ativos = int(_ativos_por_analista.get(row["Account"], 0))
+                        tipos_an = _tipos_por_analista.get(row["Account"], set())
+                        tags_html = "".join(
+                            _tag_html(t) for t in TIPOS_ORDEM if t in tipos_an
+                        )
 
                         st.markdown(
                             f"""
@@ -361,8 +420,9 @@ with tab_analista:
                                 margin-bottom: 0.2rem;
                                 box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
                             ">
-                                <div style="font-weight: 800; color: #234055; font-size: 1.05rem; margin-bottom: 0.4rem;">
-                                    {row['Account']}
+                                <div style="font-weight: 800; color: #234055; font-size: 1.05rem;
+                                            margin-bottom: 0.4rem; display:flex; align-items:center; flex-wrap:wrap; gap:2px;">
+                                    {row['Account']}{tags_html}
                                 </div>
                                 <div style="display: flex; gap: 1.2rem; margin-bottom: 0.5rem;">
                                     <div>
@@ -388,27 +448,42 @@ with tab_analista:
                             unsafe_allow_html=True,
                         )
 
-                        # Expander com breakdown por cliente
+                        # Expander com breakdown por cliente e tipo
                         with st.expander("Ver clientes", expanded=False):
-                            df_clientes = (
-                                df_an.groupby("Cliente")
-                                .agg(
-                                    processos=("Processo", "count"),
-                                    valor_aduaneiro=("Valor Aduaneiro", "sum"),
-                                )
-                                .reset_index()
-                                .sort_values("processos", ascending=False)
+                            # Filtrar df do analista pelo tipo selecionado (se houver)
+                            df_an_f = (
+                                df_an[df_an["_Tipo"].isin(filtro_tipo)]
+                                if filtro_tipo and _tem_tipo
+                                else df_an
                             )
-                            df_clientes_show = df_clientes.rename(columns={
-                                "Cliente": "Cliente",
-                                "processos": "Processos",
-                                "valor_aduaneiro": "Valor Aduaneiro",
-                            })
-                            styled_cl = df_clientes_show.style.format({
-                                "Valor Aduaneiro": lambda v: _br_moeda(v, 0) if pd.notna(v) else "",
-                            })
-                            h = min(38 + len(df_clientes_show) * 35 + 6, 350)
-                            st.dataframe(styled_cl, use_container_width=True, hide_index=True, height=h)
+
+                            if _tem_tipo:
+                                # Pivot: Cliente × Tipo → contagem
+                                df_piv = (
+                                    df_an_f.groupby(["Cliente", "_Tipo"])
+                                    .size()
+                                    .unstack(fill_value=0)
+                                    .reset_index()
+                                )
+                                for t in TIPOS_ORDEM:
+                                    if t not in df_piv.columns:
+                                        df_piv[t] = 0
+                                df_piv["Processos"] = df_piv[TIPOS_ORDEM].sum(axis=1)
+                                df_piv = (
+                                    df_piv[["Cliente", "Processos"] + TIPOS_ORDEM]
+                                    .sort_values("Processos", ascending=False)
+                                )
+                                h = min(38 + len(df_piv) * 35 + 6, 350)
+                                st.dataframe(df_piv, use_container_width=True, hide_index=True, height=h)
+                            else:
+                                df_cl = (
+                                    df_an_f.groupby("Cliente")
+                                    .size()
+                                    .reset_index(name="Processos")
+                                    .sort_values("Processos", ascending=False)
+                                )
+                                h = min(38 + len(df_cl) * 35 + 6, 350)
+                                st.dataframe(df_cl, use_container_width=True, hide_index=True, height=h)
 
             st.divider()
 
@@ -442,26 +517,16 @@ with tab_analista:
             st.altair_chart(chart_analista, use_container_width=True)
 
             # ── Gráfico 2: por Tipo de Operação ──────────────────────────
-            if "Tipo de Operação" in df.columns:
+            if _tem_tipo:
                 st.caption("**Distribuição por Tipo de Operação por Analista**")
 
-                _TIPO_LABELS = {
-                    "Importação Própria": "Direto",
-                    "Importação por Conta e Ordem": "CO3",
-                    "Encomenda": "Encomenda",
-                }
-                _TIPO_CORES = {
-                    "Direto": "#234055",
-                    "CO3": "#4a8ab5",
-                    "Encomenda": "#c79536",
-                }
+                # Reutiliza coluna _Tipo já calculada e constantes do módulo
+                df_tipo_piv = df.groupby(["Account", "_Tipo"]).size().reset_index(name="Quantidade")
+                df_tipo_piv = df_tipo_piv[df_tipo_piv["_Tipo"].isin(TIPOS_ORDEM)]
+                df_tipo_piv = df_tipo_piv.rename(columns={"_Tipo": "Tipo"})
 
-                df_tipo = df.copy()
-                df_tipo["Tipo"] = df_tipo["Tipo de Operação"].map(_TIPO_LABELS).fillna(df_tipo["Tipo de Operação"])
-                df_tipo_piv = df_tipo.groupby(["Account", "Tipo"]).size().reset_index(name="Quantidade")
-
-                tipo_domain = list(_TIPO_CORES.keys())
-                tipo_range  = list(_TIPO_CORES.values())
+                tipo_domain = TIPOS_ORDEM
+                tipo_range  = [TIPO_CORES[t] for t in TIPOS_ORDEM]
 
                 chart_tipo = (
                     alt.Chart(df_tipo_piv)

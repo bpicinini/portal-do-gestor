@@ -20,11 +20,6 @@ renderizar_cabecalho_pagina(
     "Organograma",
     "Estrutura da operacao com leitura por niveis e uma visao paralela por reportes diretos.",
     badge="Estrutura ativa",
-    pills=[
-        "Visao por departamento",
-        "Visao por reportes imediatos",
-        "Cadastro operacional",
-    ],
 )
 
 departamentos = listar_departamentos()

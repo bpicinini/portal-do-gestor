@@ -30,7 +30,6 @@ renderizar_cabecalho_pagina(
     "KPIs",
     "Painel central de eficiencia, manpower e volume score, com leitura por departamento.",
     badge="Estrutura em evolucao",
-    pills=["Eficiência", "Manpower", "Volume (Score)"],
 )
 
 departamentos = listar_departamentos()
