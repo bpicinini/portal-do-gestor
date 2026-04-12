@@ -713,52 +713,36 @@ with tab_clientes:
                     .reset_index(name="Processos")
                 )
                 df_repr = df_repr.rename(columns={"_Tipo": "Tipo"})
-                df_repr["Percentual"] = (df_repr["Processos"] / df_repr["Processos"].sum() * 100).round(1)
-                df_repr["Label"] = df_repr.apply(
-                    lambda r: f"{r['Tipo']}: {int(r['Processos'])} ({r['Percentual']:.1f}%)", axis=1
-                )
+                _total_repr = df_repr["Processos"].sum()
+                df_repr["Percentual"] = (df_repr["Processos"] / _total_repr * 100).round(1)
 
-                # Barras horizontais (mais legível que donut em espaço restrito)
-                chart_repr = (
-                    alt.Chart(df_repr)
-                    .mark_bar(cornerRadiusEnd=10, height=32)
-                    .encode(
-                        x=alt.X("Processos:Q", title="Processos"),
-                        y=alt.Y(
-                            "Tipo:N",
-                            sort=TIPOS_ORDEM,
-                            title=None,
-                            axis=alt.Axis(labelLimit=200),
-                        ),
-                        color=alt.Color(
-                            "Tipo:N",
-                            scale=alt.Scale(
-                                domain=TIPOS_ORDEM,
-                                range=[TIPO_CORES[t] for t in TIPOS_ORDEM],
-                            ),
-                            legend=None,
-                        ),
-                        tooltip=[
-                            alt.Tooltip("Tipo:N"),
-                            alt.Tooltip("Processos:Q", format=",d"),
-                            alt.Tooltip("Percentual:Q", format=".1f", title="% do total"),
-                        ],
+                # Cards visuais com barra de progresso (3 tipos apenas)
+                _repr_html = '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem;">'
+                for _, _rr in df_repr.sort_values("Processos", ascending=False).iterrows():
+                    _cor = TIPO_CORES.get(_rr["Tipo"], "#6f7a84")
+                    _pct = _rr["Percentual"]
+                    _n = int(_rr["Processos"])
+                    _repr_html += (
+                        f'<div style="flex:1 1 0;min-width:180px;'
+                        f'background:linear-gradient(135deg,rgba(255,253,248,0.96),rgba(243,237,226,0.96));'
+                        f'border:1px solid #e3d8c5;border-radius:14px;padding:0.8rem 1rem;'
+                        f'border-left:5px solid {_cor};">'
+                        f'<div style="font-size:0.72rem;color:#6f7a84;text-transform:uppercase;'
+                        f'font-weight:700;margin-bottom:0.3rem;">{_rr["Tipo"]}</div>'
+                        f'<div style="display:flex;align-items:baseline;gap:0.5rem;">'
+                        f'<span style="font-size:1.6rem;font-weight:800;color:{_cor};">{_n}</span>'
+                        f'<span style="font-size:0.85rem;font-weight:700;color:#6f7a84;">'
+                        f'{_pct:.1f}%</span>'
+                        f'</div>'
+                        f'<div style="background:#e8e0d4;border-radius:4px;height:8px;'
+                        f'margin-top:0.4rem;overflow:hidden;">'
+                        f'<div style="background:{_cor};height:100%;width:{_pct}%;'
+                        f'border-radius:4px;"></div>'
+                        f'</div>'
+                        f'</div>'
                     )
-                    .properties(height=140)
-                )
-
-                # Rótulos nas barras
-                texto_repr = (
-                    alt.Chart(df_repr)
-                    .mark_text(align="left", dx=5, fontSize=13, fontWeight="bold", color="#234055")
-                    .encode(
-                        x=alt.X("Processos:Q"),
-                        y=alt.Y("Tipo:N", sort=TIPOS_ORDEM),
-                        text=alt.Text("Label:N"),
-                    )
-                )
-
-                st.altair_chart(chart_repr + texto_repr, use_container_width=True)
+                _repr_html += '</div>'
+                st.markdown(_repr_html, unsafe_allow_html=True)
 
             st.divider()
 
