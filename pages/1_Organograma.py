@@ -318,21 +318,11 @@ tab_niveis, tab_reportes, tab_quadro, tab_gestao = st.tabs(
 with tab_niveis:
     st.subheader("Visao por niveis")
 
-    gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
-    if gerencia_geral:
-        st.markdown('<div class="nivel-label">Gerencia</div>', unsafe_allow_html=True)
-        cols = st.columns(min(len(gerencia_geral), 3))
-        for idx, pessoa in enumerate(gerencia_geral):
-            with cols[idx % len(cols)]:
-                st.markdown(card_para_nivel(pessoa), unsafe_allow_html=True)
-        st.markdown('<div class="conector">↓</div>', unsafe_allow_html=True)
-
     for depto in departamentos:
         if filtro_dept != "Todos" and depto["nome"] != filtro_dept:
             continue
 
         dept_colabs = listar_colaboradores(status="Ativo", departamento_id=int(depto["id"]))
-        dept_colabs = [c for c in dept_colabs if _nivel(c) > 1]
         if not dept_colabs:
             continue
 
@@ -369,14 +359,6 @@ with tab_reportes:
         "Esta leitura usa a aba Estrutura Gabriel da planilha PROJETO MEGAZORD como semente inicial. "
         "Quando a planilha nao explicita o reporte direto, a distribuicao e feita provisoriamente entre analistas do mesmo setor."
     )
-
-    gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
-    if gerencia_geral:
-        st.markdown('<div class="nivel-label">Gerencia geral</div>', unsafe_allow_html=True)
-        cols = st.columns(min(len(gerencia_geral), 3))
-        for idx, pessoa in enumerate(gerencia_geral):
-            with cols[idx % len(cols)]:
-                st.markdown(card_para_nivel(pessoa), unsafe_allow_html=True)
 
     for bloco in estrutura_reportes:
         if filtro_dept != "Todos" and bloco["departamento"] != filtro_dept:
