@@ -676,18 +676,57 @@ def _ag_card_html(label, valor, cor=COLOR_NAVY_DARK, icone=""):
     </div>"""
 
 
+def _ag_gerar_performance(resumo: dict, ano: int) -> pd.DataFrame:
+    """Gera DataFrame de performance mensal no mesmo formato da importação.
+
+    Usa chegadas como volume, calcula manpower pelos analistas ativos ponderados
+    por senioridade, e deriva eficiência = volume / manpower.
+    """
+    AG_PESO = {
+        "Senior": 1.10, "Pleno": 0.80, "Junior": 0.70,
+        "Assistente": 0.12, "Supervisor": 0.80, "Coordenador": 0.0,
+    }
+    AG_META = 79.0  # Meta de eficiência departamental
+
+    # Mapa analista → peso (do quadro de andamento)
+    peso_map: dict[str, float] = {}
+    for a in resumo.get("andamento", []):
+        peso_map[a["analista"]] = AG_PESO.get(a["senioridade"], 0.5)
+
+    chegadas = resumo.get("chegadas", [])
+    totais = _ag_totais_mes(chegadas)
+    records = []
+    for mes in range(1, 13):
+        volume = totais.get(mes, 0)
+        if volume == 0:
+            continue
+        # Manpower = soma dos pesos dos analistas com chegadas neste mês
+        mp = sum(
+            peso_map.get(c["analista"], 0.5)
+            for c in chegadas if c["meses"].get(mes, 0) > 0
+        )
+        mp = round(mp, 2) if mp > 0 else 1
+        perf = round(volume / mp, 2)
+        pct = round(perf / AG_META, 4) if AG_META > 0 else None
+        records.append({
+            "ano": ano, "mes": mes, "volume_score": volume,
+            "manpower": mp, "performance": perf, "meta": AG_META, "pct_meta": pct,
+        })
+    return pd.DataFrame(records)
+
+
 def _render_agenciamento():
-    """Renderiza todo o dashboard de Agenciamento."""
+    """Renderiza todo o dashboard de Agenciamento — mesma estrutura da Importação + complementos."""
     anos = ag.obter_anos_disponiveis()
     if not anos:
         st.info("Nenhum dado de agenciamento encontrado. Faça upload da planilha na aba Upload.")
         return
 
-    tab_ov, tab_an, tab_vol, tab_up = st.tabs(
-        ["Overview", "Analistas", "Volume (Chegadas)", "Upload"]
+    tab_ov, tab_ef, tab_an, tab_vol, tab_up = st.tabs(
+        ["Overview", "Eficiência", "Analistas", "Faturados", "Upload"]
     )
 
-    # ── Overview ─────────────────────────────────────────────────────
+    # ── Overview (mesma lógica da Importação) ────────────────────────
     with tab_ov:
         st.subheader("Overview - Agenciamento")
         ano_ov = st.selectbox("Ano", anos, format_func=lambda x: str(int(x)), key="ag_ov_ano")
@@ -696,86 +735,128 @@ def _render_agenciamento():
             st.info("Dados não encontrados para este ano.")
         else:
             resumo = dados["resumo"]
-            # Carregar ano anterior para comparativos
-            dados_prev = ag.carregar_dados(int(ano_ov) - 1)
-            resumo_prev = dados_prev["resumo"] if dados_prev and "resumo" in dados_prev else None
+            df_perf = _ag_gerar_performance(resumo, int(ano_ov))
 
+            # Carregar ano anterior
+            dados_prev = ag.carregar_dados(int(ano_ov) - 1)
+            df_prev = None
+            if dados_prev and "resumo" in dados_prev:
+                df_prev = _ag_gerar_performance(dados_prev["resumo"], int(ano_ov) - 1)
+                if df_prev.empty:
+                    df_prev = None
+
+            # Métricas — reusa a mesma função da importação
+            resumo_ef = resumir_eficiencia_ano(df_perf, df_prev, int(ano_ov))
+            render_metricas_eficiencia(resumo_ef)
+
+            # Carteira — cards resumo do andamento
             total_and = resumo["total_andamento"]
             cap_max = resumo["capacidade_max"]
             cap_min = resumo["capacidade_min"]
             pct_cap = round(total_and / cap_max * 100, 1) if cap_max else 0
-
-            analistas_ativos = [a for a in resumo["andamento"] if a["total"] > 0]
-            total_chegadas = sum(c["total"] for c in resumo["chegadas"])
-            totais_mes = _ag_totais_mes(resumo["chegadas"])
-            meses_com_dados = len([v for v in totais_mes.values() if v > 0])
-            media_mensal = round(total_chegadas / meses_com_dados) if meses_com_dados else 0
-
-            # KPI Cards HTML
-            cards_html = '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">'
-            cards_html += _ag_card_html("Processos em Andamento", _br_int(total_and), COLOR_NAVY_DARK, "📦")
-            cards_html += _ag_card_html(
-                "Capacidade", f"{_br(pct_cap, 1)}%",
-                COLOR_GREEN if pct_cap >= 80 else (COLOR_GOLD if pct_cap >= 60 else "#b5423a"),
-                "📊"
+            analistas_ativos = len([a for a in resumo["andamento"] if a["total"] > 0])
+            st.markdown(
+                f'<p style="margin:0.3rem 0 0.8rem 0;color:#6f7a84;">'
+                f'📦 <b>{_br_int(total_and)}</b> processos em andamento '
+                f'({_br(pct_cap, 1)}% da capacidade {cap_min}-{cap_max}) · '
+                f'<b>{analistas_ativos}</b> analistas ativos</p>',
+                unsafe_allow_html=True,
             )
-            cards_html += _ag_card_html("Faturados YTD", _br_int(total_chegadas), COLOR_NAVY, "✅")
-            cards_html += _ag_card_html("Média/mês", _br_int(media_mensal), "#4a8ab5", "📅")
-            cards_html += _ag_card_html("Analistas Ativos", str(len(analistas_ativos)), COLOR_GREEN, "👤")
-            cards_html += _ag_card_html(
-                "Faixa Capacidade", f"{cap_min} - {cap_max}", "#6f7a84", "🎯"
-            )
-            cards_html += '</div>'
-            st.markdown(cards_html, unsafe_allow_html=True)
-
-            # YoY delta
-            if resumo_prev:
-                total_chegadas_prev = sum(c["total"] for c in resumo_prev["chegadas"])
-                totais_prev = _ag_totais_mes(resumo_prev["chegadas"])
-                # Comparar apenas meses equivalentes
-                meses_comp = [m for m in totais_mes if totais_mes[m] > 0]
-                vol_comp = sum(totais_mes.get(m, 0) for m in meses_comp)
-                vol_prev_comp = sum(totais_prev.get(m, 0) for m in meses_comp)
-                if vol_prev_comp > 0:
-                    delta_pct = (vol_comp - vol_prev_comp) / vol_prev_comp * 100
-                    sinal = "+" if delta_pct > 0 else ""
-                    cor_delta = COLOR_GREEN if delta_pct > 0 else "#b5423a"
-                    st.markdown(
-                        f'<p style="color:{cor_delta};font-weight:600;margin:0 0 0.5rem 0;">'
-                        f'{sinal}{_br(delta_pct, 1)}% vs mesmo período de {int(ano_ov) - 1} '
-                        f'({_br_int(vol_comp)} vs {_br_int(vol_prev_comp)})</p>',
-                        unsafe_allow_html=True,
-                    )
-
             st.divider()
 
-            # Charts row
+            # 3 gráficos — mesmos da importação
+            df_chart = df_perf.copy()
+            df_chart["periodo"] = df_chart["mes"].apply(lambda m: MESES_PT[int(m)])
+            df_chart = df_chart.set_index("periodo")
+
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.caption("**Chegadas por mês**")
-                chart = _ag_chart_chegadas_mes(resumo, resumo_prev, int(ano_ov))
-                if chart:
-                    st.altair_chart(chart, use_container_width=True)
-
+                st.caption("**Eficiência vs Meta**")
+                st.altair_chart(chart_perf_meta(df_chart), use_container_width=True)
             with col2:
-                st.caption("**Processos por etapa**")
-                chart = _ag_chart_etapas(resumo)
-                if chart:
-                    st.altair_chart(chart, use_container_width=True)
-
+                label_prev = f" - vs {int(ano_ov) - 1}" if df_prev is not None else ""
+                st.caption(f"**Volume (Chegadas){label_prev}**")
+                st.altair_chart(chart_volume_yoy(df_perf, df_prev, int(ano_ov)), use_container_width=True)
             with col3:
-                st.caption("**Carga por analista vs Meta**")
-                chart = _ag_chart_carga_analista(resumo)
-                if chart:
-                    st.altair_chart(chart, use_container_width=True)
-                st.caption("🟡 Meta mín. &nbsp; 🔴 Meta máx.")
+                st.caption("**Manpower no período**")
+                st.altair_chart(chart_mp_ano(df_chart), use_container_width=True)
 
-            # Andamento detalhado
+            # YoY comparativo
+            if df_prev is not None:
+                st.divider()
+                st.markdown(f"#### Comparativo {int(ano_ov)} vs {int(ano_ov) - 1}")
+                cy1, cy2 = st.columns(2)
+                with cy1:
+                    st.caption("**Eficiência**")
+                    st.altair_chart(
+                        chart_yoy_line(df_perf, df_prev, int(ano_ov), "performance", "Eficiência"),
+                        use_container_width=True,
+                    )
+                with cy2:
+                    st.caption("**Manpower**")
+                    st.altair_chart(
+                        chart_yoy_line(df_perf, df_prev, int(ano_ov), "manpower", "Manpower", fmt=",.2f"),
+                        use_container_width=True,
+                    )
+
+            # Andamento por etapa e analista
             st.divider()
-            st.markdown("#### Processos em andamento por analista")
-            chart = _ag_chart_andamento_stacked(resumo)
-            if chart:
-                st.altair_chart(chart, use_container_width=True)
+            col_etapa, col_carga = st.columns(2)
+            with col_etapa:
+                st.caption("**Processos por etapa**")
+                ch = _ag_chart_etapas(resumo)
+                if ch:
+                    st.altair_chart(ch, use_container_width=True)
+            with col_carga:
+                st.caption("**Carga por analista vs Meta**")
+                ch = _ag_chart_carga_analista(resumo)
+                if ch:
+                    st.altair_chart(ch, use_container_width=True)
+                st.caption("🟡 Meta mín. · 🔴 Meta máx.")
+
+    # ── Eficiência (mesma lógica da Importação) ──────────────────────
+    with tab_ef:
+        st.subheader("Eficiência - Agenciamento")
+
+        # Gerar performance para todos os anos disponíveis
+        all_records = []
+        for a in anos:
+            d = ag.carregar_dados(int(a))
+            if d and "resumo" in d:
+                df_a = _ag_gerar_performance(d["resumo"], int(a))
+                if not df_a.empty:
+                    all_records.append(df_a)
+
+        if not all_records:
+            st.info("Nenhum dado de eficiência disponível.")
+        else:
+            df_all = pd.concat(all_records, ignore_index=True).sort_values(["ano", "mes"])
+            anos_ef = sorted(df_all["ano"].unique(), reverse=True)
+            year_tabs = st.tabs([str(int(a)) for a in anos_ef])
+
+            for tab_widget, a in zip(year_tabs, anos_ef):
+                df_ano = df_all[df_all["ano"] == a].copy()
+                resumo_ef = resumir_eficiencia_ano(
+                    df_ano,
+                    df_all[df_all["ano"] == a - 1].copy(),
+                    a,
+                )
+                with tab_widget:
+                    st.caption("Leitura detalhada mês a mês do ano selecionado.")
+                    render_tabela_performance(df_ano)
+                    st.caption(
+                        f"Resumo do ano: volume médio {_br_int(resumo_ef['volume_medio']) if resumo_ef['volume_medio'] else '—'}"
+                        f" | eficiência média {_br(resumo_ef['eficiencia_media'], 1) if resumo_ef['eficiencia_media'] else '—'}"
+                    )
+
+        # Andamento stacked bar
+        st.divider()
+        st.markdown("#### Processos em andamento por analista")
+        dados_ref = ag.carregar_dados(int(anos[0]))
+        if dados_ref and "resumo" in dados_ref:
+            ch = _ag_chart_andamento_stacked(dados_ref["resumo"])
+            if ch:
+                st.altair_chart(ch, use_container_width=True)
 
     # ── Analistas ────────────────────────────────────────────────────
     with tab_an:
@@ -791,27 +872,24 @@ def _render_agenciamento():
             st.markdown("#### Ranking por chegadas confirmadas")
             col_rank, col_heat = st.columns([1, 1])
             with col_rank:
-                chart = _ag_chart_ranking_chegadas(resumo["chegadas"])
-                if chart:
-                    st.altair_chart(chart, use_container_width=True)
+                ch = _ag_chart_ranking_chegadas(resumo["chegadas"])
+                if ch:
+                    st.altair_chart(ch, use_container_width=True)
             with col_heat:
                 st.caption("**Chegadas por analista por mês**")
-                chart = _ag_chart_chegadas_analista_mes(resumo["chegadas"], int(ano_an))
-                if chart:
-                    st.altair_chart(chart, use_container_width=True)
+                ch = _ag_chart_chegadas_analista_mes(resumo["chegadas"], int(ano_an))
+                if ch:
+                    st.altair_chart(ch, use_container_width=True)
 
-            # Tabela de analistas
+            # Tabela detalhada
             st.divider()
             st.markdown("#### Detalhamento por analista")
-
-            # Montar tabela cruzando andamento + chegadas
             and_map = {a["analista"]: a for a in resumo["andamento"]}
             cheg_map = {c["analista"]: c for c in resumo["chegadas"]}
             analistas_todos = list(dict.fromkeys(
                 [a["analista"] for a in resumo["andamento"]] +
                 [c["analista"] for c in resumo["chegadas"]]
             ))
-
             totais_m = _ag_totais_mes(resumo["chegadas"])
             n_meses = len([v for v in totais_m.values() if v > 0]) or 1
 
@@ -819,41 +897,32 @@ def _render_agenciamento():
             for nome in analistas_todos:
                 a = and_map.get(nome, {})
                 c = cheg_map.get(nome, {})
-                total_and = a.get("total", 0)
-                meta_min = a.get("meta_min", 0)
-                meta_max = a.get("meta_max", 0)
-                chegadas_total = c.get("total", 0)
-                media = round(chegadas_total / n_meses, 1) if n_meses else 0
-                pct_meta = round(chegadas_total / n_meses / ((meta_min + meta_max) / 2) * 100, 1) if (meta_min + meta_max) > 0 and n_meses else None
-
+                t_and = a.get("total", 0)
+                m_min, m_max = a.get("meta_min", 0), a.get("meta_max", 0)
+                cheg_t = c.get("total", 0)
+                media = round(cheg_t / n_meses, 1) if n_meses else 0
+                pct = round(media / ((m_min + m_max) / 2) * 100, 1) if (m_min + m_max) > 0 else None
                 table_rows.append({
-                    "Analista": nome,
-                    "Senioridade": a.get("senioridade", "—"),
-                    "Em Andamento": total_and,
-                    "Meta": f"{meta_min}-{meta_max}" if meta_max > 0 else "—",
-                    "Chegadas": chegadas_total,
-                    "Média/mês": media,
-                    "% Meta (média)": pct_meta,
+                    "Analista": nome, "Senioridade": a.get("senioridade", "—"),
+                    "Em Andamento": t_and,
+                    "Meta": f"{m_min}-{m_max}" if m_max > 0 else "—",
+                    "Chegadas": cheg_t, "Média/mês": media, "% Meta": pct,
                 })
-
             df_tab = pd.DataFrame(table_rows)
             if not df_tab.empty:
-
-                def _cor_pct_meta(val):
-                    if val is None or not isinstance(val, (int, float)) or pd.isna(val):
+                def _cor_pct(v):
+                    if v is None or not isinstance(v, (int, float)) or pd.isna(v):
                         return ""
-                    return "color: green; font-weight: bold" if val >= 100 else "color: #9a4a32; font-weight: bold"
-
-                styled = df_tab.style.map(_cor_pct_meta, subset=["% Meta (média)"]).format({
-                    "Em Andamento": lambda v: _br_int(v),
-                    "Chegadas": lambda v: _br_int(v),
+                    return "color:green;font-weight:bold" if v >= 100 else "color:#9a4a32;font-weight:bold"
+                styled = df_tab.style.map(_cor_pct, subset=["% Meta"]).format({
+                    "Em Andamento": lambda v: _br_int(v), "Chegadas": lambda v: _br_int(v),
                     "Média/mês": lambda v: _br(v, 1) if pd.notna(v) else "—",
-                    "% Meta (média)": lambda v: _br_pct(v) if v is not None and pd.notna(v) else "—",
+                    "% Meta": lambda v: _br_pct(v) if v is not None and pd.notna(v) else "—",
                 })
                 st.dataframe(styled, use_container_width=True, hide_index=True,
                              height=min(38 + len(df_tab) * 37, 500))
 
-            # Chegadas mensais por analista (tabela detalhada)
+            # Chegadas mensais
             st.divider()
             st.markdown("#### Chegadas mensais por analista")
             cheg_rows = []
@@ -864,172 +933,115 @@ def _render_agenciamento():
                 row["Total"] = c["total"]
                 cheg_rows.append(row)
             if cheg_rows:
-                # Adicionar linha de totais
                 totais_m = _ag_totais_mes(resumo["chegadas"])
                 total_row = {"Analista": "TOTAL"}
                 for m in range(1, 13):
                     total_row[MESES_PT[m]] = totais_m.get(m, "")
                 total_row["Total"] = sum(c["total"] for c in resumo["chegadas"])
                 cheg_rows.append(total_row)
-                df_cheg = pd.DataFrame(cheg_rows)
-                st.dataframe(df_cheg, use_container_width=True, hide_index=True,
-                             height=min(38 + len(df_cheg) * 37, 500))
+                st.dataframe(pd.DataFrame(cheg_rows), use_container_width=True, hide_index=True,
+                             height=min(38 + len(cheg_rows) * 37, 500))
 
-    # ── Volume (Chegadas) ────────────────────────────────────────────
+    # ── Faturados ────────────────────────────────────────────────────
     with tab_vol:
-        st.subheader("Volume (Chegadas) - Agenciamento")
+        st.subheader("Faturados - Agenciamento")
         ano_vol = st.selectbox("Ano", anos, format_func=lambda x: str(int(x)), key="ag_vol_ano")
         dados = ag.carregar_dados(int(ano_vol))
         if not dados:
             st.info("Dados não encontrados.")
         else:
-            resumo = dados.get("resumo", {})
             faturados = dados.get("faturados")
-
-            # KPIs financeiros do Faturados
             if faturados is not None and not faturados.empty:
                 lucro_total = faturados["lucro_bruto"].sum() if "lucro_bruto" in faturados.columns else 0
                 lucro_est = faturados["lucro_estimado"].sum() if "lucro_estimado" in faturados.columns else 0
                 recebimento = faturados["total_recebimento"].sum() if "total_recebimento" in faturados.columns else 0
                 pagamento = faturados["total_pagamento"].sum() if "total_pagamento" in faturados.columns else 0
                 teus_total = faturados["teus"].sum() if "teus" in faturados.columns else 0
-                n_processos = len(faturados)
 
-                st.markdown("#### Resumo financeiro dos faturados")
                 fc1, fc2, fc3, fc4, fc5, fc6 = st.columns(6)
-                fc1.metric("Processos Faturados", _br_int(n_processos))
+                fc1.metric("Processos", _br_int(len(faturados)))
                 fc2.metric("Lucro Bruto", f"R$ {_br(lucro_total, 0)}")
                 fc3.metric("Lucro Estimado", f"R$ {_br(lucro_est, 0)}")
                 fc4.metric("Recebimento", f"R$ {_br(recebimento, 0)}")
                 fc5.metric("Pagamento", f"R$ {_br(pagamento, 0)}")
                 fc6.metric("TEUS", _br(teus_total, 0))
-
                 st.divider()
 
-                # Distribuição por tipo de carga e modal
                 col_carga, col_modal = st.columns(2)
-
                 with col_carga:
-                    st.caption("**Distribuição por tipo de carga**")
+                    st.caption("**Tipo de carga**")
                     if "tipo_carga" in faturados.columns:
-                        df_carga = faturados["tipo_carga"].value_counts().reset_index()
-                        df_carga.columns = ["Tipo", "Processos"]
-                        cores_carga = [ag.CARGA_CORES.get(t, "#6f7a84") for t in df_carga["Tipo"]]
-                        chart_carga = (
-                            alt.Chart(df_carga)
-                            .mark_arc(innerRadius=50, outerRadius=85, cornerRadius=4)
+                        df_c = faturados["tipo_carga"].value_counts().reset_index()
+                        df_c.columns = ["Tipo", "Processos"]
+                        cores = [ag.CARGA_CORES.get(t, "#6f7a84") for t in df_c["Tipo"]]
+                        st.altair_chart(
+                            alt.Chart(df_c).mark_arc(innerRadius=50, outerRadius=85, cornerRadius=4)
                             .encode(
-                                theta=alt.Theta("Processos:Q"),
-                                color=alt.Color(
-                                    "Tipo:N",
-                                    scale=alt.Scale(domain=list(df_carga["Tipo"]), range=cores_carga),
-                                    legend=alt.Legend(title=None, orient="bottom"),
-                                ),
-                                tooltip=[
-                                    alt.Tooltip("Tipo:N"),
-                                    alt.Tooltip("Processos:Q", format=",d"),
-                                ],
-                            )
-                            .properties(height=250)
-                        )
-                        st.altair_chart(chart_carga, use_container_width=True)
-
+                                theta="Processos:Q",
+                                color=alt.Color("Tipo:N", scale=alt.Scale(domain=list(df_c["Tipo"]), range=cores),
+                                                legend=alt.Legend(title=None, orient="bottom")),
+                                tooltip=[alt.Tooltip("Tipo:N"), alt.Tooltip("Processos:Q", format=",d")],
+                            ).properties(height=250), use_container_width=True)
                 with col_modal:
-                    st.caption("**Distribuição por modal**")
+                    st.caption("**Modal**")
                     if "modal" in faturados.columns:
-                        df_modal = faturados["modal"].value_counts().reset_index()
-                        df_modal.columns = ["Modal", "Processos"]
-                        cores_modal = [ag.MODAL_CORES.get(m, "#6f7a84") for m in df_modal["Modal"]]
-                        chart_modal = (
-                            alt.Chart(df_modal)
-                            .mark_arc(innerRadius=50, outerRadius=85, cornerRadius=4)
+                        df_m = faturados["modal"].value_counts().reset_index()
+                        df_m.columns = ["Modal", "Processos"]
+                        cores = [ag.MODAL_CORES.get(m, "#6f7a84") for m in df_m["Modal"]]
+                        st.altair_chart(
+                            alt.Chart(df_m).mark_arc(innerRadius=50, outerRadius=85, cornerRadius=4)
                             .encode(
-                                theta=alt.Theta("Processos:Q"),
-                                color=alt.Color(
-                                    "Modal:N",
-                                    scale=alt.Scale(domain=list(df_modal["Modal"]), range=cores_modal),
-                                    legend=alt.Legend(title=None, orient="bottom"),
-                                ),
-                                tooltip=[
-                                    alt.Tooltip("Modal:N"),
-                                    alt.Tooltip("Processos:Q", format=",d"),
-                                ],
-                            )
-                            .properties(height=250)
-                        )
-                        st.altair_chart(chart_modal, use_container_width=True)
+                                theta="Processos:Q",
+                                color=alt.Color("Modal:N", scale=alt.Scale(domain=list(df_m["Modal"]), range=cores),
+                                                legend=alt.Legend(title=None, orient="bottom")),
+                                tooltip=[alt.Tooltip("Modal:N"), alt.Tooltip("Processos:Q", format=",d")],
+                            ).properties(height=250), use_container_width=True)
 
                 st.divider()
-
-                # Top 15 clientes
                 st.markdown("#### Top 15 clientes por volume")
                 if "cliente" in faturados.columns:
-                    df_cli = (
-                        faturados.groupby("cliente", as_index=False)
-                        .agg(Processos=("cliente", "size"),
-                             Lucro=("lucro_estimado", "sum"))
-                    )
+                    df_cli = faturados.groupby("cliente", as_index=False).agg(
+                        Processos=("cliente", "size"), Lucro=("lucro_estimado", "sum"))
                     df_cli = df_cli.sort_values("Processos", ascending=False).head(15)
-                    chart_cli = (
-                        alt.Chart(df_cli)
-                        .mark_bar(cornerRadiusEnd=8, color=COLOR_NAVY_DARK)
+                    st.altair_chart(
+                        alt.Chart(df_cli).mark_bar(cornerRadiusEnd=8, color=COLOR_NAVY_DARK)
                         .encode(
                             x=alt.X("Processos:Q", title="Processos faturados"),
                             y=alt.Y("cliente:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
-                            tooltip=[
-                                alt.Tooltip("cliente:N", title="Cliente"),
-                                alt.Tooltip("Processos:Q", format=",d"),
-                                alt.Tooltip("Lucro:Q", format=",.2f", title="Lucro estimado"),
-                            ],
-                        )
-                        .properties(height=max(300, len(df_cli) * 28))
-                    )
-                    st.altair_chart(chart_cli, use_container_width=True)
+                            tooltip=[alt.Tooltip("cliente:N", title="Cliente"),
+                                     alt.Tooltip("Processos:Q", format=",d"),
+                                     alt.Tooltip("Lucro:Q", format=",.2f", title="Lucro estimado")],
+                        ).properties(height=max(300, len(df_cli) * 28)), use_container_width=True)
 
-                # Top origens
                 st.divider()
                 col_orig, col_anal = st.columns(2)
                 with col_orig:
                     st.markdown("#### Top 10 origens")
                     if "origem" in faturados.columns:
-                        df_orig = faturados["origem"].value_counts().head(10).reset_index()
-                        df_orig.columns = ["Origem", "Processos"]
-                        chart_orig = (
-                            alt.Chart(df_orig)
-                            .mark_bar(cornerRadiusEnd=8, color="#4a8ab5")
+                        df_o = faturados["origem"].value_counts().head(10).reset_index()
+                        df_o.columns = ["Origem", "Processos"]
+                        st.altair_chart(
+                            alt.Chart(df_o).mark_bar(cornerRadiusEnd=8, color="#4a8ab5")
                             .encode(
                                 x=alt.X("Processos:Q", title="Processos"),
                                 y=alt.Y("Origem:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
                                 tooltip=[alt.Tooltip("Origem:N"), alt.Tooltip("Processos:Q", format=",d")],
-                            )
-                            .properties(height=max(200, len(df_orig) * 28))
-                        )
-                        st.altair_chart(chart_orig, use_container_width=True)
-
+                            ).properties(height=max(200, len(df_o) * 28)), use_container_width=True)
                 with col_anal:
-                    st.markdown("#### Volume por analista (faturados)")
+                    st.markdown("#### Volume por analista")
                     if "analista" in faturados.columns:
-                        df_anal = (
-                            faturados.groupby("analista", as_index=False)
-                            .agg(Processos=("analista", "size"),
-                                 Lucro=("lucro_estimado", "sum"))
-                        )
-                        df_anal = df_anal.sort_values("Processos", ascending=False)
-                        chart_anal = (
-                            alt.Chart(df_anal)
-                            .mark_bar(cornerRadiusEnd=8, color=COLOR_NAVY)
+                        df_a = faturados.groupby("analista", as_index=False).agg(
+                            Processos=("analista", "size"), Lucro=("lucro_estimado", "sum"))
+                        df_a = df_a.sort_values("Processos", ascending=False)
+                        st.altair_chart(
+                            alt.Chart(df_a).mark_bar(cornerRadiusEnd=8, color=COLOR_NAVY)
                             .encode(
                                 x=alt.X("Processos:Q", title="Processos faturados"),
                                 y=alt.Y("analista:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
-                                tooltip=[
-                                    alt.Tooltip("analista:N", title="Analista"),
-                                    alt.Tooltip("Processos:Q", format=",d"),
-                                    alt.Tooltip("Lucro:Q", format=",.2f", title="Lucro estimado"),
-                                ],
-                            )
-                            .properties(height=max(200, len(df_anal) * 28))
-                        )
-                        st.altair_chart(chart_anal, use_container_width=True)
+                                tooltip=[alt.Tooltip("analista:N", title="Analista"),
+                                         alt.Tooltip("Processos:Q", format=",d"),
+                                         alt.Tooltip("Lucro:Q", format=",.2f", title="Lucro estimado")],
+                            ).properties(height=max(200, len(df_a) * 28)), use_container_width=True)
             else:
                 st.info("Dados de faturados não disponíveis para este ano.")
 
@@ -1040,7 +1052,6 @@ def _render_agenciamento():
             "Faça upload da planilha de relatório de processos do agenciamento. "
             "O arquivo deve conter sheets 'Resumo YYYY' e opcionalmente 'Faturados YYYY HS'."
         )
-
         meta = ag.carregar_meta()
         if meta:
             dt = meta.get("ultimo_upload", "")
@@ -1054,12 +1065,7 @@ def _render_agenciamento():
                     f"Arquivo: {meta.get('arquivo_original', '—')} — "
                     f"Sheets: {', '.join(meta.get('sheets', []))}"
                 )
-
-        uploaded = st.file_uploader(
-            "Planilha de agenciamento (.xlsx)",
-            type=["xlsx"],
-            key="ag_upload",
-        )
+        uploaded = st.file_uploader("Planilha de agenciamento (.xlsx)", type=["xlsx"], key="ag_upload")
         if uploaded:
             if st.button("Processar upload", type="primary", key="ag_upload_btn"):
                 with st.spinner("Processando..."):
