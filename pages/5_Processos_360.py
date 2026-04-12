@@ -304,18 +304,17 @@ with tab_geral:
                     tipo_range = [TIPO_OP_CORES.get(t, "#6f7a84") for t in tipo_domain]
                     chart_tipo = (
                         alt.Chart(df_tipo)
-                        .mark_bar(cornerRadiusEnd=8)
+                        .mark_arc(innerRadius=0, outerRadius=90, cornerRadius=3)
                         .encode(
-                            x=alt.X("Quantidade:Q", title="Processos"),
-                            y=alt.Y("Tipo:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
+                            theta=alt.Theta("Quantidade:Q"),
                             color=alt.Color(
                                 "Tipo:N",
                                 scale=alt.Scale(domain=tipo_domain, range=tipo_range),
-                                legend=None,
+                                legend=alt.Legend(title=None, orient="bottom"),
                             ),
                             tooltip=[alt.Tooltip("Tipo:N"), alt.Tooltip("Quantidade:Q", format=",d")],
                         )
-                        .properties(height=180)
+                        .properties(height=220)
                     )
                     st.altair_chart(chart_tipo, use_container_width=True)
 
