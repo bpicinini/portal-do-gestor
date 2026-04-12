@@ -114,8 +114,7 @@ st.markdown(
     """
 <style>
 .block-container { padding-top: 1rem !important; }
-a.hm-nav { text-decoration: none; color: inherit; display: block; }
-a.hm-nav:hover { text-decoration: none; color: inherit; }
+/* links handled by st.page_link natively */
 
 /* ── Banner ── */
 .hm-banner {
@@ -172,9 +171,6 @@ a.hm-nav:hover { text-decoration: none; color: inherit; }
     border-color: rgba(199, 149, 54, 0.4);
     background: rgba(255, 255, 255, 0.65);
 }
-a.hm-nav .hm-kpi {
-    cursor: pointer;
-}
 .hm-kpi::after {
     content: attr(data-icon);
     position: absolute;
@@ -224,12 +220,6 @@ a.hm-nav .hm-kpi {
     margin-bottom: 12px;
     display: flex; justify-content: space-between; align-items: center;
 }
-.hm-pipeline-header a {
-    font-size: 11px; color: #c79536; font-weight: 700;
-    text-decoration: none; letter-spacing: 0.04em;
-    text-transform: none;
-}
-.hm-pipeline-header a:hover { text-decoration: underline; }
 .hm-pipeline-bar {
     display: flex;
     border-radius: 10px;
@@ -308,27 +298,6 @@ a.hm-nav .hm-kpi {
 .hm-sec-metric-val.amber { color: #b78328; }
 .hm-sec-metric-val.sm    { font-size: 15px; }
 
-.hm-sec-link {
-    display: block;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(199, 149, 54, 0.25);
-    border-radius: 12px;
-    padding: 8px 14px;
-    text-decoration: none;
-    color: #234055;
-    font-weight: 700;
-    font-size: 12px;
-    margin-top: auto;
-    transition: all 0.2s ease;
-}
-.hm-sec-link:hover {
-    background: rgba(199, 149, 54, 0.12);
-    border-color: rgba(199, 149, 54, 0.5);
-    color: #234055;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(199, 149, 54, 0.12);
-}
 
 /* ── Alert badges ── */
 .hm-alert-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
@@ -523,31 +492,31 @@ if ultima_perf:
 st.markdown(
     f"""
     <div class="hm-kpi-strip">
-        <a href="/Organograma" target="_top" class="hm-nav"><div class="hm-kpi" data-icon="👥">
+        <div class="hm-kpi" data-icon="👥">
             <div class="hm-kpi-label">Colaboradores Ativos</div>
             <div class="hm-kpi-value">{len(ativos)}</div>
             <div class="hm-kpi-sub">em {len(departamentos)} departamentos</div>
-        </div></a>
-        <a href="/KPIs" target="_top" class="hm-nav"><div class="hm-kpi gold" data-icon="⚖️">
+        </div>
+        <div class="hm-kpi gold" data-icon="⚖️">
             <div class="hm-kpi-label">Manpower Total</div>
             <div class="hm-kpi-value">{_br(mp_total, 1)}</div>
             <div class="hm-kpi-sub">soma dos pesos ativos</div>
-        </div></a>
-        <a href="/Processos_360" target="_top" class="hm-nav"><div class="hm-kpi blue" data-icon="🚢">
+        </div>
+        <div class="hm-kpi blue" data-icon="🚢">
             <div class="hm-kpi-label">Processos · Importação</div>
             <div class="hm-kpi-value">{total_proc:,}</div>
             <div class="hm-kpi-sub">{clientes_unicos} clientes</div>
-        </div></a>
-        <a href="/Processos_360?aba=alertas" target="_top" class="hm-nav"><div class="hm-kpi red" data-icon="⚠️">
+        </div>
+        <div class="hm-kpi red" data-icon="⚠️">
             <div class="hm-kpi-label">Alertas Ativos</div>
             <div class="hm-kpi-value">{total_alertas}</div>
             <div class="hm-kpi-sub">requerem atenção</div>
-        </div></a>
-        <a href="/KPIs" target="_top" class="hm-nav"><div class="hm-kpi teal" data-icon="📊">
+        </div>
+        <div class="hm-kpi teal" data-icon="📊">
             <div class="hm-kpi-label">% da Meta {perf_ref}</div>
             <div class="hm-kpi-value {pct_class}">{pct_display}</div>
             <div class="hm-kpi-sub">eficiência operacional</div>
-        </div></a>
+        </div>
     </div>
     """.replace(",}", "}"),
     unsafe_allow_html=True,
@@ -585,7 +554,7 @@ if not df_proc.empty:
         <div class="hm-pipeline">
             <div class="hm-pipeline-header">
                 <span>Pipeline de Processos · Importação · {total_proc} processos{extras_html}</span>
-                <a href="/Processos_360" target="_top" style="font-size:11px;color:#c79536;font-weight:700;text-decoration:none;">Ver detalhes →</a>
+                <span style="font-size:11px;color:#c79536;font-weight:700;">⬇ ver detalhes abaixo</span>
             </div>
             <div class="hm-pipeline-bar">{seg_html}</div>
             <div class="hm-pipeline-legend">{legend_html}</div>
@@ -657,7 +626,6 @@ org_card = f"""
             {unidades_html}
         </div>
     </div>
-    <a href="/Organograma" target="_top" class="hm-sec-link">Explorar Organograma →</a>
 </div>"""
 
 # --- Departamentos: dados para seção dedicada ---
@@ -726,7 +694,6 @@ if ultima_perf:
             <div class="hm-section-label">Últimos {len(ultimos6)} meses</div>
             {perf_hist_html}
         </div>
-        <a href="/KPIs" target="_top" class="hm-sec-link">Explorar KPIs →</a>
     </div>"""
 else:
     kpi_card = f"""
@@ -751,14 +718,15 @@ else:
             </div>
             <p style="font-size:12px;color:#7d8790;text-align:center;margin:14px 0;">Dados de performance ainda não registrados.</p>
         </div>
-        <a href="/KPIs" target="_top" class="hm-sec-link">Explorar KPIs →</a>
     </div>"""
 
 col_org, col_kpi = st.columns(2, gap="medium")
 with col_org:
     st.markdown(org_card, unsafe_allow_html=True)
+    st.page_link("pages/1_Organograma.py", label="Explorar Organograma →", icon="🗂️", use_container_width=True)
 with col_kpi:
     st.markdown(kpi_card, unsafe_allow_html=True)
+    st.page_link("pages/3_Manpower_e_Eficiencia.py", label="Explorar KPIs →", icon="📊", use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # DEPARTAMENTOS — seção full-width com cards por departamento
@@ -782,7 +750,7 @@ for nome, n, mp, pessoas in sorted(dept_cards_data, key=lambda x: -x[1]):
         nomes_html = '<span style="opacity:0.5;">—</span>'
 
     dept_cards_html += f"""
-    <a href="/Organograma" target="_top" class="hm-nav"><div class="hm-dept-card">
+    <div class="hm-dept-card">
         <div class="hm-dept-card-name">{nome}</div>
         <div class="hm-dept-card-nums">
             <div class="hm-dept-card-num">
@@ -798,18 +766,19 @@ for nome, n, mp, pessoas in sorted(dept_cards_data, key=lambda x: -x[1]):
             <div class="hm-dept-card-bar-fill" style="width:{pct_bar:.0f}%;"></div>
         </div>
         <div class="hm-dept-card-people">{nomes_html}</div>
-    </div></a>"""
+    </div>"""
 
 st.markdown(
     f"""
     <div style="font-size:11px;font-weight:800;color:#234055;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
         <span>Departamentos · {len(departamentos)} áreas · {len(ativos)} colaboradores</span>
-        <a href="/Organograma" target="_top" style="font-size:11px;color:#c79536;font-weight:700;text-decoration:none;text-transform:none;">Ver organograma →</a>
+        <span style="font-size:11px;color:#7d8790;font-weight:700;text-transform:none;">clique abaixo para navegar</span>
     </div>
     <div class="hm-dept-grid">{dept_cards_html}</div>
     """,
     unsafe_allow_html=True,
 )
+st.page_link("pages/1_Organograma.py", label="Ver Organograma Completo →", icon="🗂️")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # LINHA 2: Processos 360 + Controle de Pessoas (2 colunas)
@@ -838,7 +807,7 @@ alerts_html = ""
 if alert_items:
     alerts_html = '<div class="hm-section-label">Alertas</div><div class="hm-alert-row">'
     for key, label, n, severity in alert_items:
-        alerts_html += f'<a href="/Processos_360?aba=alertas&alerta={key}" target="_top" style="text-decoration:none;"><span class="hm-alert-badge {severity}">{label} <span class="hm-alert-count">{n}</span></span></a>'
+        alerts_html += f'<span class="hm-alert-badge {severity}">{label} <span class="hm-alert-count">{n}</span></span>'
     alerts_html += "</div>"
 
 # Top clientes
@@ -901,7 +870,6 @@ proc_card = f"""
         {modal_html}
         {top_clientes_html}
     </div>
-    <a href="/Processos_360" target="_top" class="hm-sec-link">Explorar Processos →</a>
 </div>"""
 
 # --- Card: Controle de Pessoas ---
@@ -962,14 +930,15 @@ pess_card = f"""
         <div class="hm-section-label">Últimas Movimentações</div>
         {mov_content}
     </div>
-    <a href="/Controle_de_Pessoas" target="_top" class="hm-sec-link">Explorar Pessoas →</a>
 </div>"""
 
 col_proc, col_pess = st.columns(2, gap="medium")
 with col_proc:
     st.markdown(proc_card, unsafe_allow_html=True)
+    st.page_link("pages/5_Processos_360.py", label="Explorar Processos 360 →", icon="🚢", use_container_width=True)
 with col_pess:
     st.markdown(pess_card, unsafe_allow_html=True)
+    st.page_link("pages/2_Controle_de_Pessoas.py", label="Explorar Controle de Pessoas →", icon="👥", use_container_width=True)
 
 # ── Backup (admin only) ───────────────────────────────────────────────────────
 if usuario_admin():
