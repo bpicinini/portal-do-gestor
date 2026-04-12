@@ -10,6 +10,7 @@ import streamlit as st
 from utils.auth import garantir_autenticado
 from utils.processos360 import (
     STATUS_ORDEM,
+    _br,
     _br_moeda,
     calcular_alertas,
     carregar_meta,
@@ -19,7 +20,7 @@ from utils.processos360 import (
     salvar_upload,
     validar_csv,
 )
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
+from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
 
 COLOR_NAVY = "#234055"
 COLOR_NAVY_SOFT = "#36586f"
@@ -176,6 +177,7 @@ with tab_geral:
         if df.empty:
             _msg_sem_dados()
         else:
+            alertas = calcular_alertas(df)
             total = len(df)
 
             # ── KPIs: Total + todos os status com percentual ──
@@ -403,11 +405,11 @@ with tab_analista:
 
             # ── Filtro por tipo (tags clicáveis) ─────────────────────────
             # Renderizar filtro ANTES de qualquer agregação
-            filtro_tipo = []
             _col_hdr, _col_filt = st.columns([2, 3])
             with _col_filt:
                 if _tem_tipo:
                     _fcols = st.columns(len(TIPOS_ORDEM) + 1)
+                    filtro_tipo = []
                     for _fi, _ft in enumerate(TIPOS_ORDEM):
                         with _fcols[_fi]:
                             _cor_tag = TIPO_CORES[_ft]
@@ -421,6 +423,8 @@ with tab_analista:
                                 f'<div style="background:{_cor_tag};height:4px;border-radius:2px;margin-top:-10px;"></div>',
                                 unsafe_allow_html=True,
                             )
+                else:
+                    filtro_tipo = []
 
             # Aplicar filtro no DataFrame inteiro (tudo reflete o filtro)
             if filtro_tipo:
@@ -464,17 +468,17 @@ with tab_analista:
             else:
                 _tipos_por_analista = {}
 
+            _analistas_filtrados = analistas
+
             # ── Cards ─────────────────────────────────────────────────────
-            if analistas.empty:
-                st.info("Nenhum analista encontrado para o filtro selecionado.")
             cols_por_linha = 3
-            for i in range(0, len(analistas), cols_por_linha):
+            for i in range(0, len(_analistas_filtrados), cols_por_linha):
                 cols = st.columns(cols_por_linha)
                 for j, col in enumerate(cols):
                     idx = i + j
-                    if idx >= len(analistas):
+                    if idx >= len(_analistas_filtrados):
                         break
-                    row = analistas.iloc[idx]
+                    row = _analistas_filtrados.iloc[idx]
                     with col:
                         df_an = df[df["Account"] == row["Account"]]
                         status_counts = df_an["Status"].value_counts()
@@ -553,7 +557,7 @@ with tab_analista:
                                     .reset_index(name="processos")
                                     .sort_values("processos", ascending=False)
                                 )
-                                df_cl_agg["tipos"] = [[] for _ in range(len(df_cl_agg))]
+                                df_cl_agg["tipos"] = [[]] * len(df_cl_agg)
 
                             # Renderizar como tabela HTML com tags coloridas
                             rows_html = ""
@@ -1008,6 +1012,12 @@ with tab_clientes:
             )
 
             # Agregar dados por cliente consolidado
+            agg_dict = {"Processo": "count"}
+            if "Valor Aduaneiro" in df_cli.columns:
+                agg_dict["Valor Aduaneiro"] = "sum"
+            if "Qtd. Container" in df_cli.columns:
+                agg_dict["Qtd. Container"] = "sum"
+
             df_tabela_cli = (
                 df_cli.groupby("_ClienteBase")
                 .agg(**{
@@ -1149,9 +1159,9 @@ with tab_alertas:
                                 fmt[col] = fn
                     if fmt:
                         styled = df_show.style.format(fmt)
-                        renderizar_dataframe(styled, use_container_width=True, hide_index=True)
+                        st.dataframe(styled, use_container_width=True, hide_index=True)
                     else:
-                        renderizar_dataframe(df_show, use_container_width=True, hide_index=True)
+                        st.dataframe(df_show, use_container_width=True, hide_index=True)
 
             fmt_moeda = lambda v: _br_moeda(v) if pd.notna(v) else ""
             fmt_data = lambda v: v.strftime("%d/%m/%Y") if pd.notna(v) else ""
@@ -1362,7 +1372,7 @@ with tab_tabela:
                 styled = styled.map(_estilo_canal, subset=["Canal"])
 
             height = min(38 + len(df_show) * 35 + 6, 700)
-            renderizar_dataframe(styled, use_container_width=True, hide_index=True, height=height)
+            st.dataframe(styled, use_container_width=True, hide_index=True, height=height)
 
             # Download filtrado
             csv_download = df_f.to_csv(index=False).encode("utf-8-sig")
@@ -1401,7 +1411,7 @@ with tab_upload:
             uploaded.seek(0)
 
             st.caption(f"**Preview** — {len(df_full)} registros, {len(df_full.columns)} colunas")
-            renderizar_dataframe(df_preview, use_container_width=True, hide_index=True)
+            st.dataframe(df_preview, use_container_width=True, hide_index=True)
 
             # Validação
             valido, avisos = validar_csv(df_full)
