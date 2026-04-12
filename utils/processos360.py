@@ -308,12 +308,14 @@ def calcular_alertas(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     else:
         alertas["perdimento_proximo"] = pd.DataFrame()
 
-    # 6. Canal vermelho
+    # 6. Canal vermelho e Canal amarelo
     if "Canal" in df.columns:
-        mask = df["Canal"].str.strip().str.lower() == "vermelho"
-        alertas["canal_vermelho"] = df[mask].copy()
+        canal_lower = df["Canal"].str.strip().str.lower()
+        alertas["canal_vermelho"] = df[canal_lower == "vermelho"].copy()
+        alertas["canal_amarelo"]  = df[canal_lower == "amarelo"].copy()
     else:
         alertas["canal_vermelho"] = pd.DataFrame()
+        alertas["canal_amarelo"]  = pd.DataFrame()
 
     # 7. LI/LPCO indeferida
     if "Situação" in df.columns:

@@ -81,7 +81,6 @@ renderizar_cabecalho_pagina(
     "Processos 360",
     "Visão consolidada dos processos de importação em andamento.",
     badge=badge_text,
-    pills=["Visão Geral", "Analistas", "Alertas", "Tabela", "Upload"],
 )
 
 
@@ -413,24 +412,20 @@ with tab_analista:
 
             st.divider()
 
-            # Gráfico empilhado por analista/status
+            n_analistas = df["Account"].nunique()
+            _sort_desc = alt.EncodingSortField(field="Quantidade", op="sum", order="descending")
+
+            # ── Gráfico 1: por Status ─────────────────────────────────────
             st.caption("**Distribuição de processos por Analista e Status**")
             df_pivot = df.groupby(["Account", "Status"]).size().reset_index(name="Quantidade")
             df_pivot["Status"] = pd.Categorical(df_pivot["Status"], categories=STATUS_ORDEM, ordered=True)
-
-            ordem_analistas = (
-                df_pivot.groupby("Account")["Quantidade"]
-                .sum()
-                .sort_values(ascending=True)
-                .index.tolist()
-            )
 
             chart_analista = (
                 alt.Chart(df_pivot)
                 .mark_bar(cornerRadiusEnd=4)
                 .encode(
                     x=alt.X("Quantidade:Q", title="Processos", stack="zero"),
-                    y=alt.Y("Account:N", sort=ordem_analistas, title=None, axis=alt.Axis(labelLimit=300)),
+                    y=alt.Y("Account:N", sort=_sort_desc, title=None, axis=alt.Axis(labelLimit=300)),
                     color=alt.Color(
                         "Status:N",
                         scale=alt.Scale(domain=list(STATUS_CORES.keys()), range=list(STATUS_CORES.values())),
@@ -442,9 +437,52 @@ with tab_analista:
                         alt.Tooltip("Quantidade:Q", format=",d"),
                     ],
                 )
-                .properties(height=max(350, len(ordem_analistas) * 28))
+                .properties(height=max(350, n_analistas * 28))
             )
             st.altair_chart(chart_analista, use_container_width=True)
+
+            # ── Gráfico 2: por Tipo de Operação ──────────────────────────
+            if "Tipo de Operação" in df.columns:
+                st.caption("**Distribuição por Tipo de Operação por Analista**")
+
+                _TIPO_LABELS = {
+                    "Importação Própria": "Direto",
+                    "Importação por Conta e Ordem": "CO3",
+                    "Encomenda": "Encomenda",
+                }
+                _TIPO_CORES = {
+                    "Direto": "#234055",
+                    "CO3": "#4a8ab5",
+                    "Encomenda": "#c79536",
+                }
+
+                df_tipo = df.copy()
+                df_tipo["Tipo"] = df_tipo["Tipo de Operação"].map(_TIPO_LABELS).fillna(df_tipo["Tipo de Operação"])
+                df_tipo_piv = df_tipo.groupby(["Account", "Tipo"]).size().reset_index(name="Quantidade")
+
+                tipo_domain = list(_TIPO_CORES.keys())
+                tipo_range  = list(_TIPO_CORES.values())
+
+                chart_tipo = (
+                    alt.Chart(df_tipo_piv)
+                    .mark_bar(cornerRadiusEnd=4)
+                    .encode(
+                        x=alt.X("Quantidade:Q", title="Processos", stack="zero"),
+                        y=alt.Y("Account:N", sort=_sort_desc, title=None, axis=alt.Axis(labelLimit=300)),
+                        color=alt.Color(
+                            "Tipo:N",
+                            scale=alt.Scale(domain=tipo_domain, range=tipo_range),
+                            legend=alt.Legend(title="Tipo"),
+                        ),
+                        tooltip=[
+                            alt.Tooltip("Account:N", title="Analista"),
+                            alt.Tooltip("Tipo:N", title="Tipo"),
+                            alt.Tooltip("Quantidade:Q", format=",d", title="Processos"),
+                        ],
+                    )
+                    .properties(height=max(350, n_analistas * 28))
+                )
+                st.altair_chart(chart_tipo, use_container_width=True)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -467,6 +505,7 @@ with tab_alertas:
                 ("Valor > R$ 1M", len(alertas["valor_alto"]), COLOR_GOLD),
                 ("Follow > 10d", len(alertas["follow_desatualizado"]), "#b58c23"),
                 ("Canal Vermelho", len(alertas["canal_vermelho"]), COLOR_RED),
+                ("Canal Amarelo", len(alertas["canal_amarelo"]), COLOR_GOLD),
                 ("Container", len(alertas["container_vencendo"]), "#8b5e3c"),
                 ("Perdimento", len(alertas["perdimento_proximo"]), COLOR_RED),
                 ("LI Indeferida", len(alertas["li_indeferida"]), "#6f7a84"),
@@ -538,8 +577,16 @@ with tab_alertas:
             _render_alerta(
                 "Canal Vermelho",
                 _safe_sort(alertas["canal_vermelho"], "Registro da DI", na_position="first"),
-                ["Processo", "Account", "Cliente", "Registro da DI", "Follow"],
-                {"Registro da DI": fmt_data},
+                ["Processo", "Account", "Cliente", "Registro da DI", "Data do Follow", "Follow"],
+                {"Registro da DI": fmt_data, "Data do Follow": fmt_data},
+            )
+
+            # Canal Amarelo — ordenado pela data de registro (mais antigo primeiro)
+            _render_alerta(
+                "Canal Amarelo",
+                _safe_sort(alertas["canal_amarelo"], "Registro da DI", na_position="first"),
+                ["Processo", "Account", "Cliente", "Registro da DI", "Data do Follow", "Follow"],
+                {"Registro da DI": fmt_data, "Data do Follow": fmt_data},
             )
 
             # Saldo negativo — ordenado por saldo (mais negativo primeiro)
