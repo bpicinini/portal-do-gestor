@@ -389,15 +389,47 @@ with tab_analista:
         else:
             # Coluna Tipo mapeada (Direto / CO3 / Encomenda)
             _tem_tipo = "Tipo de Operação" in df.columns
+            df = df.copy()
             if _tem_tipo:
-                df = df.copy()
                 df["_Tipo"] = df["Tipo de Operação"].map(TIPO_LABELS).fillna("Outro")
 
+            # ── Filtro por tipo (tags clicáveis) ─────────────────────────
+            # Renderizar filtro ANTES de qualquer agregação
+            _col_hdr, _col_filt = st.columns([2, 3])
+            with _col_filt:
+                if _tem_tipo:
+                    _fcols = st.columns(len(TIPOS_ORDEM) + 1)
+                    filtro_tipo = []
+                    for _fi, _ft in enumerate(TIPOS_ORDEM):
+                        with _fcols[_fi]:
+                            _cor_tag = TIPO_CORES[_ft]
+                            if st.checkbox(
+                                _ft,
+                                key=f"filtro_tag_{_ft}",
+                                value=False,
+                            ):
+                                filtro_tipo.append(_ft)
+                            st.markdown(
+                                f'<div style="background:{_cor_tag};height:4px;border-radius:2px;margin-top:-10px;"></div>',
+                                unsafe_allow_html=True,
+                            )
+                else:
+                    filtro_tipo = []
+
+            # Aplicar filtro no DataFrame inteiro (tudo reflete o filtro)
+            if filtro_tipo:
+                df = df[df["_Tipo"].isin(filtro_tipo)]
+
+            # Agregar com dados já filtrados
             analistas = df.groupby("Account").agg(
                 processos=("Processo", "count"),
                 clientes=("Cliente", "nunique"),
                 valor_aduaneiro=("Valor Aduaneiro", "sum"),
             ).reset_index().sort_values("processos", ascending=False)
+
+            with _col_hdr:
+                _lbl_filtro = f" ({' + '.join(filtro_tipo)})" if filtro_tipo else ""
+                st.markdown(f"#### {len(analistas)} Analistas{_lbl_filtro}")
 
             # Processos ativos por analista
             _hoje = pd.Timestamp.now().normalize()
@@ -416,7 +448,7 @@ with tab_analista:
             _df_ativos = df[_mask_ativos | _mask_embarque_ativo]
             _ativos_por_analista = _df_ativos.groupby("Account").size().rename("ativos")
 
-            # Tipos por analista (para tags e filtro)
+            # Tipos por analista (para tags)
             if _tem_tipo:
                 _tipos_por_analista = (
                     df.groupby("Account")["_Tipo"]
@@ -426,37 +458,7 @@ with tab_analista:
             else:
                 _tipos_por_analista = {}
 
-            # ── Filtro por tipo (tags clicáveis) ─────────────────────────
-            _col_hdr, _col_filt = st.columns([2, 3])
-            with _col_hdr:
-                st.markdown(f"#### {len(analistas)} Analistas")
-            with _col_filt:
-                _fcols = st.columns(len(TIPOS_ORDEM) + 1)
-                filtro_tipo = []
-                for _fi, _ft in enumerate(TIPOS_ORDEM):
-                    with _fcols[_fi]:
-                        _cor_tag = TIPO_CORES[_ft]
-                        if st.checkbox(
-                            _ft,
-                            key=f"filtro_tag_{_ft}",
-                            value=False,
-                        ):
-                            filtro_tipo.append(_ft)
-                        # Indicador visual da tag (cor)
-                        st.markdown(
-                            f'<div style="background:{_cor_tag};height:4px;border-radius:2px;margin-top:-10px;"></div>',
-                            unsafe_allow_html=True,
-                        )
-
-            # Aplicar filtro na lista de analistas
-            if filtro_tipo:
-                _analistas_filtrados = analistas[
-                    analistas["Account"].apply(
-                        lambda a: bool(_tipos_por_analista.get(a, set()) & set(filtro_tipo))
-                    )
-                ]
-            else:
-                _analistas_filtrados = analistas
+            _analistas_filtrados = analistas
 
             # ── Cards ─────────────────────────────────────────────────────
             cols_por_linha = 3
@@ -521,15 +523,8 @@ with tab_analista:
 
                         # Expander com breakdown por cliente e tipo
                         with st.expander("Ver clientes", expanded=False):
-                            # Filtrar pelo tipo selecionado (se houver)
-                            df_an_f = (
-                                df_an[df_an["_Tipo"].isin(filtro_tipo)]
-                                if filtro_tipo and _tem_tipo
-                                else df_an
-                            )
-
-                            # Consolidar nomes de clientes (remove CNPJ/filial)
-                            df_an_f = df_an_f.copy()
+                            # df_an já está filtrado pelo tipo (filtro aplicado no df global)
+                            df_an_f = df_an.copy()
                             df_an_f["_ClienteBase"] = df_an_f["Cliente"].apply(_consolidar_cliente)
 
                             # Agregar: processos + conjunto de tipos por cliente consolidado
