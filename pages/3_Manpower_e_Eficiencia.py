@@ -15,6 +15,7 @@ from utils.manpower import (
 )
 from utils.pessoas import listar_colaboradores
 from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.excel_io import github_persist
 from utils import agenciamento as ag
 
 DEPARTAMENTO_COM_DADOS = "Importação"
@@ -116,14 +117,31 @@ def _render_metricas_vazias(metricas):
             st.metric(label, value)
 
 
-@st.cache_data(show_spinner=False)
-def carregar_score_base():
-    base_dir = Path(__file__).resolve().parents[1] / "arquivos base"
-    arquivos = sorted(base_dir.glob("*performance (2).xlsx"))
-    if not arquivos:
+_SCORE_PATH = Path(__file__).resolve().parents[1] / "data" / "score_importacao.xlsx"
+_SCORE_META_PATH = Path(__file__).resolve().parents[1] / "data" / "score_importacao_meta.json"
+
+
+def _score_mtime() -> float:
+    try:
+        return _SCORE_PATH.stat().st_mtime
+    except OSError:
+        return 0
+
+
+@st.cache_data(show_spinner="Carregando score...", ttl=300)
+def carregar_score_base(_mtime_key: float = 0):
+    if not _SCORE_PATH.exists():
         return pd.DataFrame()
 
-    df = pd.read_excel(arquivos[0], sheet_name="Export")
+    try:
+        df = pd.read_excel(_SCORE_PATH, sheet_name="Export")
+    except Exception:
+        # Tentar sem sheet_name específico (primeira sheet)
+        try:
+            df = pd.read_excel(_SCORE_PATH)
+        except Exception:
+            return pd.DataFrame()
+
     df = df.rename(columns=lambda col: str(col).strip())
     for coluna in [
         "Score Performance",
@@ -136,7 +154,63 @@ def carregar_score_base():
     ]:
         if coluna in df.columns:
             df[coluna] = pd.to_numeric(df[coluna], errors="coerce")
-    return df.dropna(how="all")
+    df = df.dropna(how="all")
+    if "Analista" in df.columns:
+        df = df[~df["Analista"].str.contains("Total|Filtros aplicados", case=False, na=False)]
+    return df
+
+
+def _salvar_score_upload(uploaded_file) -> tuple[bool, str]:
+    """Processa upload de nova planilha de score."""
+    import json as _json
+    import shutil as _shutil
+    from utils.excel_io import github_persist
+
+    try:
+        conteudo = uploaded_file.getvalue()
+
+        # Validar que é Excel com colunas esperadas
+        uploaded_file.seek(0)
+        try:
+            df_test = pd.read_excel(uploaded_file, sheet_name="Export", nrows=3)
+        except Exception:
+            uploaded_file.seek(0)
+            df_test = pd.read_excel(uploaded_file, nrows=3)
+        df_test.columns = df_test.columns.str.strip()
+
+        obrigatorias = {"Analista", "Score Performance"}
+        if not obrigatorias.issubset(set(df_test.columns)):
+            return False, f"Colunas obrigatórias não encontradas: {obrigatorias - set(df_test.columns)}"
+
+        # Salvar arquivo principal
+        with open(_SCORE_PATH, "wb") as f:
+            f.write(conteudo)
+
+        # Backup
+        backup_dir = _SCORE_PATH.parent / "backups"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        ts = date.today().strftime("%Y%m%d") + "_" + __import__("datetime").datetime.now().strftime("%H%M%S")
+        _shutil.copy2(_SCORE_PATH, backup_dir / f"score_importacao_{ts}.xlsx")
+
+        # Meta
+        meta = {
+            "ultimo_upload": __import__("datetime").datetime.now().isoformat(),
+            "arquivo_original": uploaded_file.name,
+        }
+        meta_bytes = _json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8")
+        with open(_SCORE_META_PATH, "wb") as f:
+            f.write(meta_bytes)
+
+        # Persistir no GitHub
+        github_persist("data/score_importacao.xlsx", conteudo, "Upload score importação")
+        github_persist("data/score_importacao_meta.json", meta_bytes, "Meta score importação")
+
+        # Limpar cache
+        carregar_score_base.clear()
+
+        return True, "Upload realizado com sucesso!"
+    except Exception as e:
+        return False, f"Erro no upload: {e}"
 
 
 def chart_perf_meta(df_chart):
@@ -1388,10 +1462,6 @@ else:
 
     with tab_score:
         st.subheader(f"Painel de Volume (Score) - {departamento_selecionado}")
-        st.warning(
-            "Painel em construção. Esta é uma réplica inicial do resumo que hoje sai do BI, "
-            "já aplicada ao padrão visual do portal."
-        )
 
         if not tem_dados_departamento:
             _render_metricas_vazias(
@@ -1404,10 +1474,10 @@ else:
             )
             st.info("Esse departamento ainda nao possui carga de dados para o painel de volume score.")
         else:
-            df_score = carregar_score_base()
+            df_score = carregar_score_base(_mtime_key=_score_mtime())
 
             if df_score.empty:
-                st.info("A base de score nao foi localizada em `arquivos base`.")
+                st.info("Nenhuma base de score carregada. Faça upload abaixo.")
             else:
                 df_score = df_score.sort_values("Score Performance", ascending=False).reset_index(drop=True)
 
@@ -1421,10 +1491,19 @@ else:
                 with c4:
                     st.metric("Registros", _br_int(df_score["Registros"].sum()))
 
-                st.caption(
-                    "Base provisória replicada de `arquivos base/Análise de performance (2).xlsx`, "
-                    "mantendo neste momento somente o recorte de Importação."
-                )
+                # Meta do upload
+                if _SCORE_META_PATH.exists():
+                    import json as _json_score
+                    try:
+                        with open(_SCORE_META_PATH, "r", encoding="utf-8") as _f:
+                            _smeta = _json_score.load(_f)
+                        _sdt = _smeta.get("ultimo_upload", "")
+                        if _sdt:
+                            _sdt_fmt = pd.Timestamp(_sdt).strftime("%d/%m/%Y %H:%M")
+                            st.caption(f"Último upload: **{_sdt_fmt}** — Arquivo: {_smeta.get('arquivo_original', '—')}")
+                    except Exception:
+                        pass
+
                 st.divider()
 
                 col_chart, col_highlight = st.columns([1.5, 1])
@@ -1460,3 +1539,22 @@ else:
                 )
                 height = min(38 + len(df_show) * 35 + 6, 900)
                 st.dataframe(styled, use_container_width=True, hide_index=True, height=height)
+
+            # Upload de score
+            st.divider()
+            st.subheader("Upload de Score")
+            st.caption(
+                "Planilha exportada do BI com os dados de performance por analista. "
+                "Colunas obrigatórias: **Analista**, **Score Performance**. "
+                "Sheet esperada: **Export**."
+            )
+            score_file = st.file_uploader("Planilha de Score (.xlsx)", type=["xlsx"], key="score_upload")
+            if score_file:
+                if st.button("Processar upload", type="primary", key="score_upload_btn"):
+                    with st.spinner("Processando..."):
+                        ok, msg = _salvar_score_upload(score_file)
+                    if ok:
+                        st.success(msg)
+                        st.rerun()
+                    else:
+                        st.error(msg)
