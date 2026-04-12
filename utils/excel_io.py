@@ -84,11 +84,11 @@ def _github_put_file(file_bytes, sha=None):
     g = Github(st.secrets["GITHUB_TOKEN"])
     repo = g.get_repo(st.secrets["GITHUB_REPO"])
     path = st.secrets.get("GITHUB_DATA_PATH", "data/dados.xlsx")
-    encoded = base64.b64encode(file_bytes).decode()
+    # PyGithub aceita bytes diretamente e faz base64 internamente
     if sha:
-        repo.update_file(path, "Atualização dados.xlsx", encoded, sha)
+        repo.update_file(path, "Atualização dados.xlsx", file_bytes, sha)
     else:
-        repo.create_file(path, "Criação dados.xlsx", encoded)
+        repo.create_file(path, "Criação dados.xlsx", file_bytes)
 
 
 def _garantir_sheets(wb):
