@@ -311,6 +311,9 @@ filtro_dept = st.selectbox(
     key="filtro_org",
 )
 
+# Gerência geral — aparece em todos os departamentos
+gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
+
 tab_niveis, tab_reportes, tab_quadro, tab_gestao = st.tabs(
     ["Visao por niveis", "Visao por reportes", "Quadro completo", "Gestao"]
 )
@@ -323,15 +326,19 @@ with tab_niveis:
             continue
 
         dept_colabs = listar_colaboradores(status="Ativo", departamento_id=int(depto["id"]))
-        if not dept_colabs:
+        # Incluir gerência que não é deste depto (ela supervisiona todos)
+        ids_dept = {c.get("id") for c in dept_colabs}
+        gerencia_extra = [g for g in gerencia_geral if g.get("id") not in ids_dept]
+        dept_colabs_com_gerencia = gerencia_extra + dept_colabs
+        if not dept_colabs_com_gerencia:
             continue
 
         with st.expander(
-            f"**{depto['nome']}** | {len(dept_colabs)} pessoas",
+            f"**{depto['nome']}** | {len(dept_colabs_com_gerencia)} pessoas",
             expanded=(filtro_dept != "Todos"),
         ):
             niveis = {}
-            for pessoa in dept_colabs:
+            for pessoa in dept_colabs_com_gerencia:
                 niveis.setdefault(_nivel(pessoa), []).append(pessoa)
 
             nivel_anterior = None
@@ -363,15 +370,24 @@ with tab_reportes:
     for bloco in estrutura_reportes:
         if filtro_dept != "Todos" and bloco["departamento"] != filtro_dept:
             continue
-        dept_total = len(bloco["lideres"]) + sum(len(grupo["reportes"]) + 1 for grupo in bloco["grupos"])
+        # Gerência geral aparece em todos os departamentos
+        ids_bloco = {p.get("id") for p in bloco["lideres"]}
+        for grupo in bloco["grupos"]:
+            ids_bloco.add(grupo["analista"].get("id"))
+            for item in grupo["reportes"]:
+                ids_bloco.add(item["pessoa"].get("id"))
+        gerencia_extra_rep = [g for g in gerencia_geral if g.get("id") not in ids_bloco]
+        dept_total = len(gerencia_extra_rep) + len(bloco["lideres"]) + sum(len(grupo["reportes"]) + 1 for grupo in bloco["grupos"])
         with st.expander(
             f"**{bloco['departamento']}** | {dept_total} pessoas na visao de reportes",
             expanded=(filtro_dept != "Todos"),
         ):
-            if bloco["lideres"]:
+            # Gerência geral no topo de cada departamento
+            all_lideres = gerencia_extra_rep + bloco["lideres"]
+            if all_lideres:
                 st.markdown('<div class="nivel-label">Lideranca do setor</div>', unsafe_allow_html=True)
                 lideres_html = '<div class="report-leaders">'
-                for pessoa in bloco["lideres"]:
+                for pessoa in all_lideres:
                     lideres_html += card_para_nivel(pessoa)
                 lideres_html += "</div>"
                 st.markdown(lideres_html, unsafe_allow_html=True)
