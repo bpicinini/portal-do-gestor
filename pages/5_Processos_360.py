@@ -10,7 +10,6 @@ import streamlit as st
 from utils.auth import garantir_autenticado
 from utils.processos360 import (
     STATUS_ORDEM,
-    _br,
     _br_moeda,
     calcular_alertas,
     carregar_meta,
@@ -177,7 +176,6 @@ with tab_geral:
         if df.empty:
             _msg_sem_dados()
         else:
-            alertas = calcular_alertas(df)
             total = len(df)
 
             # ── KPIs: Total + todos os status com percentual ──
@@ -468,11 +466,9 @@ with tab_analista:
             else:
                 _tipos_por_analista = {}
 
-            _analistas_filtrados = analistas
-
             # ── Cards ─────────────────────────────────────────────────────
             cols_por_linha = 3
-            for i in range(0, len(_analistas_filtrados), cols_por_linha):
+            for i in range(0, len(analistas), cols_por_linha):
                 cols = st.columns(cols_por_linha)
                 for j, col in enumerate(cols):
                     idx = i + j
@@ -557,7 +553,7 @@ with tab_analista:
                                     .reset_index(name="processos")
                                     .sort_values("processos", ascending=False)
                                 )
-                                df_cl_agg["tipos"] = [[]] * len(df_cl_agg)
+                                df_cl_agg["tipos"] = [[] for _ in range(len(df_cl_agg))]
 
                             # Renderizar como tabela HTML com tags coloridas
                             rows_html = ""
@@ -1012,12 +1008,6 @@ with tab_clientes:
             )
 
             # Agregar dados por cliente consolidado
-            agg_dict = {"Processo": "count"}
-            if "Valor Aduaneiro" in df_cli.columns:
-                agg_dict["Valor Aduaneiro"] = "sum"
-            if "Qtd. Container" in df_cli.columns:
-                agg_dict["Qtd. Container"] = "sum"
-
             df_tabela_cli = (
                 df_cli.groupby("_ClienteBase")
                 .agg(**{
