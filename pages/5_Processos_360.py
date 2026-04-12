@@ -1,5 +1,6 @@
 """Processos 360 — Dashboard de processos de importação."""
 
+import re
 from datetime import datetime
 
 import altair as alt
@@ -60,11 +61,34 @@ TIPO_LABELS = {
     "Encomenda": "Encomenda",
 }
 TIPO_CORES = {
-    "Direto":    "#234055",
-    "CO3":       "#4a8ab5",
+    "Direto":    "#4a8ab5",
+    "CO3":       "#234055",
     "Encomenda": "#c79536",
 }
 TIPOS_ORDEM = ["Direto", "CO3", "Encomenda"]
+
+
+def _consolidar_cliente(nome: str) -> str:
+    """Remove sufixos de CNPJ, filial e parênteses de referência dos nomes de clientes.
+
+    Exemplos:
+        'ANJO TINTAS - 0001-58'      → 'ANJO TINTAS'
+        'CALCADOS RAMARIM (FILIAL RS)' → 'CALCADOS RAMARIM'
+        'CALCADOS RAMARIM (MATRIZ - BA)' → 'CALCADOS RAMARIM'
+        'COFRAG - 0002-55'           → 'COFRAG'
+        'INTEXCO 0003-60 (ITAJAÍ)'   → 'INTEXCO'
+        'SANKEM FILIAL 02-66'        → 'SANKEM FILIAL'
+        'GRUPAR AUTOPECAS (SC)'      → 'GRUPAR AUTOPECAS'
+    """
+    if not isinstance(nome, str):
+        return nome
+    # 1. Remove parênteses no final: "(SC)", "(FILIAL RS)", "(MATRIZ - BA)", "(003)"
+    nome = re.sub(r'\s*\([^)]*\)\s*$', '', nome)
+    # 2. Remove sufixo " - DIGITS" (fragmento de CNPJ): "- 0001-58", "- 0002-55"
+    nome = re.sub(r'\s*-\s*\d[\d\-/\.]*\s*$', '', nome)
+    # 3. Remove código numérico solto no final: "0003-60", "02-66"
+    nome = re.sub(r'\s+\d[\d\-]+\s*$', '', nome)
+    return nome.strip()
 
 garantir_autenticado()
 aplicar_estilos_globais()
@@ -450,40 +474,69 @@ with tab_analista:
 
                         # Expander com breakdown por cliente e tipo
                         with st.expander("Ver clientes", expanded=False):
-                            # Filtrar df do analista pelo tipo selecionado (se houver)
+                            # Filtrar pelo tipo selecionado (se houver)
                             df_an_f = (
                                 df_an[df_an["_Tipo"].isin(filtro_tipo)]
                                 if filtro_tipo and _tem_tipo
                                 else df_an
                             )
 
+                            # Consolidar nomes de clientes (remove CNPJ/filial)
+                            df_an_f = df_an_f.copy()
+                            df_an_f["_ClienteBase"] = df_an_f["Cliente"].apply(_consolidar_cliente)
+
+                            # Agregar: processos + conjunto de tipos por cliente consolidado
                             if _tem_tipo:
-                                # Pivot: Cliente × Tipo → contagem
-                                df_piv = (
-                                    df_an_f.groupby(["Cliente", "_Tipo"])
-                                    .size()
-                                    .unstack(fill_value=0)
+                                df_cl_agg = (
+                                    df_an_f.groupby("_ClienteBase")
+                                    .agg(
+                                        processos=("Processo", "count"),
+                                        tipos=("_Tipo", lambda s: [
+                                            t for t in TIPOS_ORDEM if t in set(s)
+                                        ]),
+                                    )
                                     .reset_index()
+                                    .sort_values("processos", ascending=False)
                                 )
-                                for t in TIPOS_ORDEM:
-                                    if t not in df_piv.columns:
-                                        df_piv[t] = 0
-                                df_piv["Processos"] = df_piv[TIPOS_ORDEM].sum(axis=1)
-                                df_piv = (
-                                    df_piv[["Cliente", "Processos"] + TIPOS_ORDEM]
-                                    .sort_values("Processos", ascending=False)
-                                )
-                                h = min(38 + len(df_piv) * 35 + 6, 350)
-                                st.dataframe(df_piv, use_container_width=True, hide_index=True, height=h)
                             else:
-                                df_cl = (
-                                    df_an_f.groupby("Cliente")
+                                df_cl_agg = (
+                                    df_an_f.groupby("_ClienteBase")
                                     .size()
-                                    .reset_index(name="Processos")
-                                    .sort_values("Processos", ascending=False)
+                                    .reset_index(name="processos")
+                                    .sort_values("processos", ascending=False)
                                 )
-                                h = min(38 + len(df_cl) * 35 + 6, 350)
-                                st.dataframe(df_cl, use_container_width=True, hide_index=True, height=h)
+                                df_cl_agg["tipos"] = [[]] * len(df_cl_agg)
+
+                            # Renderizar como tabela HTML com tags coloridas
+                            rows_html = ""
+                            for _, cl_row in df_cl_agg.iterrows():
+                                tags_cl = " ".join(
+                                    f'<span style="background:{TIPO_CORES[t]};color:#fff;'
+                                    f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
+                                    f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
+                                    for t in cl_row["tipos"]
+                                )
+                                rows_html += (
+                                    f'<tr style="border-bottom:1px solid #f0e8d8;">'
+                                    f'<td style="padding:5px 8px;font-size:0.8rem;color:#234055;">'
+                                    f'{cl_row["_ClienteBase"]}</td>'
+                                    f'<td style="padding:5px 8px;font-size:0.8rem;text-align:center;'
+                                    f'color:#234055;font-weight:700;">{int(cl_row["processos"])}</td>'
+                                    f'<td style="padding:5px 8px;">{tags_cl}</td>'
+                                    f'</tr>'
+                                )
+                            st.markdown(
+                                f'<table style="width:100%;border-collapse:collapse;">'
+                                f'<thead><tr style="background:#f6f0e4;">'
+                                f'<th style="text-align:left;padding:6px 8px;font-size:0.67rem;'
+                                f'color:#6f7a84;text-transform:uppercase;font-weight:700;">Cliente</th>'
+                                f'<th style="text-align:center;padding:6px 8px;font-size:0.67rem;'
+                                f'color:#6f7a84;text-transform:uppercase;font-weight:700;">Proc.</th>'
+                                f'<th style="text-align:left;padding:6px 8px;font-size:0.67rem;'
+                                f'color:#6f7a84;text-transform:uppercase;font-weight:700;">Tipo</th>'
+                                f'</tr></thead><tbody>{rows_html}</tbody></table>',
+                                unsafe_allow_html=True,
+                            )
 
             st.divider()
 
