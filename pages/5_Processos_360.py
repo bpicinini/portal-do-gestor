@@ -211,21 +211,6 @@ with tab_geral:
                 unsafe_allow_html=True,
             )
 
-            # ── KPIs linha 2: alertas ──
-            c1, c2, c3, c4 = st.columns(4)
-            with c1:
-                n_neg = len(alertas["saldo_negativo"])
-                st.metric("Saldo Negativo", n_neg, delta=f"{n_neg} processos" if n_neg else None, delta_color="inverse")
-            with c2:
-                n_verm = len(alertas["canal_vermelho"])
-                st.metric("Canal Vermelho", n_verm, delta=f"{n_verm} processos" if n_verm else None, delta_color="inverse")
-            with c3:
-                n_follow = len(alertas["follow_desatualizado"])
-                st.metric("Follow > 10 dias", n_follow, delta=f"{n_follow} processos" if n_follow else None, delta_color="inverse")
-            with c4:
-                total_cnt = int(df["Qtd. Container"].sum()) if "Qtd. Container" in df.columns else 0
-                st.metric("Containers", f"{total_cnt:,}".replace(",", "."))
-
             st.divider()
 
             # ── Gráficos ──
