@@ -260,9 +260,9 @@ def calcular_alertas(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     hoje = pd.Timestamp.now().normalize()
     alertas = {}
 
-    # 1. Saldo negativo
+    # 1. Saldo negativo (apenas abaixo de -R$ 1.000)
     if "Saldo" in df.columns:
-        mask = df["Saldo"].notna() & (df["Saldo"] < 0)
+        mask = df["Saldo"].notna() & (df["Saldo"] <= -1000)
         alertas["saldo_negativo"] = df[mask].copy()
     else:
         alertas["saldo_negativo"] = pd.DataFrame()
