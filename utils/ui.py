@@ -436,12 +436,12 @@ def aplicar_estilos_globais():
         alt.themes.enable("portal_light")
 
 
-def renderizar_dataframe(df, use_container_width=True, hide_index=True, height=None):
+def renderizar_dataframe(df, use_container_width=True, hide_index=True, height=None, **extra_kwargs):
     """Renderiza DataFrame como HTML estilizado (dark-mode-aware) ou st.dataframe."""
     import pandas as pd
 
     if not is_dark_mode():
-        kwargs = dict(use_container_width=use_container_width, hide_index=hide_index)
+        kwargs = dict(use_container_width=use_container_width, hide_index=hide_index, **extra_kwargs)
         if height is not None:
             kwargs["height"] = height
         if isinstance(df, pd.io.formats.style.Styler):
