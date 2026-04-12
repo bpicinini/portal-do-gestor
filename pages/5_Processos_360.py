@@ -123,9 +123,26 @@ renderizar_cabecalho_pagina(
 
 # ── Sub-abas ─────────────────────────────────────────────────────────
 
+_TAB_NAMES = ["Visão Geral", "Analistas", "Clientes", "Alertas e Prazos", "Tabela", "Upload"]
+_qp_aba = st.query_params.get("aba", "")
+_qp_alerta = st.query_params.get("alerta", "")
+
 tab_geral, tab_analista, tab_clientes, tab_alertas, tab_tabela, tab_upload = st.tabs(
-    ["Visão Geral", "Analistas", "Clientes", "Alertas e Prazos", "Tabela", "Upload"]
+    _TAB_NAMES
 )
+
+# Deep-link: se veio da home com ?aba=alertas, auto-selecionar a aba via JS
+if _qp_aba == "alertas":
+    _tab_idx = _TAB_NAMES.index("Alertas e Prazos")
+    st.markdown(
+        f"""<script>
+        setTimeout(function() {{
+            var tabs = window.parent.document.querySelectorAll('[data-baseweb="tab"]');
+            if (tabs && tabs[{_tab_idx}]) tabs[{_tab_idx}].click();
+        }}, 300);
+        </script>""",
+        unsafe_allow_html=True,
+    )
 
 
 def _msg_sem_dados():
@@ -1103,11 +1120,12 @@ with tab_alertas:
                 unsafe_allow_html=True,
             )
 
-            def _render_alerta(titulo, df_alerta, colunas, formato_cols=None, icon="⚠️"):
+            def _render_alerta(titulo, df_alerta, colunas, formato_cols=None, icon="⚠️", alerta_key=""):
                 n = len(df_alerta)
                 if n == 0:
                     return
-                with st.expander(f"{icon} {titulo} ({n})", expanded=False):
+                auto_expand = bool(_qp_alerta and _qp_alerta == alerta_key)
+                with st.expander(f"{icon} {titulo} ({n})", expanded=auto_expand):
                     cols_existentes = [c for c in colunas if c in df_alerta.columns]
                     df_show = df_alerta[cols_existentes].copy()
                     fmt = {}
@@ -1135,7 +1153,7 @@ with tab_alertas:
                 _safe_sort(alertas.get("container_vencido", pd.DataFrame()), "Dias Vencido", ascending=False),
                 ["Processo", "Account", "Cliente", "Limite Dev. Container", "Dias Vencido"],
                 {"Limite Dev. Container": fmt_data},
-                icon="🚨",
+                icon="🚨", alerta_key="container_vencido",
             )
 
             # Perdimento próximo — ordenado por dias restantes
@@ -1144,7 +1162,7 @@ with tab_alertas:
                 _safe_sort(alertas["perdimento_proximo"], "Dias Restantes"),
                 ["Processo", "Account", "Cliente", "Limite para Perdimento", "Dias Restantes"],
                 {"Limite para Perdimento": fmt_data},
-                icon="⏰",
+                icon="⏰", alerta_key="perdimento_proximo",
             )
 
             # Container vencendo — ordenado por dias restantes (mais urgente primeiro)
@@ -1153,7 +1171,7 @@ with tab_alertas:
                 _safe_sort(alertas["container_vencendo"], "Dias Restantes"),
                 ["Processo", "Account", "Cliente", "Limite Dev. Container", "Dias Restantes"],
                 {"Limite Dev. Container": fmt_data},
-                icon="📦",
+                icon="📦", alerta_key="container_vencendo",
             )
 
             # Canal Vermelho — ordenado pela data de registro (mais antigo primeiro)
@@ -1162,7 +1180,7 @@ with tab_alertas:
                 _safe_sort(alertas["canal_vermelho"], "Registro da DI", na_position="first"),
                 ["Processo", "Account", "Cliente", "Registro da DI", "Data do Follow", "Follow"],
                 {"Registro da DI": fmt_data, "Data do Follow": fmt_data},
-                icon="🔴",
+                icon="🔴", alerta_key="canal_vermelho",
             )
 
             # Canal Amarelo — ordenado pela data de registro (mais antigo primeiro)
@@ -1171,7 +1189,7 @@ with tab_alertas:
                 _safe_sort(alertas["canal_amarelo"], "Registro da DI", na_position="first"),
                 ["Processo", "Account", "Cliente", "Registro da DI", "Data do Follow", "Follow"],
                 {"Registro da DI": fmt_data, "Data do Follow": fmt_data},
-                icon="🟡",
+                icon="🟡", alerta_key="canal_amarelo",
             )
 
             # Saldo negativo — ordenado por saldo (mais negativo primeiro)
@@ -1180,7 +1198,7 @@ with tab_alertas:
                 _safe_sort(alertas["saldo_negativo"], "Saldo"),
                 ["Processo", "Account", "Cliente", "Saldo", "Valor Aduaneiro"],
                 {"Saldo": fmt_moeda, "Valor Aduaneiro": fmt_moeda},
-                icon="🔻",
+                icon="🔻", alerta_key="saldo_negativo",
             )
 
             # Processo parado (Pré-embarque > 30 dias sem previsão de embarque)
@@ -1189,7 +1207,7 @@ with tab_alertas:
                 _safe_sort(alertas.get("processo_parado", pd.DataFrame()), "Dias Parado", ascending=False),
                 ["Processo", "Account", "Cliente", "Abertura", "Dias Parado"],
                 {"Abertura": fmt_data},
-                icon="💤",
+                icon="💤", alerta_key="processo_parado",
             )
 
             # Valor aduaneiro alto — ordenado por valor (maior primeiro)
@@ -1198,7 +1216,7 @@ with tab_alertas:
                 _safe_sort(alertas["valor_alto"], "Valor Aduaneiro", ascending=False),
                 ["Processo", "Account", "Cliente", "Valor Aduaneiro", "Canal"],
                 {"Valor Aduaneiro": fmt_moeda},
-                icon="💰",
+                icon="💰", alerta_key="valor_alto",
             )
 
             # Follow desatualizado — ordenado por dias sem follow (mais dias primeiro)
@@ -1207,7 +1225,7 @@ with tab_alertas:
                 _safe_sort(alertas["follow_desatualizado"], "Dias sem Follow", ascending=False),
                 ["Processo", "Account", "Cliente", "Data do Follow", "Dias sem Follow"],
                 {"Data do Follow": fmt_data},
-                icon="📅",
+                icon="📅", alerta_key="follow_desatualizado",
             )
 
             # LI indeferida
@@ -1216,7 +1234,7 @@ with tab_alertas:
                 alertas["li_indeferida"],
                 ["Processo", "Account", "Cliente", "Situação", "LPCO Data"],
                 {"LPCO Data": fmt_data},
-                icon="🚫",
+                icon="🚫", alerta_key="li_indeferida",
             )
 
 
