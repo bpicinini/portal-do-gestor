@@ -278,7 +278,7 @@ def chart_score_ranking(df_score):
         .mark_bar(cornerRadiusEnd=8, color=COLOR_NAVY)
         .encode(
             x=alt.X("Score Performance:Q", title="Volume (Score)"),
-            y=alt.Y("Analista:N", sort="-x", title=None),
+            y=alt.Y("Analista:N", sort="-x", title=None, axis=alt.Axis(labelLimit=300)),
             tooltip=[
                 alt.Tooltip("Analista:N"),
                 alt.Tooltip("Score Performance:Q", format=",.2f"),

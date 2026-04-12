@@ -288,9 +288,21 @@ def calcular_alertas(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     else:
         alertas["follow_desatualizado"] = pd.DataFrame()
 
-    # 4. Container vencendo (<= 5 dias)
+    # 4a. Container VENCIDO (data limite já passou, sem devolução registrada)
     if "Limite Dev. Container" in df.columns:
         dias_restantes = (df["Limite Dev. Container"] - hoje).dt.days
+        # Vencido: data limite passou E sem devolução registrada
+        mask_vencido = dias_restantes.notna() & (dias_restantes < 0)
+        if "Devolução do container" in df.columns:
+            mask_vencido = mask_vencido & df["Devolução do container"].isna()
+        resultado_vencido = df[mask_vencido].copy()
+        resultado_vencido["Dias Vencido"] = (-dias_restantes[mask_vencido]).astype(int)
+        alertas["container_vencido"] = resultado_vencido
+    else:
+        alertas["container_vencido"] = pd.DataFrame()
+
+    # 4b. Container vencendo (<= 5 dias)
+    if "Limite Dev. Container" in df.columns:
         mask = dias_restantes.notna() & (dias_restantes >= 0) & (dias_restantes <= 5)
         resultado = df[mask].copy()
         resultado["Dias Restantes"] = dias_restantes[mask].astype(int)

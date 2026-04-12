@@ -227,7 +227,7 @@ with tab_geral:
                     .mark_bar(cornerRadiusEnd=8)
                     .encode(
                         x=alt.X("Quantidade:Q", title="Processos"),
-                        y=alt.Y("Status:N", sort=STATUS_ORDEM, title=None),
+                        y=alt.Y("Status:N", sort=STATUS_ORDEM, title=None, axis=alt.Axis(labelLimit=300)),
                         color=alt.Color(
                             "Status:N",
                             scale=alt.Scale(domain=list(STATUS_CORES.keys()), range=list(STATUS_CORES.values())),
@@ -252,7 +252,7 @@ with tab_geral:
                         .mark_bar(cornerRadiusEnd=8)
                         .encode(
                             x=alt.X("Quantidade:Q", title="Processos"),
-                            y=alt.Y("Modalidade:N", sort="-x", title=None),
+                            y=alt.Y("Modalidade:N", sort="-x", title=None, axis=alt.Axis(labelLimit=300)),
                             color=alt.Color(
                                 "Modalidade:N",
                                 scale=alt.Scale(domain=mod_domain, range=mod_range),
@@ -305,7 +305,7 @@ with tab_geral:
                         .mark_bar(cornerRadiusEnd=8)
                         .encode(
                             x=alt.X("Quantidade:Q", title="Processos"),
-                            y=alt.Y("Tipo:N", sort="-x", title=None),
+                            y=alt.Y("Tipo:N", sort="-x", title=None, axis=alt.Axis(labelLimit=300)),
                             color=alt.Color(
                                 "Tipo:N",
                                 scale=alt.Scale(domain=tipo_domain, range=tipo_range),
@@ -390,18 +390,27 @@ with tab_analista:
             else:
                 _tipos_por_analista = {}
 
-            # ── Filtro por tipo ───────────────────────────────────────────
+            # ── Filtro por tipo (tags clicáveis) ─────────────────────────
             _col_hdr, _col_filt = st.columns([2, 3])
             with _col_hdr:
                 st.markdown(f"#### {len(analistas)} Analistas")
             with _col_filt:
-                filtro_tipo = st.multiselect(
-                    "Filtrar por tipo",
-                    TIPOS_ORDEM,
-                    default=[],
-                    placeholder="Todos os tipos",
-                    label_visibility="collapsed",
-                )
+                _fcols = st.columns(len(TIPOS_ORDEM) + 1)
+                filtro_tipo = []
+                for _fi, _ft in enumerate(TIPOS_ORDEM):
+                    with _fcols[_fi]:
+                        _cor_tag = TIPO_CORES[_ft]
+                        if st.checkbox(
+                            _ft,
+                            key=f"filtro_tag_{_ft}",
+                            value=False,
+                        ):
+                            filtro_tipo.append(_ft)
+                        # Indicador visual da tag (cor)
+                        st.markdown(
+                            f'<div style="background:{_cor_tag};height:4px;border-radius:2px;margin-top:-10px;"></div>',
+                            unsafe_allow_html=True,
+                        )
 
             # Aplicar filtro na lista de analistas
             if filtro_tipo:
@@ -710,7 +719,7 @@ with tab_clientes:
 
                     donut = (
                         alt.Chart(df_repr)
-                        .mark_arc(innerRadius=60, outerRadius=110, cornerRadius=4)
+                        .mark_arc(innerRadius=65, outerRadius=120, cornerRadius=4)
                         .encode(
                             theta=alt.Theta("Processos:Q", stack=True),
                             color=alt.Color(
@@ -727,7 +736,7 @@ with tab_clientes:
                                 alt.Tooltip("Percentual:Q", format=".1f", title="% do total"),
                             ],
                         )
-                        .properties(height=260)
+                        .properties(height=320, padding={"bottom": 40})
                     )
 
                     # Texto central
@@ -779,7 +788,7 @@ with tab_clientes:
                                 alt.Tooltip("Tipo:N", title="Tipo predominante"),
                             ],
                         )
-                        .properties(height=280)
+                        .properties(height=360, padding={"left": 10})
                     )
                     st.altair_chart(chart_top10, use_container_width=True)
 
@@ -820,13 +829,13 @@ with tab_clientes:
                                 .mark_bar(cornerRadiusEnd=8, color=_tipo_cor)
                                 .encode(
                                     x=alt.X("Processos:Q", title="Processos"),
-                                    y=alt.Y("Cliente:N", sort="-x", title=None, axis=alt.Axis(labelLimit=220)),
+                                    y=alt.Y("Cliente:N", sort="-x", title=None, axis=alt.Axis(labelLimit=180)),
                                     tooltip=[
                                         alt.Tooltip("Cliente:N"),
                                         alt.Tooltip("Processos:Q", format=",d"),
                                     ],
                                 )
-                                .properties(height=max(200, len(df_tipo_top) * 25))
+                                .properties(height=max(280, len(df_tipo_top) * 32))
                             )
                             st.altair_chart(chart_tipo_top, use_container_width=True)
 
@@ -879,7 +888,7 @@ with tab_clientes:
                             alt.Tooltip("Processos:Q", format=",d"),
                         ],
                     )
-                    .properties(height=max(300, len(_top15_nomes) * 28))
+                    .properties(height=max(380, len(_top15_nomes) * 32))
                 )
                 st.altair_chart(chart_mod_cli, use_container_width=True)
 
@@ -939,7 +948,7 @@ with tab_clientes:
                 .mark_line(color=COLOR_GOLD, strokeWidth=3, point=alt.OverlayMarkDef(size=50, color=COLOR_GOLD))
                 .encode(
                     x=alt.X("% Acumulado:Q", title="% Acumulado", scale=alt.Scale(domain=[0, 100])),
-                    y=alt.Y("ClienteLabel:N", sort=_ordem_pareto, title=None),
+                    y=alt.Y("ClienteLabel:N", sort=_ordem_pareto, title=None, axis=alt.Axis(labelLimit=300)),
                     tooltip=[
                         alt.Tooltip("Cliente:N"),
                         alt.Tooltip("% Acumulado:Q", format=".1f"),
@@ -948,7 +957,7 @@ with tab_clientes:
             )
 
             chart_pareto = alt.layer(barras, linha).resolve_scale(x="independent").properties(
-                height=max(350, len(df_pareto_20) * 26)
+                height=max(420, len(df_pareto_20) * 30)
             )
             st.altair_chart(chart_pareto, use_container_width=True)
 
@@ -1068,13 +1077,14 @@ with tab_alertas:
 
             # Resumo compacto no topo (inline HTML, sem st.metric grande)
             items = [
-                ("Saldo Negativo", len(alertas["saldo_negativo"]), COLOR_RED),
-                ("Valor > R$ 1M", len(alertas["valor_alto"]), COLOR_GOLD),
-                ("Follow > 10d", len(alertas["follow_desatualizado"]), "#b58c23"),
+                ("Cnt. Vencido", len(alertas.get("container_vencido", [])), COLOR_RED),
+                ("Perdimento", len(alertas["perdimento_proximo"]), COLOR_RED),
+                ("Cnt. Vencendo", len(alertas["container_vencendo"]), "#8b5e3c"),
                 ("Canal Vermelho", len(alertas["canal_vermelho"]), COLOR_RED),
                 ("Canal Amarelo", len(alertas["canal_amarelo"]), COLOR_GOLD),
-                ("Container", len(alertas["container_vencendo"]), "#8b5e3c"),
-                ("Perdimento", len(alertas["perdimento_proximo"]), COLOR_RED),
+                ("Saldo Negativo", len(alertas["saldo_negativo"]), COLOR_RED),
+                ("Follow > 10d", len(alertas["follow_desatualizado"]), "#b58c23"),
+                ("Valor > R$ 1M", len(alertas["valor_alto"]), COLOR_GOLD),
                 ("LI Indeferida", len(alertas["li_indeferida"]), "#6f7a84"),
             ]
             pills_html = "".join(
@@ -1093,12 +1103,11 @@ with tab_alertas:
                 unsafe_allow_html=True,
             )
 
-            def _render_alerta(titulo, df_alerta, colunas, formato_cols=None, critico=False):
+            def _render_alerta(titulo, df_alerta, colunas, formato_cols=None, icon="⚠️"):
                 n = len(df_alerta)
                 if n == 0:
                     return
-                icon = "🔴" if critico else "⚠️"
-                with st.expander(f"{icon} {titulo} ({n})", expanded=critico):
+                with st.expander(f"{icon} {titulo} ({n})", expanded=False):
                     cols_existentes = [c for c in colunas if c in df_alerta.columns]
                     df_show = df_alerta[cols_existentes].copy()
                     fmt = {}
@@ -1120,15 +1129,27 @@ with tab_alertas:
                     return df_a.sort_values(col, **kwargs)
                 return df_a
 
-            # Perdimento próximo (MAIS CRÍTICO) — ordenado por dias restantes
+            # Container VENCIDO (mais crítico — data limite já passou)
+            _n_vencido = len(alertas.get("container_vencido", []))
+            if _n_vencido > 0:
+                st.error(f"🚨 {_n_vencido} container(s) com prazo de devolução já vencido!")
+            _render_alerta(
+                "Container Vencido — Prazo Expirado",
+                _safe_sort(alertas.get("container_vencido", pd.DataFrame()), "Dias Vencido", ascending=False),
+                ["Processo", "Account", "Cliente", "Limite Dev. Container", "Dias Vencido"],
+                {"Limite Dev. Container": fmt_data},
+                icon="🚨",
+            )
+
+            # Perdimento próximo — ordenado por dias restantes
             if len(alertas["perdimento_proximo"]) > 0:
-                st.error(f"⚠️ {len(alertas['perdimento_proximo'])} processo(s) com limite de perdimento nos próximos 10 dias!")
+                st.error(f"⏰ {len(alertas['perdimento_proximo'])} processo(s) com limite de perdimento nos próximos 10 dias!")
             _render_alerta(
                 "Limite para Perdimento (< 10 dias)",
                 _safe_sort(alertas["perdimento_proximo"], "Dias Restantes"),
                 ["Processo", "Account", "Cliente", "Limite para Perdimento", "Dias Restantes"],
                 {"Limite para Perdimento": fmt_data},
-                critico=True,
+                icon="⏰",
             )
 
             # Container vencendo — ordenado por dias restantes (mais urgente primeiro)
@@ -1137,7 +1158,7 @@ with tab_alertas:
                 _safe_sort(alertas["container_vencendo"], "Dias Restantes"),
                 ["Processo", "Account", "Cliente", "Limite Dev. Container", "Dias Restantes"],
                 {"Limite Dev. Container": fmt_data},
-                critico=True,
+                icon="📦",
             )
 
             # Canal Vermelho — ordenado pela data de registro (mais antigo primeiro)
@@ -1146,6 +1167,7 @@ with tab_alertas:
                 _safe_sort(alertas["canal_vermelho"], "Registro da DI", na_position="first"),
                 ["Processo", "Account", "Cliente", "Registro da DI", "Data do Follow", "Follow"],
                 {"Registro da DI": fmt_data, "Data do Follow": fmt_data},
+                icon="🔴",
             )
 
             # Canal Amarelo — ordenado pela data de registro (mais antigo primeiro)
@@ -1154,6 +1176,7 @@ with tab_alertas:
                 _safe_sort(alertas["canal_amarelo"], "Registro da DI", na_position="first"),
                 ["Processo", "Account", "Cliente", "Registro da DI", "Data do Follow", "Follow"],
                 {"Registro da DI": fmt_data, "Data do Follow": fmt_data},
+                icon="🟡",
             )
 
             # Saldo negativo — ordenado por saldo (mais negativo primeiro)
@@ -1162,6 +1185,7 @@ with tab_alertas:
                 _safe_sort(alertas["saldo_negativo"], "Saldo"),
                 ["Processo", "Account", "Cliente", "Saldo", "Valor Aduaneiro"],
                 {"Saldo": fmt_moeda, "Valor Aduaneiro": fmt_moeda},
+                icon="➖",
             )
 
             # Valor aduaneiro alto — ordenado por valor (maior primeiro)
@@ -1170,6 +1194,7 @@ with tab_alertas:
                 _safe_sort(alertas["valor_alto"], "Valor Aduaneiro", ascending=False),
                 ["Processo", "Account", "Cliente", "Valor Aduaneiro", "Canal"],
                 {"Valor Aduaneiro": fmt_moeda},
+                icon="💰",
             )
 
             # Follow desatualizado — ordenado por dias sem follow (mais dias primeiro)
@@ -1178,6 +1203,7 @@ with tab_alertas:
                 _safe_sort(alertas["follow_desatualizado"], "Dias sem Follow", ascending=False),
                 ["Processo", "Account", "Cliente", "Data do Follow", "Dias sem Follow"],
                 {"Data do Follow": fmt_data},
+                icon="📅",
             )
 
             # LI indeferida
@@ -1186,6 +1212,7 @@ with tab_alertas:
                 alertas["li_indeferida"],
                 ["Processo", "Account", "Cliente", "Situação", "LPCO Data"],
                 {"LPCO Data": fmt_data},
+                icon="🚫",
             )
 
 
@@ -1201,7 +1228,7 @@ with tab_tabela:
         if df.empty:
             _msg_sem_dados()
         else:
-            with st.expander("Filtros", expanded=True):
+            with st.expander("Filtros", expanded=False):
                 r1c1, r1c2, r1c3, r1c4 = st.columns(4)
                 with r1c1:
                     f_status = _filtro_multiselect(df, "Status", "Status", "f_status")
