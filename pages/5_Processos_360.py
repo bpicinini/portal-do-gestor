@@ -227,7 +227,7 @@ with tab_geral:
                     .mark_bar(cornerRadiusEnd=8)
                     .encode(
                         x=alt.X("Quantidade:Q", title="Processos"),
-                        y=alt.Y("Status:N", sort=STATUS_ORDEM, title=None, axis=alt.Axis(labelLimit=300)),
+                        y=alt.Y("Status:N", sort=STATUS_ORDEM, title=None, axis=alt.Axis(labelLimit=250)),
                         color=alt.Color(
                             "Status:N",
                             scale=alt.Scale(domain=list(STATUS_CORES.keys()), range=list(STATUS_CORES.values())),
@@ -252,7 +252,7 @@ with tab_geral:
                         .mark_bar(cornerRadiusEnd=8)
                         .encode(
                             x=alt.X("Quantidade:Q", title="Processos"),
-                            y=alt.Y("Modalidade:N", sort="-x", title=None, axis=alt.Axis(labelLimit=300)),
+                            y=alt.Y("Modalidade:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
                             color=alt.Color(
                                 "Modalidade:N",
                                 scale=alt.Scale(domain=mod_domain, range=mod_range),
@@ -280,7 +280,7 @@ with tab_geral:
                     .mark_bar(cornerRadiusEnd=8)
                     .encode(
                         x=alt.X("Quantidade:Q", title="Processos"),
-                        y=alt.Y("Account:N", sort="-x", title=None, axis=alt.Axis(labelLimit=300)),
+                        y=alt.Y("Account:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
                         color=alt.Color(
                             "Account:N",
                             scale=alt.Scale(domain=acc_domain, range=acc_range),
@@ -305,7 +305,7 @@ with tab_geral:
                         .mark_bar(cornerRadiusEnd=8)
                         .encode(
                             x=alt.X("Quantidade:Q", title="Processos"),
-                            y=alt.Y("Tipo:N", sort="-x", title=None, axis=alt.Axis(labelLimit=300)),
+                            y=alt.Y("Tipo:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
                             color=alt.Color(
                                 "Tipo:N",
                                 scale=alt.Scale(domain=tipo_domain, range=tipo_range),
@@ -564,7 +564,7 @@ with tab_analista:
                 .mark_bar(cornerRadiusEnd=4)
                 .encode(
                     x=alt.X("Quantidade:Q", title="Processos", stack="zero"),
-                    y=alt.Y("Account:N", sort=_sort_desc, title=None, axis=alt.Axis(labelLimit=300)),
+                    y=alt.Y("Account:N", sort=_sort_desc, title=None, axis=alt.Axis(labelLimit=250)),
                     color=alt.Color(
                         "Status:N",
                         scale=alt.Scale(domain=list(STATUS_CORES.keys()), range=list(STATUS_CORES.values())),
@@ -597,7 +597,7 @@ with tab_analista:
                     .mark_bar(cornerRadiusEnd=4)
                     .encode(
                         x=alt.X("Quantidade:Q", title="Processos", stack="zero"),
-                        y=alt.Y("Account:N", sort=_sort_desc, title=None, axis=alt.Axis(labelLimit=300)),
+                        y=alt.Y("Account:N", sort=_sort_desc, title=None, axis=alt.Axis(labelLimit=250)),
                         color=alt.Color(
                             "Tipo:N",
                             scale=alt.Scale(domain=tipo_domain, range=tipo_range),
@@ -702,151 +702,161 @@ with tab_clientes:
                 unsafe_allow_html=True,
             )
 
-            # ── Seção B: Representatividade + Top 10 geral ──────────────
+            # ── Seção B: Representatividade por Tipo ─────────────────────
             if _tem_tipo_cli:
-                col_donut, col_top10 = st.columns(2)
+                st.caption("**Representatividade por Tipo de Operação**")
 
-                with col_donut:
-                    st.caption("**Representatividade por Tipo de Operação**")
-                    df_repr = (
-                        df_cli[df_cli["_Tipo"].isin(TIPOS_ORDEM)]
-                        .groupby("_Tipo")
-                        .size()
-                        .reset_index(name="Processos")
-                    )
-                    df_repr = df_repr.rename(columns={"_Tipo": "Tipo"})
-                    df_repr["Percentual"] = (df_repr["Processos"] / df_repr["Processos"].sum() * 100).round(1)
+                df_repr = (
+                    df_cli[df_cli["_Tipo"].isin(TIPOS_ORDEM)]
+                    .groupby("_Tipo")
+                    .size()
+                    .reset_index(name="Processos")
+                )
+                df_repr = df_repr.rename(columns={"_Tipo": "Tipo"})
+                df_repr["Percentual"] = (df_repr["Processos"] / df_repr["Processos"].sum() * 100).round(1)
+                df_repr["Label"] = df_repr.apply(
+                    lambda r: f"{r['Tipo']}: {int(r['Processos'])} ({r['Percentual']:.1f}%)", axis=1
+                )
 
-                    donut = (
-                        alt.Chart(df_repr)
-                        .mark_arc(innerRadius=65, outerRadius=120, cornerRadius=4)
-                        .encode(
-                            theta=alt.Theta("Processos:Q", stack=True),
-                            color=alt.Color(
-                                "Tipo:N",
-                                scale=alt.Scale(
-                                    domain=TIPOS_ORDEM,
-                                    range=[TIPO_CORES[t] for t in TIPOS_ORDEM],
-                                ),
-                                legend=alt.Legend(title="Tipo", orient="bottom"),
-                            ),
-                            tooltip=[
-                                alt.Tooltip("Tipo:N"),
-                                alt.Tooltip("Processos:Q", format=",d"),
-                                alt.Tooltip("Percentual:Q", format=".1f", title="% do total"),
-                            ],
-                        )
-                        .properties(height=320)
-                    )
-
-                    # Texto central
-                    texto_central = (
-                        alt.Chart(pd.DataFrame({"label": [str(total_processos_cli)]}))
-                        .mark_text(fontSize=28, fontWeight="bold", color="#234055")
-                        .encode(text="label:N")
-                    )
-
-                    st.altair_chart(
-                        alt.layer(donut, texto_central).properties(
-                            height=320, padding={"bottom": 40}
+                # Barras horizontais (mais legível que donut em espaço restrito)
+                chart_repr = (
+                    alt.Chart(df_repr)
+                    .mark_bar(cornerRadiusEnd=10, height=32)
+                    .encode(
+                        x=alt.X("Processos:Q", title="Processos"),
+                        y=alt.Y(
+                            "Tipo:N",
+                            sort=TIPOS_ORDEM,
+                            title=None,
+                            axis=alt.Axis(labelLimit=200),
                         ),
-                        use_container_width=True,
+                        color=alt.Color(
+                            "Tipo:N",
+                            scale=alt.Scale(
+                                domain=TIPOS_ORDEM,
+                                range=[TIPO_CORES[t] for t in TIPOS_ORDEM],
+                            ),
+                            legend=None,
+                        ),
+                        tooltip=[
+                            alt.Tooltip("Tipo:N"),
+                            alt.Tooltip("Processos:Q", format=",d"),
+                            alt.Tooltip("Percentual:Q", format=".1f", title="% do total"),
+                        ],
                     )
+                    .properties(height=140)
+                )
 
-                with col_top10:
-                    st.caption("**Top 10 Clientes — Volume de Processos**")
-                    df_top10 = (
-                        df_cli.groupby("_ClienteBase")
+                # Rótulos nas barras
+                texto_repr = (
+                    alt.Chart(df_repr)
+                    .mark_text(align="left", dx=5, fontSize=13, fontWeight="bold", color="#234055")
+                    .encode(
+                        x=alt.X("Processos:Q"),
+                        y=alt.Y("Tipo:N", sort=TIPOS_ORDEM),
+                        text=alt.Text("Label:N"),
+                    )
+                )
+
+                st.altair_chart(chart_repr + texto_repr, use_container_width=True)
+
+            st.divider()
+
+            # ── Seção C: Top 10 geral ────────────────────────────────────
+            if _tem_tipo_cli:
+                st.caption("**Top 10 Clientes — Volume de Processos**")
+                df_top10 = (
+                    df_cli.groupby("_ClienteBase")
+                    .agg(Processos=("Processo", "count"))
+                    .reset_index()
+                    .sort_values("Processos", ascending=False)
+                    .head(10)
+                )
+                df_top10 = df_top10.rename(columns={"_ClienteBase": "Cliente"})
+
+                _tipo_predominante = (
+                    df_cli[df_cli["_Tipo"].isin(TIPOS_ORDEM)]
+                    .groupby("_ClienteBase")["_Tipo"]
+                    .agg(lambda s: s.value_counts().index[0])
+                    .to_dict()
+                )
+                df_top10["Tipo"] = df_top10["Cliente"].map(_tipo_predominante).fillna("Outro")
+
+                chart_top10 = (
+                    alt.Chart(df_top10)
+                    .mark_bar(cornerRadiusEnd=8)
+                    .encode(
+                        x=alt.X("Processos:Q", title="Processos"),
+                        y=alt.Y("Cliente:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
+                        color=alt.Color(
+                            "Tipo:N",
+                            scale=alt.Scale(
+                                domain=TIPOS_ORDEM,
+                                range=[TIPO_CORES[t] for t in TIPOS_ORDEM],
+                            ),
+                            legend=alt.Legend(title="Tipo predominante", orient="right"),
+                        ),
+                        tooltip=[
+                            alt.Tooltip("Cliente:N"),
+                            alt.Tooltip("Processos:Q", format=",d"),
+                            alt.Tooltip("Tipo:N", title="Tipo predominante"),
+                        ],
+                    )
+                    .properties(height=360)
+                )
+                st.altair_chart(chart_top10, use_container_width=True)
+
+            st.divider()
+
+            # ── Seção D: Top 10 por Tipo (empilhados verticalmente) ──────
+            if _tem_tipo_cli:
+                st.caption("**Top 10 Clientes por Tipo de Operação**")
+
+                for _tipo_label, _tipo_cor in [
+                    ("Direto", TIPO_CORES["Direto"]),
+                    ("CO3", TIPO_CORES["CO3"]),
+                    ("Encomenda", TIPO_CORES["Encomenda"]),
+                ]:
+                    df_tipo_top = (
+                        df_cli[df_cli["_Tipo"] == _tipo_label]
+                        .groupby("_ClienteBase")
                         .agg(Processos=("Processo", "count"))
                         .reset_index()
                         .sort_values("Processos", ascending=False)
                         .head(10)
+                        .rename(columns={"_ClienteBase": "Cliente"})
                     )
-                    df_top10 = df_top10.rename(columns={"_ClienteBase": "Cliente"})
 
-                    # Tipo predominante de cada cliente (para cor)
-                    _tipo_predominante = (
-                        df_cli[df_cli["_Tipo"].isin(TIPOS_ORDEM)]
-                        .groupby("_ClienteBase")["_Tipo"]
-                        .agg(lambda s: s.value_counts().index[0])
-                        .to_dict()
+                    if len(df_tipo_top) == 0:
+                        continue
+
+                    st.markdown(
+                        f'<div style="margin:0.6rem 0 0.2rem;">'
+                        f'<span style="background:{_tipo_cor};color:#fff;border-radius:6px;'
+                        f'padding:3px 14px;font-size:0.78rem;font-weight:800;">{_tipo_label}</span>'
+                        f' <span style="color:#6f7a84;font-size:0.78rem;font-weight:600;">'
+                        f'{len(df_cli[df_cli["_Tipo"] == _tipo_label])} processos</span></div>',
+                        unsafe_allow_html=True,
                     )
-                    df_top10["Tipo"] = df_top10["Cliente"].map(_tipo_predominante).fillna("Outro")
 
-                    chart_top10 = (
-                        alt.Chart(df_top10)
-                        .mark_bar(cornerRadiusEnd=8)
+                    chart_tipo_top = (
+                        alt.Chart(df_tipo_top)
+                        .mark_bar(cornerRadiusEnd=8, color=_tipo_cor)
                         .encode(
                             x=alt.X("Processos:Q", title="Processos"),
-                            y=alt.Y("Cliente:N", sort="-x", title=None, axis=alt.Axis(labelLimit=300)),
-                            color=alt.Color(
-                                "Tipo:N",
-                                scale=alt.Scale(
-                                    domain=TIPOS_ORDEM,
-                                    range=[TIPO_CORES[t] for t in TIPOS_ORDEM],
-                                ),
-                                legend=alt.Legend(title="Tipo predominante", orient="bottom"),
-                            ),
+                            y=alt.Y("Cliente:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
                             tooltip=[
                                 alt.Tooltip("Cliente:N"),
                                 alt.Tooltip("Processos:Q", format=",d"),
-                                alt.Tooltip("Tipo:N", title="Tipo predominante"),
                             ],
                         )
-                        .properties(height=360)
+                        .properties(height=max(220, len(df_tipo_top) * 28))
                     )
-                    st.altair_chart(chart_top10, use_container_width=True)
-
-            st.divider()
-
-            # ── Seção C: Top 10 por Tipo ─────────────────────────────────
-            if _tem_tipo_cli:
-                st.caption("**Top 10 Clientes por Tipo de Operação**")
-                col_d, col_c, col_e = st.columns(3)
-
-                for _col_st, _tipo_label, _tipo_cor in [
-                    (col_d, "Direto", TIPO_CORES["Direto"]),
-                    (col_c, "CO3", TIPO_CORES["CO3"]),
-                    (col_e, "Encomenda", TIPO_CORES["Encomenda"]),
-                ]:
-                    with _col_st:
-                        st.markdown(
-                            f'<div style="text-align:center;margin-bottom:0.3rem;">'
-                            f'<span style="background:{_tipo_cor};color:#fff;border-radius:6px;'
-                            f'padding:3px 12px;font-size:0.75rem;font-weight:800;">{_tipo_label}</span></div>',
-                            unsafe_allow_html=True,
-                        )
-                        df_tipo_top = (
-                            df_cli[df_cli["_Tipo"] == _tipo_label]
-                            .groupby("_ClienteBase")
-                            .agg(Processos=("Processo", "count"))
-                            .reset_index()
-                            .sort_values("Processos", ascending=False)
-                            .head(10)
-                            .rename(columns={"_ClienteBase": "Cliente"})
-                        )
-
-                        if len(df_tipo_top) == 0:
-                            st.caption("Sem dados")
-                        else:
-                            chart_tipo_top = (
-                                alt.Chart(df_tipo_top)
-                                .mark_bar(cornerRadiusEnd=8, color=_tipo_cor)
-                                .encode(
-                                    x=alt.X("Processos:Q", title="Processos"),
-                                    y=alt.Y("Cliente:N", sort="-x", title=None, axis=alt.Axis(labelLimit=180)),
-                                    tooltip=[
-                                        alt.Tooltip("Cliente:N"),
-                                        alt.Tooltip("Processos:Q", format=",d"),
-                                    ],
-                                )
-                                .properties(height=max(280, len(df_tipo_top) * 32))
-                            )
-                            st.altair_chart(chart_tipo_top, use_container_width=True)
+                    st.altair_chart(chart_tipo_top, use_container_width=True)
 
                 st.divider()
 
-            # ── Seção D: Distribuição por Modalidade (Top 15) ────────────
+            # ── Seção E: Distribuição por Modalidade (Top 15) ────────────
             if "Modalidade" in df_cli.columns:
                 st.caption("**Distribuição por Modalidade — Top 15 Clientes**")
                 # Pegar top 15 clientes por volume
@@ -881,7 +891,7 @@ with tab_clientes:
                     .mark_bar(cornerRadiusEnd=4)
                     .encode(
                         x=alt.X("Processos:Q", title="Processos", stack="zero"),
-                        y=alt.Y("Cliente:N", sort=_sort_mod, title=None, axis=alt.Axis(labelLimit=300)),
+                        y=alt.Y("Cliente:N", sort=_sort_mod, title=None, axis=alt.Axis(labelLimit=250)),
                         color=alt.Color(
                             "Modalidade:N",
                             scale=alt.Scale(domain=_mod_domain, range=_mod_range),
@@ -899,7 +909,7 @@ with tab_clientes:
 
                 st.divider()
 
-            # ── Seção E: Concentração de Carteira (Pareto) ───────────────
+            # ── Seção F: Concentração de Carteira (Pareto) ───────────────
             st.caption("**Concentração de Carteira**")
 
             df_pareto = (
@@ -939,7 +949,7 @@ with tab_clientes:
                 .mark_bar(cornerRadiusEnd=6, color=COLOR_NAVY)
                 .encode(
                     x=alt.X("Processos:Q", title="Processos"),
-                    y=alt.Y("ClienteLabel:N", sort=_ordem_pareto, title=None, axis=alt.Axis(labelLimit=300)),
+                    y=alt.Y("ClienteLabel:N", sort=_ordem_pareto, title=None, axis=alt.Axis(labelLimit=250)),
                     tooltip=[
                         alt.Tooltip("Cliente:N"),
                         alt.Tooltip("Processos:Q", format=",d"),
@@ -953,7 +963,7 @@ with tab_clientes:
                 .mark_line(color=COLOR_GOLD, strokeWidth=3, point=alt.OverlayMarkDef(size=50, color=COLOR_GOLD))
                 .encode(
                     x=alt.X("% Acumulado:Q", title="% Acumulado", scale=alt.Scale(domain=[0, 100])),
-                    y=alt.Y("ClienteLabel:N", sort=_ordem_pareto, title=None, axis=alt.Axis(labelLimit=300)),
+                    y=alt.Y("ClienteLabel:N", sort=_ordem_pareto, title=None, axis=alt.Axis(labelLimit=250)),
                     tooltip=[
                         alt.Tooltip("Cliente:N"),
                         alt.Tooltip("% Acumulado:Q", format=".1f"),
@@ -968,7 +978,7 @@ with tab_clientes:
 
             st.divider()
 
-            # ── Seção F: Tabela completa de clientes ─────────────────────
+            # ── Seção G: Tabela completa de clientes ─────────────────────
             st.caption("**Todos os Clientes**")
 
             # Busca por nome
