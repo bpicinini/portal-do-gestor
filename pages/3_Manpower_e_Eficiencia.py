@@ -167,10 +167,12 @@ def chart_perf_meta(df_chart):
 
 def chart_volume_yoy(df_ano, df_prev, ano):
     cur = df_ano[["mes", "volume_score"]].dropna(subset=["volume_score"]).copy()
+    cur = cur[cur["volume_score"] > 0]
     cur["Ano"] = str(int(ano))
     frames = [cur]
     if df_prev is not None and not df_prev.empty:
         prev = df_prev[["mes", "volume_score"]].dropna(subset=["volume_score"]).copy()
+        prev = prev[prev["volume_score"] > 0]
         prev["Ano"] = str(int(ano) - 1)
         frames.append(prev)
     df_all = pd.concat(frames, ignore_index=True)
@@ -200,6 +202,7 @@ def chart_volume_yoy(df_ano, df_prev, ano):
 
 def chart_mp_ano(df_chart):
     df = df_chart.reset_index()[["periodo", "manpower"]].dropna().copy()
+    df = df[df["manpower"] > 0]
     yscale = _yscale(df["manpower"])
     return (
         alt.Chart(df)
@@ -224,6 +227,7 @@ def chart_mp_historico(df_all):
     df = df_all.sort_values(["ano", "mes"]).copy()
     df["periodo"] = df.apply(lambda row: f"{int(row['ano'])}-{MESES_PT[int(row['mes'])]}", axis=1)
     df = df.dropna(subset=["manpower"])
+    df = df[df["manpower"] > 0]
     yscale = _yscale(df["manpower"])
     return (
         alt.Chart(df)
@@ -256,6 +260,7 @@ def chart_yoy_line(df_ano, df_prev, ano, col, titulo, fmt=",.1f"):
     df_all["Mês"] = df_all["mes"].apply(lambda mes: MESES_PT[int(mes)])
     df_all = df_all.rename(columns={col: titulo})
     df_all = df_all.dropna(subset=[titulo])
+    df_all = df_all[df_all[titulo] > 0]
     yscale = _yscale(df_all[titulo])
     return (
         alt.Chart(df_all)
@@ -355,14 +360,28 @@ def resumir_eficiencia_ano(df_ano, df_prev, ano):
             "mes",
         ].tolist()
     )
+    meses_com_dados = set(
+        df_ano.loc[
+            df_ano["performance"].notna() & (df_ano["performance"] > 0),
+            "mes",
+        ].tolist()
+    )
     prev_registros = df_prev.to_dict("records")
     prev_volumes = [
         registro["volume_score"]
         for registro in prev_registros
         if registro.get("volume_score") and registro.get("mes") in meses_com_volume
     ]
-    prev_eficiencias = [registro["performance"] for registro in prev_registros if registro.get("performance")]
-    prev_manpowers = [registro["manpower"] for registro in prev_registros if registro.get("manpower")]
+    prev_eficiencias = [
+        registro["performance"]
+        for registro in prev_registros
+        if registro.get("performance") and registro.get("mes") in meses_com_dados
+    ]
+    prev_manpowers = [
+        registro["manpower"]
+        for registro in prev_registros
+        if registro.get("manpower") and registro.get("mes") in meses_com_dados
+    ]
 
     if prev_volumes and resumo["volume_medio"]:
         prev_volume_medio = sum(prev_volumes) / len(prev_volumes)
@@ -864,13 +883,14 @@ def _render_agenciamento():
     with tab_mp:
         st.subheader("Manpower - Agenciamento")
 
-        df_perf_mp = _ag_carregar_performance()
+        df_perf_mp_full = _ag_carregar_performance()
+        df_perf_mp = df_perf_mp_full[df_perf_mp_full["manpower"] > 0].copy() if not df_perf_mp_full.empty else df_perf_mp_full
         if df_perf_mp.empty:
             _render_metricas_vazias([
                 ("MP atual", "—"), ("MP médio", "—"),
                 ("MP mínimo", "—"), ("MP máximo", "—"),
             ])
-            st.info("Nenhum dado de eficiência lançado. O manpower é registrado junto à eficiência mensal.")
+            st.info("Nenhum dado de manpower registrado. O MP é informado junto à eficiência mensal.")
         else:
             mp_atual = df_perf_mp.iloc[-1]["manpower"]
             mp_medio = df_perf_mp["manpower"].mean()
@@ -902,7 +922,7 @@ def _render_agenciamento():
             styled = df_mp_show.style.format({
                 "Ano": lambda v: str(int(v)),
                 "Manpower": lambda v: _br(v, 2) if pd.notna(v) else "—",
-                "Volume": lambda v: _br_int(v) if pd.notna(v) else "—",
+                "Volume": lambda v: _br_int(v) if pd.notna(v) and v > 0 else "—",
                 "Eficiência": lambda v: _br(v, 1) if pd.notna(v) else "—",
             })
             st.dataframe(styled, use_container_width=True, hide_index=True,
