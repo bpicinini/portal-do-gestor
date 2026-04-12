@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import altair as alt
 import streamlit as st
 
 
@@ -14,6 +15,29 @@ def saudacao_periodo():
 
 def is_dark_mode():
     return st.session_state.get("dark_mode", False)
+
+
+def altair_theme_args():
+    """Retorna kwargs para .configure() de gráficos Altair no tema atual."""
+    if is_dark_mode():
+        return dict(
+            background="transparent",
+            title={"color": "#c9d6e0"},
+            axis={
+                "labelColor": "#8b949e",
+                "titleColor": "#c9d6e0",
+                "gridColor": "#30363d",
+                "domainColor": "#30363d",
+                "tickColor": "#30363d",
+            },
+            legend={
+                "labelColor": "#8b949e",
+                "titleColor": "#c9d6e0",
+            },
+            view={"stroke": "#30363d"},
+            header={"labelColor": "#8b949e", "titleColor": "#c9d6e0"},
+        )
+    return dict(background="transparent")
 
 
 def aplicar_estilos_globais():
@@ -381,8 +405,35 @@ def aplicar_estilos_globais():
         unsafe_allow_html=True,
     )
 
+    # Registrar tema Altair dark/light
     if is_dark_mode():
+        def _altair_dark():
+            return {
+                "config": {
+                    "background": "transparent",
+                    "title": {"color": "#c9d6e0"},
+                    "axis": {
+                        "labelColor": "#8b949e",
+                        "titleColor": "#c9d6e0",
+                        "gridColor": "#30363d",
+                        "domainColor": "#30363d",
+                        "tickColor": "#30363d",
+                    },
+                    "legend": {"labelColor": "#8b949e", "titleColor": "#c9d6e0"},
+                    "view": {"stroke": "#30363d"},
+                    "header": {"labelColor": "#8b949e", "titleColor": "#c9d6e0"},
+                    "text": {"color": "#c9d6e0"},
+                    "arc": {"stroke": "#30363d"},
+                }
+            }
+        alt.themes.register("portal_dark", _altair_dark)
+        alt.themes.enable("portal_dark")
         _aplicar_dark_mode()
+    else:
+        def _altair_light():
+            return {"config": {"background": "transparent"}}
+        alt.themes.register("portal_light", _altair_light)
+        alt.themes.enable("portal_light")
 
 
 def _aplicar_dark_mode():
@@ -882,6 +933,32 @@ def _aplicar_dark_mode():
         [style*="background:#f6f1e7"], [style*="background: #f6f1e7"] { background: var(--surface-soft) !important; }
         [style*="background:#f0e8d8"], [style*="background: #f0e8d8"] { background: var(--surface-soft) !important; }
         [style*="background:#e3d8c5"], [style*="border-color:#e3d8c5"] { border-color: var(--line) !important; }
+
+        /* ══ Gráficos Altair/Vega — fundo transparente ══ */
+        [data-testid="stVegaLiteChart"],
+        [data-testid="stArrowVegaLiteChart"],
+        .vega-embed,
+        .vega-embed summary,
+        .vega-embed .chart-wrapper {
+            background: transparent !important;
+        }
+        .vega-embed .vega-bindings,
+        .vega-embed .vega-bindings * {
+            color: var(--text) !important;
+        }
+        /* SVG inside vega charts */
+        .vega-embed svg {
+            background: transparent !important;
+        }
+        /* Vega canvas */
+        .vega-embed canvas {
+            background: transparent !important;
+        }
+        /* Mark background rect inside vega */
+        .vega-embed .mark-rect path,
+        .vega-embed .background {
+            fill: transparent !important;
+        }
 
         /* Inline bg overrides for tags/pills with light bg */
         [style*="background:rgba(35,64,85,0.07)"],

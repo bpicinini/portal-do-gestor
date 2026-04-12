@@ -9,6 +9,7 @@ from utils.auth import (
     seed_usuarios_iniciais,
     usuario_admin,
 )
+from utils.ui import is_dark_mode, _aplicar_dark_mode
 
 
 st.set_page_config(
@@ -17,6 +18,11 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Injeta dark mode CSS ANTES de qualquer conteúdo renderizar
+# para evitar flash de tema claro na troca de página
+if is_dark_mode():
+    _aplicar_dark_mode()
 
 seed_usuarios_iniciais()
 restaurar_sessao()
