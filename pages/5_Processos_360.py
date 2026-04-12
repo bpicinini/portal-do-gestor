@@ -247,6 +247,11 @@ with tab_geral:
                 if "Modalidade" in df.columns:
                     df_mod = df["Modalidade"].value_counts().reset_index()
                     df_mod.columns = ["Modalidade", "Quantidade"]
+                    # Top 4 + Outros
+                    if len(df_mod) > 4:
+                        _top4 = df_mod.head(4)
+                        _outros = pd.DataFrame([{"Modalidade": "Outros", "Quantidade": df_mod.iloc[4:]["Quantidade"].sum()}])
+                        df_mod = pd.concat([_top4, _outros], ignore_index=True)
                     mod_domain = df_mod["Modalidade"].tolist()
                     mod_range = [MODALIDADE_CORES.get(m, "#6f7a84") for m in mod_domain]
                     _total_mod = df_mod["Quantidade"].sum()
@@ -321,6 +326,11 @@ with tab_geral:
                 if "Tipo de Operação" in df.columns:
                     df_tipo = df["Tipo de Operação"].value_counts().reset_index()
                     df_tipo.columns = ["Tipo", "Quantidade"]
+                    # Top 4 + Outros
+                    if len(df_tipo) > 4:
+                        _top4t = df_tipo.head(4)
+                        _outrost = pd.DataFrame([{"Tipo": "Outros", "Quantidade": df_tipo.iloc[4:]["Quantidade"].sum()}])
+                        df_tipo = pd.concat([_top4t, _outrost], ignore_index=True)
                     tipo_domain = df_tipo["Tipo"].tolist()
                     tipo_range = [TIPO_OP_CORES.get(t, "#6f7a84") for t in tipo_domain]
                     _total_tipo = df_tipo["Quantidade"].sum()
