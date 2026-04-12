@@ -467,14 +467,16 @@ with tab_analista:
                 _tipos_por_analista = {}
 
             # ── Cards ─────────────────────────────────────────────────────
+            if analistas.empty:
+                st.info("Nenhum analista encontrado para o filtro selecionado.")
             cols_por_linha = 3
             for i in range(0, len(analistas), cols_por_linha):
                 cols = st.columns(cols_por_linha)
                 for j, col in enumerate(cols):
                     idx = i + j
-                    if idx >= len(_analistas_filtrados):
+                    if idx >= len(analistas):
                         break
-                    row = _analistas_filtrados.iloc[idx]
+                    row = analistas.iloc[idx]
                     with col:
                         df_an = df[df["Account"] == row["Account"]]
                         status_counts = df_an["Status"].value_counts()
