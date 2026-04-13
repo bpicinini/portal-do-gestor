@@ -310,12 +310,24 @@ def _card_reporte_subordinado(item):
 
 
 _opcoes_filtro = ["Todos"] + [d["nome"] for d in departamentos]
-filtro_dept = st.pills(
-    "Departamento",
-    options=_opcoes_filtro,
-    default="Todos",
-    key="filtro_org",
-) or "Todos"
+
+if "filtro_org" not in st.session_state:
+    st.session_state.filtro_org = "Todos"
+
+_tag_cols = st.columns(len(_opcoes_filtro))
+for _i, _opt in enumerate(_opcoes_filtro):
+    with _tag_cols[_i]:
+        _selected = st.session_state.filtro_org == _opt
+        if st.button(
+            _opt,
+            key=f"_tag_{_i}",
+            type="primary" if _selected else "secondary",
+            use_container_width=True,
+        ):
+            st.session_state.filtro_org = _opt
+            st.rerun()
+
+filtro_dept = st.session_state.filtro_org
 
 # Gerência geral — aparece em todos os departamentos
 gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
