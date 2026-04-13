@@ -98,7 +98,6 @@ def carregar_sementes_megazord():
 
 
 def construir_estrutura_reportes(colaboradores):
-    sementes = carregar_sementes_megazord()
     por_departamento = defaultdict(list)
     for pessoa in colaboradores:
         por_departamento[pessoa["departamento_nome"]].append(pessoa)
@@ -110,57 +109,69 @@ def construir_estrutura_reportes(colaboradores):
         analistas = [p for p in pessoas_ordenadas if 3 <= _nivel(p) < 7]
         base = [p for p in pessoas_ordenadas if _nivel(p) >= 7]
 
+        # Grupos analista → subordinados (via responsavel_direto)
         grupos = {analista["id"]: [] for analista in analistas}
-        grupos_lideres = {lider["id"]: [] for lider in lideres}
+        # Grupos lider → subordinados diretos (base que aponta para lider)
+        grupos_lideres_diretos = {lider["id"]: [] for lider in lideres}
         usados = set()
 
-        # 1. Prioridade máxima: responsavel_direto definido manualmente no portal
         for subordinado in base:
             resp = str(subordinado.get("responsavel_direto") or "").strip()
             if not resp:
                 continue
-            # Primeiro tenta analistas
             analista = _buscar_melhor_pessoa(analistas, resp)
             if analista:
-                grupos[analista["id"]].append({"pessoa": subordinado, "origem": "Definido pelo coordenador"})
+                grupos[analista["id"]].append(subordinado)
                 usados.add(subordinado["id"])
                 continue
-            # Se não encontrou analista, tenta líderes (coordenadores/supervisores)
             lider = _buscar_melhor_pessoa(lideres, resp)
             if lider:
-                grupos_lideres[lider["id"]].append({"pessoa": subordinado, "origem": "Definido pelo coordenador"})
+                grupos_lideres_diretos[lider["id"]].append(subordinado)
                 usados.add(subordinado["id"])
 
-        # Toda distribuição é explícita via responsavel_direto.
-        # Quem não tiver atribuição fica sem alocação.
+        # Agrupa analistas sob seu lider via gestor_direto
+        analistas_por_lider = {lider["id"]: [] for lider in lideres}
+        analistas_sem_lider = []
+        for analista in analistas:
+            gestor = str(analista.get("gestor_direto") or "").strip()
+            lider = _buscar_melhor_pessoa(lideres, gestor) if gestor else None
+            if lider:
+                analistas_por_lider[lider["id"]].append(analista)
+            else:
+                analistas_sem_lider.append(analista)
+
+        def _grupos_analista(lista):
+            return [
+                {
+                    "analista": a,
+                    "reportes": sorted(
+                        grupos.get(a["id"], []),
+                        key=lambda p: (_nivel(p), normalizar_nome(p["nome"])),
+                    ),
+                }
+                for a in lista
+            ]
+
+        secoes_lider = [
+            {
+                "lider": lider,
+                "grupos_analistas": _grupos_analista(analistas_por_lider.get(lider["id"], [])),
+                "reportes_diretos": sorted(
+                    grupos_lideres_diretos.get(lider["id"], []),
+                    key=lambda p: (_nivel(p), normalizar_nome(p["nome"])),
+                ),
+            }
+            for lider in lideres
+        ]
+
         sem_alocacao = [p for p in base if p["id"] not in usados]
 
         estrutura.append(
             {
                 "departamento": departamento,
                 "lideres": lideres,
-                "analistas": analistas,
-                "grupos": [
-                    {
-                        "analista": analista,
-                        "reportes": sorted(
-                            grupos.get(analista["id"], []),
-                            key=lambda item: (_nivel(item["pessoa"]), normalizar_nome(item["pessoa"]["nome"])),
-                        ),
-                    }
-                    for analista in analistas
-                ],
-                "grupos_lideres": [
-                    {
-                        "lider": lider,
-                        "reportes": sorted(
-                            grupos_lideres.get(lider["id"], []),
-                            key=lambda item: (_nivel(item["pessoa"]), normalizar_nome(item["pessoa"]["nome"])),
-                        ),
-                    }
-                    for lider in lideres
-                    if grupos_lideres.get(lider["id"])
-                ],
+                "secoes_lider": secoes_lider,
+                "grupos_sem_lider": _grupos_analista(analistas_sem_lider),
                 "sem_alocacao": sorted(sem_alocacao, key=lambda p: normalizar_nome(p["nome"])),
             }
         )

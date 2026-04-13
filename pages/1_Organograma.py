@@ -244,6 +244,17 @@ st.markdown(
     font-size: 12px;
     padding: 8px 2px 2px;
 }
+.lider-secao {
+    border: 1px solid #e0d5c2;
+    border-top: 4px solid #c79536;
+    border-radius: 18px;
+    padding: 16px 16px 12px;
+    margin-bottom: 18px;
+    background: #fffdf8;
+}
+.lider-secao-topo {
+    margin-bottom: 14px;
+}
 .filtro-label {
     font-size: 11px;
     font-weight: 700;
@@ -364,24 +375,15 @@ def _card_reporte_analista(pessoa):
     )
 
 
-def _card_reporte_subordinado(item):
-    pessoa = item["pessoa"]
-    origem = item["origem"]
+def _card_reporte_subordinado(pessoa):
     unidade = str(pessoa.get("unidade") or pessoa.get("empresa") or "").strip()
     u_cls = _unidade_class(unidade)
     extra = f" {u_cls}" if u_cls else ""
-    if origem == "Definido pelo coordenador":
-        badge_class = "definido"
-    elif origem == "Planilha-base":
-        badge_class = "seed"
-    else:
-        badge_class = "fallback"
     return (
         f'<div class="report-child{extra}">'
         f'<div class="nome">{escape(str(pessoa["nome"]))}</div>'
         f'<div class="cargo">{escape(str(pessoa["cargo_nome"]))}</div>'
         f'<div class="meta">{_badge_unidade(unidade)}</div>'
-        f'<div class="report-source {badge_class}">{escape(origem)}</div>'
         "</div>"
     )
 
@@ -492,119 +494,139 @@ with tab_niveis:
 # ── Tab: Visão por reportes ──────────────────────────────────────────────────
 with tab_reportes:
     st.subheader("Visao por reportes imediatos")
-    st.caption(
-        "Reportes definidos no Quadro completo prevalecem. "
-        "Demais sao distribuidos provisoriamente por setor."
-    )
+    st.caption("Reportes definidos no Quadro completo.")
+
+    def _html_grupo_analista(grupo):
+        """Renderiza coluna de um analista com seus subordinados."""
+        html = '<div class="report-column">'
+        html += _card_reporte_analista(grupo["analista"])
+        if grupo["reportes"]:
+            html += '<div class="report-stack">'
+            for p in grupo["reportes"]:
+                html += _card_reporte_subordinado(p)
+            html += "</div>"
+        else:
+            html += '<div class="report-empty">Nenhum reporte alocado.</div>'
+        html += "</div>"
+        return html
 
     for bloco in estrutura_reportes:
         if filtro_dept != "Todos" and bloco["departamento"] != filtro_dept:
             continue
 
+        # IDs presentes no bloco para detectar gerência geral cross-dept
         ids_bloco = {p.get("id") for p in bloco["lideres"]}
-        for grupo in bloco["grupos"]:
-            ids_bloco.add(grupo["analista"].get("id"))
-            for item in grupo["reportes"]:
-                ids_bloco.add(item["pessoa"].get("id"))
         gerencia_extra_rep = [g for g in gerencia_geral if g.get("id") not in ids_bloco]
 
-        # Aplica filtro de unidade nos grupos de analistas
-        grupos_filtrados = bloco["grupos"]
+        # Conta total de pessoas para o header do expander
+        def _conta_secao(secao):
+            total = 1  # o lider
+            for ga in secao["grupos_analistas"]:
+                total += 1 + len(ga["reportes"])
+            total += len(secao["reportes_diretos"])
+            return total
+
+        secoes = bloco.get("secoes_lider", [])
+        sem_aloc = bloco.get("sem_alocacao", [])
+        grupos_sem_lider = bloco.get("grupos_sem_lider", [])
+
+        # Aplica filtro de unidade
         if filtro_unidade != "Todas":
-            grupos_filtrados = [
+            def _filtra_secao(secao):
+                lider_ok = str(secao["lider"].get("unidade") or "") == filtro_unidade
+                grupos_f = [
+                    {
+                        "analista": g["analista"],
+                        "reportes": [
+                            p for p in g["reportes"]
+                            if str(p.get("unidade") or "") == filtro_unidade
+                        ],
+                    }
+                    for g in secao["grupos_analistas"]
+                    if str(g["analista"].get("unidade") or "") == filtro_unidade
+                    or any(str(p.get("unidade") or "") == filtro_unidade for p in g["reportes"])
+                ]
+                rd_f = [p for p in secao["reportes_diretos"] if str(p.get("unidade") or "") == filtro_unidade]
+                if lider_ok or grupos_f or rd_f:
+                    return {**secao, "grupos_analistas": grupos_f, "reportes_diretos": rd_f}
+                return None
+
+            secoes = [s for s in [_filtra_secao(s) for s in secoes] if s]
+            grupos_sem_lider = [
                 {
                     "analista": g["analista"],
                     "reportes": [
-                        r for r in g["reportes"]
-                        if str(r["pessoa"].get("unidade") or "") == filtro_unidade
+                        p for p in g["reportes"]
+                        if str(p.get("unidade") or "") == filtro_unidade
                     ],
                 }
-                for g in bloco["grupos"]
+                for g in grupos_sem_lider
                 if str(g["analista"].get("unidade") or "") == filtro_unidade
-                or any(str(r["pessoa"].get("unidade") or "") == filtro_unidade for r in g["reportes"])
+                or any(str(p.get("unidade") or "") == filtro_unidade for p in g["reportes"])
             ]
-
-        # Aplica filtro de unidade nos grupos de líderes
-        grupos_lideres_filtrados = bloco.get("grupos_lideres", [])
-        if filtro_unidade != "Todas":
-            grupos_lideres_filtrados = [
-                {
-                    "lider": g["lider"],
-                    "reportes": [
-                        r for r in g["reportes"]
-                        if str(r["pessoa"].get("unidade") or "") == filtro_unidade
-                    ],
-                }
-                for g in grupos_lideres_filtrados
-                if str(g["lider"].get("unidade") or "") == filtro_unidade
-                or any(str(r["pessoa"].get("unidade") or "") == filtro_unidade for r in g["reportes"])
-            ]
+            sem_aloc = [p for p in sem_aloc if str(p.get("unidade") or "") == filtro_unidade]
 
         dept_total = (
             len(gerencia_extra_rep)
-            + len(bloco["lideres"])
-            + sum(len(g["reportes"]) + 1 for g in grupos_filtrados)
-            + sum(len(g["reportes"]) for g in grupos_lideres_filtrados)
+            + sum(_conta_secao(s) for s in secoes)
+            + sum(1 + len(g["reportes"]) for g in grupos_sem_lider)
+            + len(sem_aloc)
         )
 
         with st.expander(
             f"**{bloco['departamento']}** | {dept_total} pessoas",
             expanded=(filtro_dept != "Todos"),
         ):
-            all_lideres = gerencia_extra_rep + bloco["lideres"]
-            if all_lideres:
-                st.markdown('<div class="nivel-label">Lideranca do setor</div>', unsafe_allow_html=True)
-                lideres_html = '<div class="report-leaders">'
-                for pessoa in all_lideres:
-                    lideres_html += card_para_nivel(pessoa)
-                lideres_html += "</div>"
-                st.markdown(lideres_html, unsafe_allow_html=True)
+            # Gerência geral cross-dept
+            if gerencia_extra_rep:
+                st.markdown('<div class="nivel-label">Gerência</div>', unsafe_allow_html=True)
+                h = '<div class="report-leaders">'
+                for p in gerencia_extra_rep:
+                    h += card_para_nivel(p)
+                h += "</div>"
+                st.markdown(h, unsafe_allow_html=True)
 
-            if grupos_lideres_filtrados:
-                st.markdown('<div class="nivel-label">Reportes diretos à coordenação</div>', unsafe_allow_html=True)
-                html = '<div class="report-grid">'
-                for grupo in grupos_lideres_filtrados:
-                    html += '<div class="report-column">'
-                    html += _card_reporte_analista(grupo["lider"])
-                    if grupo["reportes"]:
-                        html += '<div class="report-stack">'
-                        for item in grupo["reportes"]:
-                            html += _card_reporte_subordinado(item)
-                        html += "</div>"
-                    else:
-                        html += '<div class="report-empty">Nenhum reporte alocado.</div>'
+            # Seções por lider — cada seção é uma caixa delimitada
+            for secao in secoes:
+                lider = secao["lider"]
+                grupos_a = secao["grupos_analistas"]
+                rep_dir = secao["reportes_diretos"]
+
+                html = '<div class="lider-secao">'
+                html += '<div class="lider-secao-topo">'
+                html += card_para_nivel(lider)
+                html += "</div>"
+
+                if grupos_a:
+                    html += '<div class="report-grid">'
+                    for grupo in grupos_a:
+                        html += _html_grupo_analista(grupo)
                     html += "</div>"
+
+                if rep_dir:
+                    html += '<div class="report-stack" style="margin-top:10px">'
+                    for p in rep_dir:
+                        html += _card_reporte_subordinado(p)
+                    html += "</div>"
+
                 html += "</div>"
                 st.markdown(html, unsafe_allow_html=True)
 
-            if grupos_filtrados:
-                st.markdown('<div class="nivel-label">Analistas e reportes</div>', unsafe_allow_html=True)
+            # Analistas sem lider definido
+            if grupos_sem_lider:
+                st.markdown('<div class="nivel-label">Analistas (sem liderança definida)</div>', unsafe_allow_html=True)
                 html = '<div class="report-grid">'
-                for grupo in grupos_filtrados:
-                    html += '<div class="report-column">'
-                    html += _card_reporte_analista(grupo["analista"])
-                    if grupo["reportes"]:
-                        html += '<div class="report-stack">'
-                        for item in grupo["reportes"]:
-                            html += _card_reporte_subordinado(item)
-                        html += "</div>"
-                    else:
-                        html += '<div class="report-empty">Nenhum reporte alocado.</div>'
-                    html += "</div>"
+                for grupo in grupos_sem_lider:
+                    html += _html_grupo_analista(grupo)
                 html += "</div>"
                 st.markdown(html, unsafe_allow_html=True)
-            elif not grupos_lideres_filtrados:
-                st.info("Nao ha analistas para exibir com os filtros atuais.")
 
-            # Pessoas sem alocação definida
-            sem_aloc = bloco.get("sem_alocacao", [])
-            if filtro_unidade != "Todas":
-                sem_aloc = [p for p in sem_aloc if str(p.get("unidade") or "") == filtro_unidade]
+            # Sem alocação definida
             if sem_aloc:
                 st.markdown('<div class="nivel-label">Sem alocação definida</div>', unsafe_allow_html=True)
                 html = '<div class="report-leaders">'
-                for pessoa in sem_aloc:
-                    html += card_para_nivel(pessoa)
+                for p in sem_aloc:
+                    html += card_para_nivel(p)
                 html += "</div>"
                 st.markdown(html, unsafe_allow_html=True)
 
