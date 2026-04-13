@@ -131,50 +131,9 @@ def construir_estrutura_reportes(colaboradores):
                 grupos_lideres[lider["id"]].append({"pessoa": subordinado, "origem": "Definido pelo coordenador"})
                 usados.add(subordinado["id"])
 
-        # 2. Sementes da planilha MEGAZORD (legado)
-        for subordinado_hint, analista_hint in sementes.get(departamento, []):
-            subordinado = _buscar_melhor_pessoa([p for p in base if p["id"] not in usados], subordinado_hint)
-            analista = _buscar_melhor_pessoa(analistas, analista_hint)
-            if subordinado and analista:
-                grupos[analista["id"]].append({"pessoa": subordinado, "origem": "Planilha-base"})
-                usados.add(subordinado["id"])
-
-        # 3. Distribuição provisória para os restantes
-        restantes = [p for p in base if p["id"] not in usados]
-        for subordinado in restantes:
-            candidatos = analistas[:]
-            if not candidatos and lideres:
-                candidatos = lideres[:]
-            if not candidatos:
-                continue
-
-            gestor_ref = normalizar_nome(subordinado.get("gestor_direto"))
-            if gestor_ref:
-                mesmos_lideres = [
-                    cand for cand in candidatos
-                    if normalizar_nome(cand.get("gestor_direto")) == gestor_ref
-                ]
-                if mesmos_lideres:
-                    candidatos = mesmos_lideres
-
-            unidade_ref = normalizar_nome(_unidade_meta(subordinado))
-            if unidade_ref:
-                mesma_unidade = [
-                    cand for cand in candidatos
-                    if normalizar_nome(_unidade_meta(cand)) == unidade_ref
-                ]
-                if mesma_unidade:
-                    candidatos = mesma_unidade
-
-            alvo = min(
-                candidatos,
-                key=lambda cand: (
-                    len(grupos.setdefault(cand["id"], [])),
-                    _nivel(cand),
-                    normalizar_nome(cand["nome"]),
-                ),
-            )
-            grupos.setdefault(alvo["id"], []).append({"pessoa": subordinado, "origem": "Distribuição provisória"})
+        # Toda distribuição é explícita via responsavel_direto.
+        # Quem não tiver atribuição fica sem alocação.
+        sem_alocacao = [p for p in base if p["id"] not in usados]
 
         estrutura.append(
             {
@@ -202,7 +161,7 @@ def construir_estrutura_reportes(colaboradores):
                     for lider in lideres
                     if grupos_lideres.get(lider["id"])
                 ],
-                "sem_analista": [p for p in base if p["id"] not in usados and not analistas],
+                "sem_alocacao": sorted(sem_alocacao, key=lambda p: normalizar_nome(p["nome"])),
             }
         )
 

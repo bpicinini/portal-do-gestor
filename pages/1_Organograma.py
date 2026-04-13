@@ -596,6 +596,18 @@ with tab_reportes:
             elif not grupos_lideres_filtrados:
                 st.info("Nao ha analistas para exibir com os filtros atuais.")
 
+            # Pessoas sem alocação definida
+            sem_aloc = bloco.get("sem_alocacao", [])
+            if filtro_unidade != "Todas":
+                sem_aloc = [p for p in sem_aloc if str(p.get("unidade") or "") == filtro_unidade]
+            if sem_aloc:
+                st.markdown('<div class="nivel-label">Sem alocação definida</div>', unsafe_allow_html=True)
+                html = '<div class="report-leaders">'
+                for pessoa in sem_aloc:
+                    html += card_para_nivel(pessoa)
+                html += "</div>"
+                st.markdown(html, unsafe_allow_html=True)
+
 
 # ── Tab: Quadro completo ─────────────────────────────────────────────────────
 with tab_quadro:
