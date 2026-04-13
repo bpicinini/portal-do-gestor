@@ -180,25 +180,29 @@ st.markdown(
     box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
 }
 .report-head {
-    background: linear-gradient(135deg, #3a6a80 0%, #4c7d94 100%);
-    color: white;
+    background: #edf3f7;
+    border: 1px solid #c4d6e0;
+    border-left: 4px solid #6aaac8;
     border-radius: 16px;
     padding: 14px 16px;
 }
+.report-head.nh  { border-left: 4px solid #3b82f6; }
+.report-head.ita { border-left: 4px solid #16a34a; }
 .report-head .nome {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
     line-height: 1.2;
+    color: #1e3a4d;
 }
 .report-head .cargo {
-    font-size: 12px;
-    opacity: 0.9;
-    margin-top: 4px;
+    font-size: 11px;
+    color: #4e7a92;
+    margin-top: 3px;
 }
 .report-head .meta {
     font-size: 11px;
-    opacity: 0.75;
-    margin-top: 6px;
+    color: #7896a6;
+    margin-top: 5px;
 }
 .report-stack {
     display: flex;
@@ -373,8 +377,10 @@ def card_para_nivel(pessoa):
 
 def _card_reporte_analista(pessoa):
     unidade = str(pessoa.get("unidade") or pessoa.get("empresa") or "").strip()
+    u_cls = _unidade_class(unidade)
+    extra = f" {u_cls}" if u_cls else ""
     return (
-        '<div class="report-head">'
+        f'<div class="report-head{extra}">'
         f'<div class="nome">{escape(str(pessoa["nome"]))}</div>'
         f'<div class="cargo">{escape(str(pessoa["cargo_nome"]))}</div>'
         f'<div class="meta">{_badge_unidade(unidade)}</div>'
