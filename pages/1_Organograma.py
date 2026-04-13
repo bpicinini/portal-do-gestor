@@ -246,11 +246,40 @@ st.markdown(
 }
 .filtro-label {
     font-size: 11px;
-    font-weight: 800;
-    color: #6f7a84;
+    font-weight: 700;
+    color: #9aa4ae;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 4px;
+    letter-spacing: 0.07em;
+    margin-bottom: 2px;
+}
+/* Botões de filtro em colunas: pills compactos e sutis */
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button {
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    padding: 3px 14px !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    transition: all 0.15s ease !important;
+}
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button[kind="secondary"] {
+    background: transparent !important;
+    border: 1px solid #d4dae0 !important;
+    color: #6b7680 !important;
+    box-shadow: none !important;
+}
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button[kind="secondary"]:hover {
+    background: rgba(35, 64, 85, 0.06) !important;
+    border-color: #8a9099 !important;
+    color: #234055 !important;
+}
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button[kind="primary"] {
+    background: rgba(35, 64, 85, 0.88) !important;
+    border: 1px solid rgba(35, 64, 85, 0.88) !important;
+    color: #f0e8d6 !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
 }
 </style>
 """,
@@ -533,80 +562,14 @@ with tab_reportes:
             else:
                 st.info("Nao ha analistas para exibir com os filtros atuais.")
 
-    st.divider()
-    st.markdown("#### Tabela de analistas e assistentes")
-    st.caption("Use o botao 'Salvar reportes' no Quadro completo para definir os reportes.")
-
-    rows_tab = []
-    for bloco in estrutura_reportes:
-        if filtro_dept != "Todos" and bloco["departamento"] != filtro_dept:
-            continue
-        dept = bloco["departamento"]
-        for grupo in bloco["grupos"]:
-            analista = grupo["analista"]
-            unidade_a = str(analista.get("unidade") or "")
-            if grupo["reportes"]:
-                for item in grupo["reportes"]:
-                    sub = item["pessoa"]
-                    unidade_s = str(sub.get("unidade") or "")
-                    if filtro_unidade != "Todas" and unidade_s != filtro_unidade:
-                        continue
-                    rows_tab.append({
-                        "Departamento": dept,
-                        "Analista": analista["nome"],
-                        "Unidade Analista": unidade_a,
-                        "Assistente / Estagiario": sub["nome"],
-                        "Cargo": sub["cargo_nome"],
-                        "Unidade": unidade_s,
-                        "Origem": item["origem"],
-                    })
-            else:
-                if filtro_unidade != "Todas" and unidade_a != filtro_unidade:
-                    continue
-                rows_tab.append({
-                    "Departamento": dept,
-                    "Analista": analista["nome"],
-                    "Unidade Analista": unidade_a,
-                    "Assistente / Estagiario": "—",
-                    "Cargo": "—",
-                    "Unidade": "—",
-                    "Origem": "—",
-                })
-
-    if rows_tab:
-        df_tab = pd.DataFrame(rows_tab)
-
-        def _style_cell(val):
-            if val == "Novo Hamburgo":
-                return "background-color: #dbeafe; color: #1e40af; font-weight: 700;"
-            if val == "Itajaí":
-                return "background-color: #dcfce7; color: #166534; font-weight: 700;"
-            if val == "Definido pelo coordenador":
-                return "background-color: #d8edf6; color: #1a6080; font-weight: 700;"
-            if val == "Planilha-base":
-                return "background-color: #e5f1dd; color: #3d6b40; font-weight: 700;"
-            if val == "Distribuição provisória":
-                return "background-color: #fef3dc; color: #8a5e10; font-weight: 700;"
-            return ""
-
-        st.dataframe(
-            df_tab.style.map(_style_cell, subset=["Unidade Analista", "Unidade", "Origem"]),
-            use_container_width=True,
-            hide_index=True,
-        )
-        csv_bytes = df_tab.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
-        st.download_button(
-            label="Baixar tabela (.csv)",
-            data=csv_bytes,
-            file_name="reportes_organograma.csv",
-            mime="text/csv",
-        )
-    else:
-        st.info("Nenhum dado para exibir com os filtros atuais.")
 
 # ── Tab: Quadro completo ─────────────────────────────────────────────────────
 with tab_quadro:
     st.subheader("Quadro completo")
+    st.caption(
+        "Edite a coluna 'Responsável Direto' diretamente na tabela e clique em Salvar. "
+        "O organograma de reportes reflete imediatamente."
+    )
     if todos_ativos:
         df_raw = pd.DataFrame(todos_ativos)
 
@@ -622,54 +585,57 @@ with tab_quadro:
         ]].copy()
         df_quad.columns = [
             "ID", "Nome", "Departamento", "Cargo", "Nivel",
-            "MP", "Unidade", "Gestor", "Responsável Direto",
+            "MP", "Und.", "Gestor", "Responsável Direto",
         ]
+
+        # Indicador visual de unidade (coluna extra não editável)
+        df_quad.insert(6, "U", df_quad["Und."].map(
+            {"Novo Hamburgo": "🔵 NH", "Itajaí": "🟢 ITJ"}
+        ).fillna("—"))
 
         if filtro_dept != "Todos":
             df_quad = df_quad[df_quad["Departamento"] == filtro_dept]
         if filtro_unidade != "Todas":
-            df_quad = df_quad[df_quad["Unidade"] == filtro_unidade]
+            df_quad = df_quad[df_quad["Und."] == filtro_unidade]
         df_quad = df_quad.sort_values(["Departamento", "Nivel", "Nome"]).reset_index(drop=True)
         df_quad["Responsável Direto"] = df_quad["Responsável Direto"].fillna("").astype(str).str.strip()
 
-        def _style_unidade(val):
-            if val == "Novo Hamburgo":
-                return "background-color: #dbeafe; color: #1e40af; font-weight: 700;"
-            if val == "Itajaí":
-                return "background-color: #dcfce7; color: #166534; font-weight: 700;"
-            return ""
-
-        st.dataframe(
-            df_quad.style.map(_style_unidade, subset=["Unidade"]),
+        edited_quad = st.data_editor(
+            df_quad,
             use_container_width=True,
             hide_index=True,
             column_config={
-                "ID": st.column_config.NumberColumn(width="small"),
-                "Nivel": st.column_config.NumberColumn(format="%.1f", width="small"),
-                "MP": st.column_config.NumberColumn(format="%.2f", width="small"),
+                "ID": st.column_config.NumberColumn(disabled=True, width="small"),
+                "Nome": st.column_config.TextColumn(disabled=True),
+                "Departamento": st.column_config.TextColumn(disabled=True),
+                "Cargo": st.column_config.TextColumn(disabled=True),
+                "Nivel": st.column_config.NumberColumn(format="%.1f", disabled=True, width="small"),
+                "MP": st.column_config.NumberColumn(format="%.2f", disabled=True, width="small"),
+                "U": st.column_config.TextColumn(disabled=True, width="small"),
+                "Und.": st.column_config.TextColumn(disabled=True),
+                "Gestor": st.column_config.TextColumn(disabled=True),
+                "Responsável Direto": st.column_config.SelectboxColumn(
+                    options=_opcoes_resp,
+                    help="Analista responsável por este colaborador no organograma de reportes.",
+                ),
             },
+            key="editor_quadro",
         )
 
-        st.markdown("**Atribuir Responsável Direto**")
-        st.caption("Selecione o colaborador e o analista responsável, depois clique em Salvar.")
-
-        _nomes_quad = ["—"] + list(df_quad["Nome"])
-        _col_sel, _col_resp, _col_btn = st.columns([2, 2, 1])
-        with _col_sel:
-            _colab_sel = st.selectbox("Colaborador", _nomes_quad, key="sel_colab_resp")
-        with _col_resp:
-            _resp_sel = st.selectbox("Responsável Direto", _opcoes_resp, key="sel_resp")
-        with _col_btn:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("Salvar", type="primary", key="btn_salvar_resp"):
-                if _colab_sel != "—":
-                    _row = df_quad[df_quad["Nome"] == _colab_sel]
-                    if not _row.empty:
-                        atualizar_responsavel_direto(int(_row.iloc[0]["ID"]), _resp_sel or None)
-                        st.success(f"Reporte de {_colab_sel} salvo.")
-                        st.rerun()
-                else:
-                    st.warning("Selecione um colaborador.")
+        if st.button("Salvar reportes", type="primary", key="btn_salvar_resp"):
+            _alteracoes = []
+            for idx in df_quad.index:
+                old_val = str(df_quad.at[idx, "Responsável Direto"] or "").strip()
+                new_val = str(edited_quad.at[idx, "Responsável Direto"] or "").strip()
+                if old_val != new_val:
+                    _alteracoes.append((int(df_quad.at[idx, "ID"]), new_val or None))
+            if _alteracoes:
+                for _cid, _resp in _alteracoes:
+                    atualizar_responsavel_direto(_cid, _resp)
+                st.success(f"{len(_alteracoes)} reporte(s) salvo(s). Confira na aba 'Visao por reportes'.")
+                st.rerun()
+            else:
+                st.info("Nenhuma alteração detectada.")
 
         st.caption(f"Total exibido: {len(df_quad)} colaboradores")
     else:
