@@ -1144,7 +1144,7 @@ with tab_alertas:
                 unsafe_allow_html=True,
             )
 
-            def _render_alerta(titulo, df_alerta, colunas, formato_cols=None, icon="⚠️", alerta_key=""):
+            def _render_alerta(titulo, df_alerta, colunas, formato_cols=None, icon="⚠️", alerta_key="", column_config=None):
                 n = len(df_alerta)
                 if n == 0:
                     return
@@ -1159,9 +1159,9 @@ with tab_alertas:
                                 fmt[col] = fn
                     if fmt:
                         styled = df_show.style.format(fmt)
-                        st.dataframe(styled, use_container_width=True, hide_index=True)
+                        st.dataframe(styled, use_container_width=True, hide_index=True, column_config=column_config)
                     else:
-                        st.dataframe(df_show, use_container_width=True, hide_index=True)
+                        st.dataframe(df_show, use_container_width=True, hide_index=True, column_config=column_config)
 
             fmt_moeda = lambda v: _br_moeda(v) if pd.notna(v) else ""
             fmt_data = lambda v: v.strftime("%d/%m/%Y") if pd.notna(v) else ""
@@ -1175,9 +1175,18 @@ with tab_alertas:
             _render_alerta(
                 "Container Vencido — Prazo Expirado",
                 _safe_sort(alertas.get("container_vencido", pd.DataFrame()), "Dias Vencido", ascending=False),
-                ["Processo", "Account", "Cliente", "Limite Dev. Container", "Dias Vencido"],
-                {"Limite Dev. Container": fmt_data},
+                ["Processo", "Account", "Cliente", "Limite Dev. Container", "Dias Vencido", "Data do Follow", "Follow"],
+                {"Limite Dev. Container": fmt_data, "Data do Follow": fmt_data},
                 icon="🚨", alerta_key="container_vencido",
+                column_config={
+                    "Processo": st.column_config.Column(width=85),
+                    "Account": st.column_config.Column(width=140),
+                    "Cliente": st.column_config.Column(width=150),
+                    "Limite Dev. Container": st.column_config.Column("Dev. Container", width=100),
+                    "Dias Vencido": st.column_config.Column("Vencido", width=75),
+                    "Data do Follow": st.column_config.Column("Últ. Follow", width=100),
+                    "Follow": st.column_config.Column("Follow-up"),
+                },
             )
 
             # Perdimento próximo — ordenado por dias restantes
@@ -1193,9 +1202,18 @@ with tab_alertas:
             _render_alerta(
                 "Container Vencendo (< 5 dias)",
                 _safe_sort(alertas["container_vencendo"], "Dias Restantes"),
-                ["Processo", "Account", "Cliente", "Limite Dev. Container", "Dias Restantes"],
-                {"Limite Dev. Container": fmt_data},
+                ["Processo", "Account", "Cliente", "Limite Dev. Container", "Dias Restantes", "Data do Follow", "Follow"],
+                {"Limite Dev. Container": fmt_data, "Data do Follow": fmt_data},
                 icon="📦", alerta_key="container_vencendo",
+                column_config={
+                    "Processo": st.column_config.Column(width=85),
+                    "Account": st.column_config.Column(width=140),
+                    "Cliente": st.column_config.Column(width=150),
+                    "Limite Dev. Container": st.column_config.Column("Dev. Container", width=100),
+                    "Dias Restantes": st.column_config.Column("Restantes", width=75),
+                    "Data do Follow": st.column_config.Column("Últ. Follow", width=100),
+                    "Follow": st.column_config.Column("Follow-up"),
+                },
             )
 
             # Canal Vermelho — ordenado pela data de registro (mais antigo primeiro)
@@ -1229,9 +1247,18 @@ with tab_alertas:
             _render_alerta(
                 "Processo Parado — Pré-embarque sem previsão (> 30 dias)",
                 _safe_sort(alertas.get("processo_parado", pd.DataFrame()), "Dias Parado", ascending=False),
-                ["Processo", "Account", "Cliente", "Abertura", "Dias Parado"],
-                {"Abertura": fmt_data},
+                ["Processo", "Account", "Cliente", "Abertura", "Dias Parado", "Data do Follow", "Follow"],
+                {"Abertura": fmt_data, "Data do Follow": fmt_data},
                 icon="💤", alerta_key="processo_parado",
+                column_config={
+                    "Processo": st.column_config.Column(width=85),
+                    "Account": st.column_config.Column(width=140),
+                    "Cliente": st.column_config.Column(width=150),
+                    "Abertura": st.column_config.Column(width=90),
+                    "Dias Parado": st.column_config.Column("Parado", width=75),
+                    "Data do Follow": st.column_config.Column("Últ. Follow", width=100),
+                    "Follow": st.column_config.Column("Follow-up"),
+                },
             )
 
             # Valor aduaneiro alto — ordenado por valor (maior primeiro)
@@ -1247,9 +1274,17 @@ with tab_alertas:
             _render_alerta(
                 "Follow-up desatualizado (> 10 dias)",
                 _safe_sort(alertas["follow_desatualizado"], "Dias sem Follow", ascending=False),
-                ["Processo", "Account", "Cliente", "Data do Follow", "Dias sem Follow"],
+                ["Processo", "Account", "Cliente", "Data do Follow", "Dias sem Follow", "Follow"],
                 {"Data do Follow": fmt_data},
                 icon="📅", alerta_key="follow_desatualizado",
+                column_config={
+                    "Processo": st.column_config.Column(width=85),
+                    "Account": st.column_config.Column(width=140),
+                    "Cliente": st.column_config.Column(width=150),
+                    "Data do Follow": st.column_config.Column("Últ. Follow", width=100),
+                    "Dias sem Follow": st.column_config.Column("s/ Follow", width=75),
+                    "Follow": st.column_config.Column("Follow-up"),
+                },
             )
 
             # LI indeferida
