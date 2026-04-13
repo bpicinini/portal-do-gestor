@@ -14,7 +14,7 @@ from utils.auth import (
     obter_usuario_atual,
     redefinir_senha_usuario,
 )
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
 
 
 def _fmt_data(valor):
@@ -287,7 +287,7 @@ with tab_usuarios:
         .map(estilo_status, subset=["Status"])
         .map(estilo_perfil, subset=["Perfil"])
     )
-    st.dataframe(styled, use_container_width=True, hide_index=True)
+    renderizar_dataframe(styled, use_container_width=True, hide_index=True)
 
     # ── Gerenciar usuário ──────────────────────────────────────────────────────
     st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)

@@ -6,8 +6,8 @@ import streamlit as st
 from utils.auth import garantir_autenticado
 from utils.departamentos import listar_departamentos
 from utils.organograma import construir_estrutura_reportes
-from utils.pessoas import atualizar_responsavel_direto, listar_colaboradores
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.pessoas import listar_colaboradores
+from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
 
 
 garantir_autenticado()
@@ -16,11 +16,6 @@ renderizar_cabecalho_pagina(
     "Organograma",
     "Estrutura da operacao com leitura por niveis e uma visao paralela por reportes diretos.",
     badge="Estrutura ativa",
-    pills=[
-        "Visao por departamento",
-        "Visao por reportes imediatos",
-        "Cadastro operacional",
-    ],
 )
 
 departamentos = listar_departamentos()
@@ -322,37 +317,34 @@ filtro_dept = st.pills(
     key="filtro_org",
 ) or "Todos"
 
-tab_niveis, tab_reportes, tab_quadro = st.tabs(
-    ["Visao por niveis", "Visao por reportes", "Quadro completo"]
+# Gerência geral — aparece em todos os departamentos
+gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
+
+tab_niveis, tab_reportes, tab_quadro, tab_gestao = st.tabs(
+    ["Visao por niveis", "Visao por reportes", "Quadro completo", "Gestao"]
 )
 
 with tab_niveis:
     st.subheader("Visao por niveis")
-
-    gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
-    if gerencia_geral:
-        st.markdown('<div class="nivel-label">Gerencia</div>', unsafe_allow_html=True)
-        cols = st.columns(min(len(gerencia_geral), 3))
-        for idx, pessoa in enumerate(gerencia_geral):
-            with cols[idx % len(cols)]:
-                st.markdown(card_para_nivel(pessoa), unsafe_allow_html=True)
-        st.markdown('<div class="conector">↓</div>', unsafe_allow_html=True)
 
     for depto in departamentos:
         if filtro_dept != "Todos" and depto["nome"] != filtro_dept:
             continue
 
         dept_colabs = listar_colaboradores(status="Ativo", departamento_id=int(depto["id"]))
-        dept_colabs = [c for c in dept_colabs if _nivel(c) > 1]
-        if not dept_colabs:
+        # Incluir gerência que não é deste depto (ela supervisiona todos)
+        ids_dept = {c.get("id") for c in dept_colabs}
+        gerencia_extra = [g for g in gerencia_geral if g.get("id") not in ids_dept]
+        dept_colabs_com_gerencia = gerencia_extra + dept_colabs
+        if not dept_colabs_com_gerencia:
             continue
 
         with st.expander(
-            f"**{depto['nome']}** | {len(dept_colabs)} pessoas",
+            f"**{depto['nome']}** | {len(dept_colabs_com_gerencia)} pessoas",
             expanded=(filtro_dept != "Todos"),
         ):
             niveis = {}
-            for pessoa in dept_colabs:
+            for pessoa in dept_colabs_com_gerencia:
                 niveis.setdefault(_nivel(pessoa), []).append(pessoa)
 
             nivel_anterior = None
@@ -381,26 +373,27 @@ with tab_reportes:
         "Quando a planilha nao explicita o reporte direto, a distribuicao e feita provisoriamente entre analistas do mesmo setor."
     )
 
-    gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
-    if gerencia_geral:
-        st.markdown('<div class="nivel-label">Gerencia geral</div>', unsafe_allow_html=True)
-        cols = st.columns(min(len(gerencia_geral), 3))
-        for idx, pessoa in enumerate(gerencia_geral):
-            with cols[idx % len(cols)]:
-                st.markdown(card_para_nivel(pessoa), unsafe_allow_html=True)
-
     for bloco in estrutura_reportes:
         if filtro_dept != "Todos" and bloco["departamento"] != filtro_dept:
             continue
-        dept_total = len(bloco["lideres"]) + sum(len(grupo["reportes"]) + 1 for grupo in bloco["grupos"])
+        # Gerência geral aparece em todos os departamentos
+        ids_bloco = {p.get("id") for p in bloco["lideres"]}
+        for grupo in bloco["grupos"]:
+            ids_bloco.add(grupo["analista"].get("id"))
+            for item in grupo["reportes"]:
+                ids_bloco.add(item["pessoa"].get("id"))
+        gerencia_extra_rep = [g for g in gerencia_geral if g.get("id") not in ids_bloco]
+        dept_total = len(gerencia_extra_rep) + len(bloco["lideres"]) + sum(len(grupo["reportes"]) + 1 for grupo in bloco["grupos"])
         with st.expander(
             f"**{bloco['departamento']}** | {dept_total} pessoas na visao de reportes",
             expanded=(filtro_dept != "Todos"),
         ):
-            if bloco["lideres"]:
+            # Gerência geral no topo de cada departamento
+            all_lideres = gerencia_extra_rep + bloco["lideres"]
+            if all_lideres:
                 st.markdown('<div class="nivel-label">Lideranca do setor</div>', unsafe_allow_html=True)
                 lideres_html = '<div class="report-leaders">'
-                for pessoa in bloco["lideres"]:
+                for pessoa in all_lideres:
                     lideres_html += card_para_nivel(pessoa)
                 lideres_html += "</div>"
                 st.markdown(lideres_html, unsafe_allow_html=True)
@@ -521,14 +514,8 @@ with tab_quadro:
             "MP", "Unidade", "Gestor", "Responsável Direto",
         ]
 
-        if filtro_dept != "Todos":
-            df_quad = df_quad[df_quad["Departamento"] == filtro_dept]
-
-        df_quad = df_quad.sort_values(["Departamento", "Nivel", "Nome"]).reset_index(drop=True)
-        df_quad["Responsável Direto"] = df_quad["Responsável Direto"].fillna("").astype(str).str.strip()
-
-        edited_quad = st.data_editor(
-            df_quad,
+        renderizar_dataframe(
+            df,
             use_container_width=True,
             hide_index=True,
             column_config={
@@ -566,3 +553,53 @@ with tab_quadro:
         st.caption(f"Total exibido: {len(df_quad)} colaboradores ativos")
     else:
         st.info("Nenhum colaborador cadastrado.")
+
+with tab_gestao:
+    st.subheader("Gestao")
+    tab_dept, tab_cargo = st.tabs(["Departamentos", "Cargos"])
+
+    with tab_dept:
+        if departamentos:
+            df_dept = pd.DataFrame(departamentos)
+            df_dept.columns = ["ID", "Nome"]
+            renderizar_dataframe(df_dept, use_container_width=True, hide_index=True)
+
+    with tab_cargo:
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            cargos_todos = listar_cargos()
+            if cargos_todos:
+                df_cargos = pd.DataFrame(cargos_todos)
+                df_cargos["departamento"] = df_cargos["departamento_id"].map(deptos_map)
+                df_cargos = df_cargos[["id", "nome", "nivel", "peso_manpower", "departamento"]]
+                df_cargos.columns = ["ID", "Cargo", "Nivel", "Peso MP", "Departamento"]
+                renderizar_dataframe(df_cargos, use_container_width=True, hide_index=True)
+
+        with col2:
+            with st.form("form_cargo", clear_on_submit=True):
+                st.markdown("**Novo cargo**")
+                nome_cargo = st.text_input("Nome do cargo")
+                nivel_cargo = st.number_input(
+                    "Nivel hierarquico",
+                    min_value=0.5,
+                    max_value=10.0,
+                    step=0.5,
+                    value=5.0,
+                )
+                peso_cargo = st.number_input(
+                    "Peso MP (0 = nao conta)",
+                    min_value=0.0,
+                    max_value=5.0,
+                    step=0.05,
+                    value=1.0,
+                )
+                dept_options = {d["nome"]: d["id"] for d in departamentos}
+                dept_sel = st.selectbox("Departamento", options=list(dept_options.keys()))
+                if st.form_submit_button("Salvar"):
+                    if nome_cargo.strip():
+                        peso = peso_cargo if peso_cargo > 0 else None
+                        salvar_cargo(nome_cargo.strip(), nivel_cargo, peso, dept_options[dept_sel])
+                        st.success(f"Cargo '{nome_cargo}' salvo.")
+                        st.rerun()
+                    else:
+                        st.warning("Informe o nome do cargo.")

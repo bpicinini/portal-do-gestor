@@ -4,7 +4,7 @@ from datetime import date, datetime
 from utils.auth import garantir_autenticado
 from utils.departamentos import listar_departamentos, listar_cargos
 from utils.pessoas import listar_colaboradores, contratar, desligar, atualizar_colaborador, listar_historico
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
 
 garantir_autenticado()
 aplicar_estilos_globais()
@@ -133,7 +133,7 @@ if secao_atual == "Colaboradores":
             return ""
 
         styled = df.style.map(estilo_status, subset=["Status"])
-        st.dataframe(styled, use_container_width=True, hide_index=True)
+        renderizar_dataframe(styled, use_container_width=True, hide_index=True)
         st.caption(f"{len(df)} colaboradores encontrados")
     else:
         st.info("Nenhum colaborador encontrado com os filtros aplicados.")
@@ -236,7 +236,7 @@ if secao_atual == "Histórico":
             return ""
 
         styled = df_hist.style.map(estilo_evento, subset=["Evento"])
-        st.dataframe(styled, use_container_width=True, hide_index=True)
+        renderizar_dataframe(styled, use_container_width=True, hide_index=True)
         st.caption(f"{len(df_hist)} registros")
     else:
         st.info("Nenhum registro no histórico.")

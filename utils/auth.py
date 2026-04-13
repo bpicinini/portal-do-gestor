@@ -6,7 +6,11 @@ import hmac
 import os
 from datetime import datetime
 
+import json as _json
+
 import streamlit as st
+import streamlit.components.v1 as _components
+from streamlit_js_eval import streamlit_js_eval as _sje
 
 from utils.excel_io import (
     SHEET_USUARIOS,
@@ -72,6 +76,68 @@ USUARIOS_INICIAIS = [
 SESSION_USER_KEY = "auth_usuario"
 _QP_TOKEN        = "s"    # query param para token de sessão
 _QP_EMAIL        = "e"    # query param para lembrar email
+
+# Chaves do localStorage do browser (persistência além da URL)
+_LS_TOKEN = "portal_auth_token"
+_LS_EMAIL = "portal_remember_email"
+
+
+def _ler_ls() -> tuple[str | None, str]:
+    """Lê token e email do localStorage via streamlit_js_eval.
+    Retorna (None, "") enquanto o JS ainda não executou (primeiro render).
+    Retorna ("", "") se localStorage está vazio.
+    """
+    raw = _sje(
+        js_expressions=(
+            f"JSON.stringify([localStorage.getItem('{_LS_TOKEN}'),"
+            f"localStorage.getItem('{_LS_EMAIL}')])"
+        ),
+        key="_ls_read",
+        want_output=True,
+    )
+    if raw is None:
+        return None, ""  # JS ainda não executou
+    try:
+        parts = _json.loads(raw)
+        return parts[0] or "", parts[1] or ""
+    except Exception:
+        return "", ""
+
+
+def _salvar_ls(token: str, email: str = "", lembrar: bool = False):
+    """Salva token (e opcionalmente email) no localStorage."""
+    email_js = (
+        f"localStorage.setItem('{_LS_EMAIL}', {repr(str(email))});"
+        if lembrar and email
+        else f"localStorage.removeItem('{_LS_EMAIL}');"
+    )
+    _sje(
+        js_expressions=(
+            f"localStorage.setItem('{_LS_TOKEN}', {repr(str(token))});"
+            f"{email_js} true;"
+        ),
+        key="_ls_save",
+    )
+
+
+def _limpar_ls():
+    """Remove token e email do localStorage (logout)."""
+    _sje(
+        js_expressions=(
+            f"localStorage.removeItem('{_LS_TOKEN}');"
+            f"localStorage.removeItem('{_LS_EMAIL}'); true;"
+        ),
+        key="_ls_clear",
+    )
+
+
+def processar_pendencias():
+    """Executa salvamentos no localStorage pendentes do ciclo de login.
+    Deve ser chamado em app.py logo após confirmar que o usuário está logado.
+    """
+    if "_pending_ls" in st.session_state:
+        token, email, lembrar = st.session_state.pop("_pending_ls")
+        _salvar_ls(token, email, lembrar)
 
 
 def _secret_key() -> str:
@@ -316,6 +382,7 @@ def iniciar_sessao(usuario: dict):
 
 def sair_sessao():
     st.session_state.pop(SESSION_USER_KEY, None)
+    st.session_state["_logout"] = True
     try:
         st.query_params.clear()
     except Exception:
@@ -487,18 +554,42 @@ def renderizar_login():
         unsafe_allow_html=True,
     )
 
-    # Email salvo no query param "e" — sem cookies, sem dependências externas
-    try:
-        email_salvo = st.query_params.get(_QP_EMAIL, "")
-    except Exception:
-        email_salvo = ""
+    # Logout: limpar localStorage
+    if st.session_state.pop("_logout", False):
+        _limpar_ls()
+        ls_token, ls_email = "", ""
+    else:
+        # Ler localStorage — primeiro render retorna (None, ""), aguardar
+        ls_token, ls_email = _ler_ls()
+
+        if ls_token is None:
+            # JS ainda não executou: mostrar loading e aguardar rerun automático
+            st.markdown(
+                "<div style='text-align:center;padding:4rem;color:#6f7a84;"
+                "font-size:1rem;font-weight:500;'>Carregando...</div>",
+                unsafe_allow_html=True,
+            )
+            st.stop()
+
+        if ls_token:
+            # Tentar restaurar sessão automaticamente
+            email_from_token = _validar_token(str(ls_token))
+            if email_from_token:
+                usuario = buscar_usuario_por_email(email_from_token)
+                if usuario and usuario.get("status") == "Ativo":
+                    st.session_state[SESSION_USER_KEY] = _sanitizar_usuario(usuario)
+                    st.rerun()
+                    return
+            # Token inválido ou usuário inativo: limpar
+            _limpar_ls()
+            ls_token, ls_email = "", ""
 
     with st.form("form_login"):
-        email = st.text_input("Email", value=email_salvo, placeholder="voce@empresa.com")
+        email = st.text_input("Email", value=ls_email, placeholder="voce@empresa.com")
         senha = st.text_input("Senha", type="password")
         col_check, col_btn = st.columns([1, 1])
         with col_check:
-            lembrar = st.checkbox("Lembrar email", value=bool(email_salvo))
+            lembrar = st.checkbox("Lembrar email", value=bool(ls_email))
         with col_btn:
             submitted = st.form_submit_button("Entrar", type="primary", use_container_width=True)
 
@@ -507,13 +598,9 @@ def renderizar_login():
         if usuario:
             iniciar_sessao(usuario)
             registrar_login(usuario["email"])
-            try:
-                if lembrar:
-                    st.query_params[_QP_EMAIL] = _normalizar_email(email)
-                elif _QP_EMAIL in st.query_params:
-                    del st.query_params[_QP_EMAIL]
-            except Exception:
-                pass
+            token = _gerar_token(usuario["email"])
+            # Salva no localStorage no próximo render (evita race condition com st.rerun)
+            st.session_state["_pending_ls"] = (token, _normalizar_email(email), lembrar)
             st.rerun()
         st.error("Email ou senha inválidos.")
 
@@ -523,20 +610,42 @@ def renderizar_usuario_sidebar():
     if not usuario:
         return
 
+    dark = st.session_state.get("dark_mode", False)
+    if dark:
+        card_bg = "linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(28, 35, 51, 0.95) 100%)"
+        card_border = "#30363d"
+        card_shadow = "0 14px 35px rgba(0, 0, 0, 0.3)"
+        label_color = "#8b949e"
+        name_color = "#c9d6e0"
+        email_color = "#8b949e"
+        badge_bg = "rgba(122, 173, 134, 0.12)"
+        badge_border = "rgba(122, 173, 134, 0.2)"
+        badge_color = "#8faabb"
+    else:
+        card_bg = "linear-gradient(135deg, rgba(255,253,248,0.98) 0%, rgba(243,237,226,0.95) 100%)"
+        card_border = "#e3d8c5"
+        card_shadow = "0 14px 35px rgba(35, 64, 85, 0.08)"
+        label_color = "#6f7a84"
+        name_color = "#234055"
+        email_color = "#6f7a84"
+        badge_bg = "#eef5f0"
+        badge_border = "#d9e7de"
+        badge_color = "#36586f"
+
     st.sidebar.markdown(
         f"""
         <div style="
-            background: linear-gradient(135deg, rgba(255,253,248,0.98) 0%, rgba(243,237,226,0.95) 100%);
-            border: 1px solid #e3d8c5;
+            background: {card_bg};
+            border: 1px solid {card_border};
             border-radius: 16px;
             padding: 12px 12px 10px;
             margin-bottom: 12px;
-            box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+            box-shadow: {card_shadow};
         ">
-            <div style="font-size:12px; color:#6f7a84; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Sessão ativa</div>
-            <div style="margin-top:6px; font-size:16px; color:#234055; font-weight:800;">{usuario.get("nome", "Usuário")}</div>
-            <div style="margin-top:2px; font-size:12px; color:#6f7a84;">{usuario.get("email", "")}</div>
-            <div style="margin-top:10px; display:inline-flex; border-radius:999px; padding:6px 10px; background:#eef5f0; border:1px solid #d9e7de; color:#36586f; font-size:11px; font-weight:800;">
+            <div style="font-size:12px; color:{label_color}; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Sessão ativa</div>
+            <div style="margin-top:6px; font-size:16px; color:{name_color}; font-weight:800;">{usuario.get("nome", "Usuário")}</div>
+            <div style="margin-top:2px; font-size:12px; color:{email_color};">{usuario.get("email", "")}</div>
+            <div style="margin-top:10px; display:inline-flex; border-radius:999px; padding:6px 10px; background:{badge_bg}; border:1px solid {badge_border}; color:{badge_color}; font-size:11px; font-weight:800;">
                 {usuario.get("perfil", "Usuário")}
             </div>
         </div>

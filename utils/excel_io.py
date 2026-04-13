@@ -85,11 +85,11 @@ def _github_put_file(file_bytes, sha=None):
     g = Github(st.secrets["GITHUB_TOKEN"])
     repo = g.get_repo(st.secrets["GITHUB_REPO"])
     path = st.secrets.get("GITHUB_DATA_PATH", "data/dados.xlsx")
-    encoded = base64.b64encode(file_bytes).decode()
+    # PyGithub aceita bytes diretamente e faz base64 internamente
     if sha:
-        repo.update_file(path, "Atualização dados.xlsx", encoded, sha)
+        repo.update_file(path, "Atualização dados.xlsx", file_bytes, sha)
     else:
-        repo.create_file(path, "Criação dados.xlsx", encoded)
+        repo.create_file(path, "Criação dados.xlsx", file_bytes)
 
 
 def _garantir_sheets(wb):
@@ -191,3 +191,28 @@ def encontrar_linha(ws, col_idx, valor):
         if _c == _v:
             return cell.row
     return None
+
+
+# ── Persistência genérica via GitHub ──────────────────────────────────
+
+
+def github_persist(repo_path: str, file_bytes: bytes, msg: str = "Atualização de dados"):
+    """Persiste qualquer arquivo no GitHub (se configurado).
+
+    *repo_path* é o caminho relativo dentro do repositório
+    (ex: ``data/processos_360.csv``).  Funciona como fire-and-forget:
+    se GitHub não estiver configurado ou falhar, não levanta exceção.
+    """
+    if not _usar_github():
+        return
+    try:
+        from github import Github
+        g = Github(st.secrets["GITHUB_TOKEN"])
+        repo = g.get_repo(st.secrets["GITHUB_REPO"])
+        try:
+            contents = repo.get_contents(repo_path)
+            repo.update_file(repo_path, msg, file_bytes, contents.sha)
+        except Exception:
+            repo.create_file(repo_path, msg, file_bytes)
+    except Exception:
+        pass

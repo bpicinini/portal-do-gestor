@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import altair as alt
 import streamlit as st
 
 
@@ -10,6 +11,33 @@ def saudacao_periodo():
     if hora < 18:
         return "Boa tarde"
     return "Boa noite"
+
+
+def is_dark_mode():
+    return st.session_state.get("dark_mode", False)
+
+
+def altair_theme_args():
+    """Retorna kwargs para .configure() de gráficos Altair no tema atual."""
+    if is_dark_mode():
+        return dict(
+            background="transparent",
+            title={"color": "#c9d6e0"},
+            axis={
+                "labelColor": "#8b949e",
+                "titleColor": "#c9d6e0",
+                "gridColor": "#30363d",
+                "domainColor": "#30363d",
+                "tickColor": "#30363d",
+            },
+            legend={
+                "labelColor": "#8b949e",
+                "titleColor": "#c9d6e0",
+            },
+            view={"stroke": "#30363d"},
+            header={"labelColor": "#8b949e", "titleColor": "#c9d6e0"},
+        )
+    return dict(background="transparent")
 
 
 def aplicar_estilos_globais():
@@ -63,33 +91,64 @@ def aplicar_estilos_globais():
             padding-top: 0.8rem;
         }
 
-        [data-testid="stSidebarNav"] {
+        [data-testid="stSidebarNav"],
+        [data-testid="stSidebarNavItems"] {
             background: transparent;
             padding-top: 0.3rem;
         }
 
-        [data-testid="stSidebarNav"] a {
+        [data-testid="stSidebarNav"] a,
+        [data-testid="stSidebarNavItems"] a,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"],
+        [data-testid="stSidebar"] li a {
             border-radius: 14px;
             margin: 0.18rem 0 0.28rem 0;
             padding: 0.62rem 0.85rem;
-            color: var(--text);
+            color: var(--text) !important;
             transition: all 0.18s ease;
+            text-decoration: none !important;
         }
 
-        [data-testid="stSidebarNav"] a:hover {
+        [data-testid="stSidebarNav"] a span,
+        [data-testid="stSidebarNavItems"] a span,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"] span,
+        [data-testid="stSidebar"] li a span {
+            color: var(--text) !important;
+        }
+
+        [data-testid="stSidebarNav"] a:hover,
+        [data-testid="stSidebarNavItems"] a:hover,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"]:hover,
+        [data-testid="stSidebar"] li a:hover {
             background: #efe6d6;
-            color: var(--navy);
+            color: var(--navy) !important;
         }
 
-        [data-testid="stSidebarNav"] a[aria-current="page"] {
+        [data-testid="stSidebarNav"] a:hover span,
+        [data-testid="stSidebarNavItems"] a:hover span,
+        [data-testid="stSidebar"] li a:hover span {
+            color: var(--navy) !important;
+        }
+
+        [data-testid="stSidebarNav"] a[aria-current="page"],
+        [data-testid="stSidebarNavItems"] a[aria-current="page"],
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"],
+        [data-testid="stSidebar"] li a[aria-current="page"] {
             background: linear-gradient(135deg, #f4e8ca 0%, #f8f1df 100%);
-            color: var(--navy);
+            color: var(--navy) !important;
             font-weight: 700;
             border: 1px solid #ead9ac;
             box-shadow: inset 4px 0 0 var(--gold);
         }
 
-        [data-testid="stSidebarNav"] span {
+        [data-testid="stSidebarNav"] a[aria-current="page"] span,
+        [data-testid="stSidebarNavItems"] a[aria-current="page"] span,
+        [data-testid="stSidebar"] li a[aria-current="page"] span {
+            color: var(--navy) !important;
+        }
+
+        [data-testid="stSidebarNav"] span,
+        [data-testid="stSidebarNavItems"] span {
             font-size: 0.95rem;
         }
 
@@ -341,6 +400,703 @@ def aplicar_estilos_globais():
                 font-size: 1.25rem;
             }
         }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Registrar tema Altair dark/light
+    if is_dark_mode():
+        def _altair_dark():
+            return {
+                "config": {
+                    "background": "transparent",
+                    "title": {"color": "#c9d6e0"},
+                    "axis": {
+                        "labelColor": "#8b949e",
+                        "titleColor": "#c9d6e0",
+                        "gridColor": "#30363d",
+                        "domainColor": "#30363d",
+                        "tickColor": "#30363d",
+                    },
+                    "legend": {"labelColor": "#8b949e", "titleColor": "#c9d6e0"},
+                    "view": {"stroke": "#30363d"},
+                    "header": {"labelColor": "#8b949e", "titleColor": "#c9d6e0"},
+                    "text": {"color": "#c9d6e0"},
+                    "arc": {"stroke": "#30363d"},
+                }
+            }
+        alt.themes.register("portal_dark", _altair_dark)
+        alt.themes.enable("portal_dark")
+        _aplicar_dark_mode()
+    else:
+        def _altair_light():
+            return {"config": {"background": "transparent"}}
+        alt.themes.register("portal_light", _altair_light)
+        alt.themes.enable("portal_light")
+
+
+def renderizar_dataframe(df, use_container_width=True, hide_index=True, height=None, **extra_kwargs):
+    """Renderiza DataFrame como HTML estilizado (dark-mode-aware) ou st.dataframe."""
+    import pandas as pd
+
+    if not is_dark_mode():
+        kwargs = dict(use_container_width=use_container_width, hide_index=hide_index, **extra_kwargs)
+        if height is not None:
+            kwargs["height"] = height
+        if isinstance(df, pd.io.formats.style.Styler):
+            st.dataframe(df, **kwargs)
+        else:
+            st.dataframe(df, **kwargs)
+        return
+
+    # Dark mode: render HTML table
+    if isinstance(df, pd.io.formats.style.Styler):
+        data = df.data
+    else:
+        data = df
+
+    max_height_css = f"max-height:{height}px;overflow-y:auto;" if height else ""
+
+    rows_html = ""
+    for _, row in data.iterrows():
+        cells = "".join(
+            f'<td style="padding:10px 12px;border-bottom:1px solid #30363d;color:#d4dae2;font-size:13px;">'
+            f'{v if v is not None else "—"}</td>'
+            for v in row
+        )
+        rows_html += f"<tr>{cells}</tr>"
+
+    header_cells = "".join(
+        f'<th style="text-align:left;padding:10px 12px;font-size:11px;'
+        f'color:#8b949e;text-transform:uppercase;font-weight:700;letter-spacing:0.08em;'
+        f'border-bottom:1px solid #30363d;background:#1c2333;position:sticky;top:0;">{col}</th>'
+        for col in data.columns
+    )
+
+    html = f"""
+    <div style="border:1px solid #30363d;border-radius:10px;overflow:hidden;{max_height_css}">
+        <table style="width:100%;border-collapse:collapse;background:#161b22;">
+            <thead><tr>{header_cells}</tr></thead>
+            <tbody>{rows_html}</tbody>
+        </table>
+    </div>
+    """
+    st.markdown(html, unsafe_allow_html=True)
+
+
+def _aplicar_dark_mode():
+    st.markdown(
+        """
+        <style>
+        /* ══════════════════════════════════════════════════════════════════
+           DARK MODE — override completo
+           ══════════════════════════════════════════════════════════════════ */
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-soft: #1c2333;
+            --line: #30363d;
+            --text: #d4dae2;
+            --muted: #8b949e;
+            --navy: #c9d6e0;
+            --navy-soft: #8faabb;
+            --gold: #e0a83d;
+            --gold-soft: #2a2210;
+            --green: #7aad86;
+            --green-soft: #1a2a1e;
+            --shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
+        }
+
+        /* ── Kill all backdrop-filter (light theme bleeds through) ── */
+        [class*="hm-"],
+        .dashboard-shell,
+        .dashboard-badge,
+        .dashboard-pill {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        /* ── NUCLEAR: force light text everywhere ── */
+        .stApp,
+        .stApp *,
+        .stApp p,
+        .stApp span,
+        .stApp div,
+        .stApp label,
+        .stApp li,
+        .stApp td,
+        .stApp th {
+            color: var(--text) !important;
+        }
+
+        .stApp {
+            background:
+                radial-gradient(circle at top left, rgba(224, 168, 61, 0.04), transparent 24%),
+                linear-gradient(180deg, #0d1117 0%, #0d1117 100%) !important;
+        }
+
+        /* ── Sidebar — fundo e TODOS os textos internos ── */
+        [data-testid="stSidebar"],
+        [data-testid="stSidebar"] * {
+            color: var(--text) !important;
+        }
+
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #11161d 0%, #0d1117 100%) !important;
+            border-right: 1px solid var(--line) !important;
+        }
+
+        [data-testid="stSidebarContent"] {
+            background: transparent !important;
+        }
+
+        /* Sidebar nav links — dark mode */
+        [data-testid="stSidebarNav"] a,
+        [data-testid="stSidebarNav"] a *,
+        [data-testid="stSidebarNavItems"] a,
+        [data-testid="stSidebarNavItems"] a *,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"],
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"] *,
+        [data-testid="stSidebar"] li a,
+        [data-testid="stSidebar"] li a * {
+            color: #e0e6ed !important;
+            text-decoration: none !important;
+        }
+
+        [data-testid="stSidebarNav"] a:hover,
+        [data-testid="stSidebarNav"] a:hover *,
+        [data-testid="stSidebarNavItems"] a:hover,
+        [data-testid="stSidebarNavItems"] a:hover *,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"]:hover,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"]:hover *,
+        [data-testid="stSidebar"] li a:hover,
+        [data-testid="stSidebar"] li a:hover * {
+            background: rgba(255, 255, 255, 0.06) !important;
+            color: #fff !important;
+        }
+
+        [data-testid="stSidebarNav"] a[aria-current="page"],
+        [data-testid="stSidebarNav"] a[aria-current="page"] *,
+        [data-testid="stSidebarNavItems"] a[aria-current="page"],
+        [data-testid="stSidebarNavItems"] a[aria-current="page"] *,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"],
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"] *,
+        [data-testid="stSidebar"] li a[aria-current="page"],
+        [data-testid="stSidebar"] li a[aria-current="page"] * {
+            background: linear-gradient(135deg, rgba(224, 168, 61, 0.12) 0%, rgba(224, 168, 61, 0.06) 100%) !important;
+            color: var(--gold) !important;
+            border-color: rgba(224, 168, 61, 0.25) !important;
+        }
+        [data-testid="stSidebarNav"] a[aria-current="page"],
+        [data-testid="stSidebarNavItems"] a[aria-current="page"],
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"],
+        [data-testid="stSidebar"] li a[aria-current="page"] {
+            border: 1px solid rgba(224, 168, 61, 0.25) !important;
+            box-shadow: inset 4px 0 0 var(--gold) !important;
+        }
+
+        /* Sidebar collapse button */
+        [data-testid="stSidebar"] button,
+        [data-testid="stSidebar"] button *,
+        [data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"],
+        [data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"] * {
+            color: var(--muted) !important;
+        }
+
+        /* Sidebar Sair button */
+        [data-testid="stSidebar"] .stButton button {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border-color: var(--line) !important;
+            color: var(--text) !important;
+        }
+        [data-testid="stSidebar"] .stButton button *,
+        [data-testid="stSidebar"] .stButton button p {
+            color: var(--text) !important;
+        }
+
+        /* Auth sidebar card (inline styles) */
+        [data-testid="stSidebar"] [style*="background: linear-gradient(135deg, rgba(255,253,248"] {
+            background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(28, 35, 51, 0.95) 100%) !important;
+            border-color: var(--line) !important;
+        }
+        [data-testid="stSidebar"] [style*="color:#6f7a84"],
+        [data-testid="stSidebar"] [style*="color: #6f7a84"] {
+            color: var(--muted) !important;
+        }
+        [data-testid="stSidebar"] [style*="color:#234055"],
+        [data-testid="stSidebar"] [style*="color: #234055"] {
+            color: var(--navy) !important;
+        }
+        [data-testid="stSidebar"] [style*="background:#eef5f0"],
+        [data-testid="stSidebar"] [style*="background: #eef5f0"] {
+            background: rgba(122, 173, 134, 0.12) !important;
+            border-color: rgba(122, 173, 134, 0.2) !important;
+        }
+        [data-testid="stSidebar"] [style*="color:#36586f"],
+        [data-testid="stSidebar"] [style*="color: #36586f"] {
+            color: var(--navy-soft) !important;
+        }
+
+        /* Toggle label */
+        [data-testid="stSidebar"] .stToggle label,
+        [data-testid="stSidebar"] .stToggle label *,
+        [data-testid="stSidebar"] .stToggle p,
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] * {
+            color: var(--text) !important;
+        }
+
+        /* ── Header ── */
+        [data-testid="stHeader"] {
+            background: rgba(13, 17, 23, 0.85) !important;
+            backdrop-filter: blur(12px);
+        }
+        [data-testid="stHeader"] *,
+        [data-testid="stHeader"] button {
+            color: var(--text) !important;
+        }
+
+        /* ── Headings ── */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--navy) !important;
+        }
+
+        /* ── Streamlit native widgets ── */
+        div[data-testid="stMetric"] {
+            background: var(--surface) !important;
+            border-color: var(--line) !important;
+        }
+        div[data-testid="stMetricLabel"],
+        div[data-testid="stMetricLabel"] * { color: var(--muted) !important; }
+        div[data-testid="stMetricValue"],
+        div[data-testid="stMetricValue"] * { color: var(--navy) !important; }
+
+        .stTabs [data-baseweb="tab"] {
+            background: var(--surface-soft) !important;
+            border-color: var(--line) !important;
+            color: var(--muted) !important;
+        }
+        .stTabs [data-baseweb="tab"] * { color: inherit !important; }
+        .stTabs [aria-selected="true"],
+        .stTabs [aria-selected="true"] * {
+            background: linear-gradient(135deg, rgba(224, 168, 61, 0.15) 0%, rgba(224, 168, 61, 0.08) 100%) !important;
+            color: var(--gold) !important;
+            border-color: rgba(224, 168, 61, 0.3) !important;
+        }
+
+        .stButton button,
+        .stDownloadButton button,
+        .stFormSubmitButton button {
+            background: linear-gradient(135deg, #c98e23 0%, #a96b0f 100%) !important;
+            color: #fff !important;
+        }
+        .stButton button *,
+        .stDownloadButton button *,
+        .stFormSubmitButton button * {
+            color: #fff !important;
+        }
+
+        .stTextInput > div > div,
+        .stNumberInput > div > div,
+        .stDateInput > div > div,
+        .stSelectbox > div > div,
+        .stTextArea textarea {
+            background: var(--surface) !important;
+            border-color: var(--line) !important;
+            color: var(--text) !important;
+        }
+        .stTextInput input,
+        .stNumberInput input,
+        .stTextArea textarea {
+            color: var(--text) !important;
+        }
+        .stSelectbox [data-baseweb="select"] *,
+        .stDateInput [data-baseweb] * {
+            color: var(--text) !important;
+        }
+
+        /* Dropdowns / popover */
+        [data-baseweb="popover"],
+        [data-baseweb="popover"] *,
+        [data-baseweb="menu"],
+        [data-baseweb="menu"] * {
+            background: var(--surface) !important;
+            color: var(--text) !important;
+        }
+        [data-baseweb="menu"] li:hover {
+            background: var(--surface-soft) !important;
+        }
+
+        .stRadio > div,
+        div[data-testid="stExpander"] {
+            background: rgba(22, 27, 34, 0.6) !important;
+        }
+        div[data-testid="stExpander"] {
+            border-color: var(--line) !important;
+        }
+        div[data-testid="stExpander"] summary,
+        div[data-testid="stExpander"] summary * {
+            color: var(--text) !important;
+        }
+
+        .stAlert { border-color: var(--line) !important; }
+
+        /* st.dataframe — glide-data-grid theme via CSS custom props */
+        [data-testid="stDataFrame"],
+        .stDataFrame {
+            color: var(--text) !important;
+            background: var(--surface) !important;
+            border-radius: 8px;
+        }
+        [data-testid="stDataFrame"] [data-testid="stDataFrameResizable"],
+        [data-testid="stDataFrame"] .dvn-scroller {
+            background: var(--surface) !important;
+        }
+        /* Override glide-data-grid canvas theme */
+        .stApp {
+            --gdg-bg-cell: #161b22 !important;
+            --gdg-bg-cell-medium: #1c2333 !important;
+            --gdg-bg-header: #1c2333 !important;
+            --gdg-bg-header-has-focus: #242d3d !important;
+            --gdg-bg-header-hovered: #242d3d !important;
+            --gdg-border-color: #30363d !important;
+            --gdg-horizontal-border-color: #30363d !important;
+            --gdg-text-dark: #d4dae2 !important;
+            --gdg-text-medium: #8b949e !important;
+            --gdg-text-light: #6e7a86 !important;
+            --gdg-text-header: #8b949e !important;
+            --gdg-text-header-selected: #c9d6e0 !important;
+            --gdg-text-group-header: #8b949e !important;
+            --gdg-bg-search-result: rgba(224, 168, 61, 0.15) !important;
+            --gdg-accent-color: #c98e23 !important;
+            --gdg-accent-light: rgba(201, 142, 35, 0.15) !important;
+            --gdg-accent-fg: #fff !important;
+            --gdg-link-color: #58a6ff !important;
+            --gdg-cell-horizontal-padding: 10px !important;
+            --gdg-cell-vertical-padding: 8px !important;
+        }
+
+        /* st.caption, markdown */
+        .stMarkdown p, .stCaption, [data-testid="stCaption"] {
+            color: var(--text) !important;
+        }
+
+        /* st.page_link */
+        [data-testid="stPageLink"],
+        [data-testid="stPageLink"] a,
+        [data-testid="stPageLink-NavLink"],
+        [data-testid="stPageLink-NavLink"] * {
+            background: var(--surface) !important;
+            border-color: var(--line) !important;
+            color: var(--gold) !important;
+        }
+
+        /* st.subheader */
+        [data-testid="stSubheader"],
+        [data-testid="stSubheader"] * {
+            color: var(--navy) !important;
+        }
+
+        /* st.info, st.success, st.warning, st.error */
+        [data-testid="stNotification"],
+        .stAlert div {
+            color: var(--text) !important;
+        }
+
+        /* st.divider */
+        [data-testid="stHorizontalRule"] hr,
+        hr {
+            border-color: var(--line) !important;
+        }
+
+        /* ── Dashboard shell (cabeçalhos de página) ── */
+        .dashboard-shell {
+            background: linear-gradient(135deg, #161b22 0%, #1c2333 100%) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-color: var(--line) !important;
+        }
+        .dashboard-kicker { color: var(--muted) !important; }
+        .dashboard-title  { color: var(--navy) !important; }
+        .dashboard-desc   { color: var(--muted) !important; }
+        .dashboard-badge {
+            background: linear-gradient(135deg, var(--green-soft) 0%, rgba(26, 42, 30, 0.8) 100%) !important;
+            color: var(--green) !important;
+            border-color: rgba(122, 173, 134, 0.25) !important;
+        }
+        .dashboard-pill {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border-color: var(--line) !important;
+            color: var(--navy-soft) !important;
+        }
+
+        /* ══ HOME — Hero / KPIs / Pipeline / Cards ══ */
+        .hm-banner {
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-color: var(--line) !important;
+        }
+        .hm-banner-title { color: var(--navy) !important; }
+        .hm-banner-sub   { color: var(--muted) !important; }
+        .hm-banner-date  {
+            background: #1c2333 !important;
+            border-color: var(--line) !important;
+            color: var(--navy) !important;
+        }
+        .hm-kpi {
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-color: var(--line) !important;
+        }
+        .hm-kpi:hover {
+            background: #1c2333 !important;
+            border-color: rgba(224, 168, 61, 0.4) !important;
+        }
+        .hm-kpi-label { color: var(--muted) !important; }
+        .hm-kpi-value { color: var(--navy) !important; }
+        .hm-kpi-sub   { color: #6e7a86 !important; }
+        .hm-kpi-value.green { color: var(--green) !important; }
+        .hm-kpi-value.amber { color: var(--gold) !important; }
+
+        .hm-pipeline {
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-color: var(--line) !important;
+        }
+        .hm-pipeline:hover { background: #1c2333 !important; }
+        .hm-pipeline-header { color: var(--navy) !important; }
+        .hm-pipeline-header span { color: var(--gold) !important; }
+        .hm-pipeline-leg-item { color: var(--muted) !important; }
+
+        .hm-sec {
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-color: var(--line) !important;
+        }
+        .hm-sec:hover {
+            background: #1c2333 !important;
+            border-color: rgba(224, 168, 61, 0.4) !important;
+        }
+        .hm-sec-title { color: var(--navy) !important; }
+        .hm-sec-desc  { color: var(--muted) !important; }
+        .hm-sec-metric {
+            background: #1c2333 !important;
+            border-color: var(--line) !important;
+        }
+        .hm-sec-metric-label { color: var(--muted) !important; }
+        .hm-sec-metric-val   { color: var(--navy) !important; }
+        .hm-sec-metric-val.green { color: var(--green) !important; }
+        .hm-sec-metric-val.amber { color: var(--gold) !important; }
+        .hm-section-label { color: var(--muted) !important; }
+
+        .hm-alert-badge.critical {
+            background: rgba(181, 66, 58, 0.18) !important;
+            border-color: rgba(181, 66, 58, 0.3) !important;
+            color: #e87c75 !important;
+        }
+        .hm-alert-badge.warning {
+            background: rgba(224, 168, 61, 0.15) !important;
+            border-color: rgba(224, 168, 61, 0.25) !important;
+            color: var(--gold) !important;
+        }
+        .hm-alert-badge.info {
+            background: rgba(139, 148, 158, 0.12) !important;
+            color: var(--muted) !important;
+            border-color: rgba(139, 148, 158, 0.2) !important;
+        }
+
+        .hm-hier-legend .hm-hier-leg-item { color: var(--muted) !important; }
+        .hm-hier-seg { color: #fff !important; }
+
+        .hm-dept-card {
+            background: #161b22 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-color: var(--line) !important;
+            border-top-color: rgba(224, 168, 61, 0.5) !important;
+        }
+        .hm-dept-card:hover {
+            background: #1c2333 !important;
+            border-color: rgba(224, 168, 61, 0.4) !important;
+        }
+        .hm-dept-card-name     { color: var(--navy) !important; }
+        .hm-dept-card-num-val  { color: var(--navy) !important; }
+        .hm-dept-card-num-label { color: var(--muted) !important; }
+        .hm-dept-card-bar-bg   { background: rgba(255, 255, 255, 0.06) !important; }
+        .hm-dept-card-bar-fill { background: rgba(74, 138, 181, 0.6) !important; }
+        .hm-dept-card-people   { color: var(--muted) !important; }
+        .hm-dept-card-people strong { color: var(--navy) !important; }
+
+        .hm-perf-highlight { background: rgba(22, 38, 52, 0.95) !important; }
+        .hm-perf-highlight * { color: #fff !important; }
+        .hm-perf-highlight.below { background: rgba(42, 34, 16, 0.9) !important; }
+        .hm-perf-highlight.below * { color: #fff !important; }
+
+        .hm-mov-item { border-bottom-color: var(--line) !important; }
+        .hm-mov-name { color: var(--navy) !important; }
+        .hm-mov-info { color: var(--muted) !important; }
+        .hm-mov-date { color: #6e7a86 !important; }
+
+        .hm-top-item { border-bottom-color: var(--line) !important; }
+        .hm-top-name { color: var(--navy) !important; }
+        .hm-top-val  { color: var(--muted) !important; }
+
+        /* ══ ORGANOGRAMA ══ */
+        .card-gerencia {
+            background: linear-gradient(135deg, #0d1a24 0%, #142232 52%, #182a3a 100%) !important;
+            border-color: rgba(216, 165, 67, 0.35) !important;
+        }
+        .card-gerencia * { color: #fff !important; }
+        .card-gerencia .cargo { color: #f4d491 !important; }
+
+        .card-coordenador {
+            background: linear-gradient(135deg, #1c2e3a 0%, #1a2a36 100%) !important;
+            border-color: rgba(158, 181, 193, 0.2) !important;
+        }
+        .card-coordenador * { color: #fff !important; }
+
+        .card-supervisor {
+            background: linear-gradient(135deg, #3a2e14 0%, #2e2410 100%) !important;
+        }
+        .card-supervisor * { color: #fff !important; }
+
+        .card-op {
+            background: var(--surface) !important;
+            border-color: var(--line) !important;
+        }
+        .card-op .nome  { color: var(--navy) !important; }
+        .card-op .cargo { color: var(--muted) !important; }
+        .card-op .info  { color: #6e7a86 !important; }
+
+        .nivel-label { color: var(--navy) !important; border-left-color: var(--gold) !important; }
+        .conector { color: var(--gold) !important; }
+
+        .report-column { background: var(--surface) !important; border-color: var(--line) !important; }
+        .report-head { background: linear-gradient(135deg, #142232 0%, #0d1a24 100%) !important; }
+        .report-head * { color: #fff !important; }
+        .report-child { background: var(--surface-soft) !important; border-color: var(--line) !important; }
+        .report-child .nome  { color: var(--navy) !important; }
+        .report-child .cargo { color: var(--muted) !important; }
+        .report-child .meta  { color: #6e7a86 !important; }
+        .report-source.seed { background: rgba(122, 173, 134, 0.15) !important; color: var(--green) !important; }
+        .report-source.fallback { background: rgba(224, 168, 61, 0.15) !important; color: var(--gold) !important; }
+        .report-empty { color: var(--muted) !important; }
+
+        /* ══ CONTROLE DE PESSOAS ══ */
+        .btn-secondary { background: var(--surface) !important; color: var(--navy-soft) !important; border-color: var(--line) !important; }
+        .btn-secondary:hover { background: var(--surface-soft) !important; color: var(--navy) !important; }
+
+        /* ══ USUARIOS ══ */
+        .user-toolbar {
+            background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(28, 35, 51, 0.95) 100%) !important;
+            border-color: var(--line) !important;
+        }
+        .user-toolbar strong { color: var(--navy) !important; }
+        .user-panel { background: var(--surface) !important; border-color: var(--line) !important; }
+        .user-panel-title { color: var(--navy) !important; }
+        .user-panel-sub   { color: var(--muted) !important; }
+        .user-table { background: var(--surface) !important; }
+        .user-table thead th { color: var(--muted) !important; border-bottom-color: var(--line) !important; background: var(--surface-soft) !important; }
+        .user-table td { color: var(--text) !important; border-bottom-color: var(--line) !important; background: transparent !important; }
+        .user-table tbody tr { border-bottom-color: var(--line) !important; }
+        .user-table tbody tr:hover { background: rgba(255, 255, 255, 0.03) !important; }
+        .user-name  { color: var(--navy) !important; }
+        .user-email { color: var(--muted) !important; }
+        .user-status { color: var(--green) !important; }
+        .user-status.inativo { color: var(--gold) !important; }
+        .user-role { background: rgba(224, 168, 61, 0.12) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
+        .user-role.admin { background: rgba(224, 168, 61, 0.12) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
+        .user-role.usuario, .user-role.user { background: rgba(122, 173, 134, 0.12) !important; border-color: rgba(122, 173, 134, 0.2) !important; color: var(--green) !important; }
+        .user-tag { background: rgba(224, 168, 61, 0.1) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
+        .profile-card { background: var(--surface) !important; border-color: var(--line) !important; }
+
+        /* ══ HTML tables (global dark override) ══ */
+        .stApp table {
+            background: var(--surface) !important;
+        }
+        .stApp table thead tr {
+            background: var(--surface-soft) !important;
+        }
+        .stApp table th {
+            color: var(--muted) !important;
+            background: var(--surface-soft) !important;
+            border-bottom-color: var(--line) !important;
+        }
+        .stApp table td {
+            color: var(--text) !important;
+            border-bottom-color: var(--line) !important;
+        }
+        .stApp table tr {
+            border-bottom-color: var(--line) !important;
+        }
+        [style*="border-bottom:1px solid #f0e8d8"],
+        [style*="border-bottom: 1px solid #f0e8d8"],
+        [style*="border-bottom:1px solid #efe7da"],
+        [style*="border-bottom: 1px solid #efe7da"] {
+            border-bottom-color: var(--line) !important;
+        }
+
+        /* ══ PROCESSOS 360 — inline style overrides ══ */
+        [style*="background:#f6f0e4"], [style*="background: #f6f0e4"] { background: var(--surface-soft) !important; }
+        [style*="background:#fffdf8"], [style*="background: #fffdf8"] { background: var(--surface) !important; }
+        [style*="background:#f6f1e7"], [style*="background: #f6f1e7"] { background: var(--surface-soft) !important; }
+        [style*="background:#f0e8d8"], [style*="background: #f0e8d8"] { background: var(--surface-soft) !important; }
+        [style*="background:#e3d8c5"], [style*="border-color:#e3d8c5"] { border-color: var(--line) !important; }
+        /* Pipeline KPI strip (Processos 360 Visão Geral) */
+        [style*="background: linear-gradient(135deg, rgba(255,253,248"],
+        [style*="background:linear-gradient(135deg,rgba(255,253,248"],
+        [style*="background: linear-gradient(135deg, rgba(255, 253, 248"] {
+            background: linear-gradient(135deg, #161b22, #1c2333) !important;
+            border-color: var(--line) !important;
+        }
+        [style*="background: rgba(255,255,255,0.6)"],
+        [style*="background:rgba(255,255,255,0.6)"] {
+            background: var(--surface-soft) !important;
+            border-color: var(--line) !important;
+        }
+
+        /* ══ Gráficos Altair/Vega — fundo transparente ══ */
+        [data-testid="stVegaLiteChart"],
+        [data-testid="stArrowVegaLiteChart"],
+        .vega-embed,
+        .vega-embed summary,
+        .vega-embed .chart-wrapper {
+            background: transparent !important;
+        }
+        .vega-embed .vega-bindings,
+        .vega-embed .vega-bindings * {
+            color: var(--text) !important;
+        }
+        .vega-embed svg { background: transparent !important; }
+        .vega-embed canvas { background: transparent !important; }
+        /* Only the outermost background rect, NOT data marks */
+        .vega-embed svg > g > rect.background,
+        .vega-embed svg > rect {
+            fill: transparent !important;
+        }
+
+        /* Inline bg overrides for tags/pills with light bg */
+        [style*="background:rgba(35,64,85,0.07)"],
+        [style*="background: rgba(35,64,85,0.07)"],
+        [style*="background:rgba(35, 64, 85, 0.07)"] {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: var(--navy) !important;
+        }
+
+        /* Inline color overrides for common light-mode colors */
+        [style*="color:#234055"], [style*="color: #234055"] { color: var(--navy) !important; }
+        [style*="color:#6f7a84"], [style*="color: #6f7a84"] { color: var(--muted) !important; }
+        [style*="color:#223645"], [style*="color: #223645"] { color: var(--text) !important; }
+        [style*="color:#7d8790"], [style*="color: #7d8790"] { color: var(--muted) !important; }
+        [style*="color:#65707a"], [style*="color: #65707a"] { color: var(--muted) !important; }
+        [style*="color:#87919a"], [style*="color: #87919a"] { color: #6e7a86 !important; }
+
         </style>
         """,
         unsafe_allow_html=True,
