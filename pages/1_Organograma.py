@@ -4,13 +4,9 @@ import pandas as pd
 import streamlit as st
 
 from utils.auth import garantir_autenticado
-from utils.departamentos import (
-    listar_cargos,
-    listar_departamentos,
-    salvar_cargo,
-)
+from utils.departamentos import listar_departamentos
 from utils.organograma import construir_estrutura_reportes
-from utils.pessoas import listar_colaboradores
+from utils.pessoas import atualizar_responsavel_direto, listar_colaboradores
 from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
 
 
@@ -28,7 +24,6 @@ renderizar_cabecalho_pagina(
 )
 
 departamentos = listar_departamentos()
-deptos_map = {d["id"]: d["nome"] for d in departamentos}
 todos_ativos = listar_colaboradores(status="Ativo")
 estrutura_reportes = construir_estrutura_reportes(todos_ativos)
 
@@ -220,6 +215,10 @@ st.markdown(
     background: #e5f1dd;
     color: #58785b;
 }
+.report-source.definido {
+    background: #d8edf6;
+    color: #1a6080;
+}
 .report-source.fallback {
     background: #f4e7c5;
     color: #9a6d19;
@@ -298,7 +297,12 @@ def _card_reporte_analista(pessoa):
 def _card_reporte_subordinado(item):
     pessoa = item["pessoa"]
     origem = item["origem"]
-    badge_class = "seed" if origem == "Planilha-base" else "fallback"
+    if origem == "Definido pelo coordenador":
+        badge_class = "definido"
+    elif origem == "Planilha-base":
+        badge_class = "seed"
+    else:
+        badge_class = "fallback"
     meta = str(pessoa.get("unidade") or pessoa.get("empresa") or "").strip()
     return (
         '<div class="report-child">'
@@ -310,14 +314,16 @@ def _card_reporte_subordinado(item):
     )
 
 
-filtro_dept = st.selectbox(
-    "Filtrar departamento",
-    options=["Todos"] + [d["nome"] for d in departamentos],
+_opcoes_filtro = ["Todos"] + [d["nome"] for d in departamentos]
+filtro_dept = st.pills(
+    "Departamento",
+    options=_opcoes_filtro,
+    default="Todos",
     key="filtro_org",
-)
+) or "Todos"
 
-tab_niveis, tab_reportes, tab_quadro, tab_gestao = st.tabs(
-    ["Visao por niveis", "Visao por reportes", "Quadro completo", "Gestao"]
+tab_niveis, tab_reportes, tab_quadro = st.tabs(
+    ["Visao por niveis", "Visao por reportes", "Quadro completo"]
 )
 
 with tab_niveis:
@@ -418,12 +424,88 @@ with tab_reportes:
             else:
                 st.info("Nao ha analistas cadastrados neste setor para montar a visao de reportes.")
 
+    st.divider()
+    st.markdown("#### Tabela de analistas e assistentes")
+    st.caption(
+        "Visao simplificada para os coordenadores ajustarem os reportes diretos. "
+        "Linhas marcadas como 'Distribuicao provisoria' ainda precisam ser confirmadas."
+    )
+
+    rows_tab = []
+    for bloco in estrutura_reportes:
+        if filtro_dept != "Todos" and bloco["departamento"] != filtro_dept:
+            continue
+        dept = bloco["departamento"]
+        for grupo in bloco["grupos"]:
+            analista = grupo["analista"]
+            if grupo["reportes"]:
+                for item in grupo["reportes"]:
+                    sub = item["pessoa"]
+                    rows_tab.append(
+                        {
+                            "Departamento": dept,
+                            "Analista": analista["nome"],
+                            "Cargo Analista": analista["cargo_nome"],
+                            "Assistente / Estagiario": sub["nome"],
+                            "Cargo": sub["cargo_nome"],
+                            "Origem": item["origem"],
+                        }
+                    )
+            else:
+                rows_tab.append(
+                    {
+                        "Departamento": dept,
+                        "Analista": analista["nome"],
+                        "Cargo Analista": analista["cargo_nome"],
+                        "Assistente / Estagiario": "—",
+                        "Cargo": "—",
+                        "Origem": "—",
+                    }
+                )
+
+    if rows_tab:
+        df_tab = pd.DataFrame(rows_tab)
+
+        def _colorir_origem(val):
+            if val == "Definido pelo coordenador":
+                return "background-color: #d8edf6; color: #1a6080;"
+            if val == "Planilha-base":
+                return "background-color: #e5f1dd; color: #3d6b40;"
+            if val == "Distribuição provisória":
+                return "background-color: #fef3dc; color: #8a5e10;"
+            return ""
+
+        st.dataframe(
+            df_tab.style.applymap(_colorir_origem, subset=["Origem"]),
+            use_container_width=True,
+            hide_index=True,
+        )
+        csv_bytes = df_tab.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
+        st.download_button(
+            label="Baixar tabela (.csv)",
+            data=csv_bytes,
+            file_name="reportes_organograma.csv",
+            mime="text/csv",
+        )
+    else:
+        st.info("Nenhum dado de reportes para exibir.")
+
 with tab_quadro:
     st.subheader("Quadro completo")
     if todos_ativos:
-        df = pd.DataFrame(todos_ativos)
-        df = df[
+        df_raw = pd.DataFrame(todos_ativos)
+
+        # Garante coluna responsavel_direto mesmo em dados antigos
+        if "responsavel_direto" not in df_raw.columns:
+            df_raw["responsavel_direto"] = None
+
+        # Opções de responsável: apenas analistas (nivel 3–6)
+        _analistas = [p for p in todos_ativos if 3 <= float(p.get("cargo_nivel") or 99) < 7]
+        _opcoes_resp = [""] + sorted({a["nome"] for a in _analistas})
+
+        df_quad = df_raw[
             [
+                "id",
                 "nome",
                 "departamento_nome",
                 "cargo_nome",
@@ -431,72 +513,56 @@ with tab_quadro:
                 "peso_manpower",
                 "unidade",
                 "gestor_direto",
+                "responsavel_direto",
             ]
+        ].copy()
+        df_quad.columns = [
+            "ID", "Nome", "Departamento", "Cargo", "Nivel",
+            "MP", "Unidade", "Gestor", "Responsável Direto",
         ]
-        df.columns = ["Nome", "Departamento", "Cargo", "Nivel", "MP", "Unidade", "Gestor Direto"]
-        if filtro_dept != "Todos":
-            df = df[df["Departamento"] == filtro_dept]
-        df = df.sort_values(["Departamento", "Nivel", "Nome"])
 
-        st.dataframe(
-            df,
+        if filtro_dept != "Todos":
+            df_quad = df_quad[df_quad["Departamento"] == filtro_dept]
+
+        df_quad = df_quad.sort_values(["Departamento", "Nivel", "Nome"]).reset_index(drop=True)
+        df_quad["Responsável Direto"] = df_quad["Responsável Direto"].fillna("").astype(str).str.strip()
+
+        edited_quad = st.data_editor(
+            df_quad,
             use_container_width=True,
             hide_index=True,
             column_config={
-                "Nivel": st.column_config.NumberColumn(format="%.1f"),
-                "MP": st.column_config.NumberColumn(format="%.2f"),
+                "ID": st.column_config.NumberColumn(disabled=True, width="small"),
+                "Nome": st.column_config.TextColumn(disabled=True),
+                "Departamento": st.column_config.TextColumn(disabled=True),
+                "Cargo": st.column_config.TextColumn(disabled=True),
+                "Nivel": st.column_config.NumberColumn(format="%.1f", disabled=True, width="small"),
+                "MP": st.column_config.NumberColumn(format="%.2f", disabled=True, width="small"),
+                "Unidade": st.column_config.TextColumn(disabled=True),
+                "Gestor": st.column_config.TextColumn(disabled=True),
+                "Responsável Direto": st.column_config.SelectboxColumn(
+                    options=_opcoes_resp,
+                    help="Analista responsável por este colaborador na visão de reportes imediatos.",
+                ),
             },
+            key="editor_quadro",
         )
-        st.caption(f"Total exibido: {len(df)} colaboradores ativos")
+
+        if st.button("Salvar reportes", type="primary", key="btn_salvar_reportes"):
+            _alteracoes = []
+            for idx in df_quad.index:
+                old_val = str(df_quad.at[idx, "Responsável Direto"] or "").strip()
+                new_val = str(edited_quad.at[idx, "Responsável Direto"] or "").strip()
+                if old_val != new_val:
+                    _alteracoes.append((int(df_quad.at[idx, "ID"]), new_val or None))
+            if _alteracoes:
+                for _cid, _resp in _alteracoes:
+                    atualizar_responsavel_direto(_cid, _resp)
+                st.success(f"{len(_alteracoes)} reporte(s) salvo(s). Acesse a aba 'Visao por reportes' para conferir.")
+                st.rerun()
+            else:
+                st.info("Nenhuma alteração detectada.")
+
+        st.caption(f"Total exibido: {len(df_quad)} colaboradores ativos")
     else:
         st.info("Nenhum colaborador cadastrado.")
-
-with tab_gestao:
-    st.subheader("Gestao")
-    tab_dept, tab_cargo = st.tabs(["Departamentos", "Cargos"])
-
-    with tab_dept:
-        if departamentos:
-            df_dept = pd.DataFrame(departamentos)
-            df_dept.columns = ["ID", "Nome"]
-            st.dataframe(df_dept, use_container_width=True, hide_index=True)
-
-    with tab_cargo:
-        col1, col2 = st.columns([2, 1])
-        with col1:
-            cargos_todos = listar_cargos()
-            if cargos_todos:
-                df_cargos = pd.DataFrame(cargos_todos)
-                df_cargos["departamento"] = df_cargos["departamento_id"].map(deptos_map)
-                df_cargos = df_cargos[["id", "nome", "nivel", "peso_manpower", "departamento"]]
-                df_cargos.columns = ["ID", "Cargo", "Nivel", "Peso MP", "Departamento"]
-                st.dataframe(df_cargos, use_container_width=True, hide_index=True)
-
-        with col2:
-            with st.form("form_cargo", clear_on_submit=True):
-                st.markdown("**Novo cargo**")
-                nome_cargo = st.text_input("Nome do cargo")
-                nivel_cargo = st.number_input(
-                    "Nivel hierarquico",
-                    min_value=0.5,
-                    max_value=10.0,
-                    step=0.5,
-                    value=5.0,
-                )
-                peso_cargo = st.number_input(
-                    "Peso MP (0 = nao conta)",
-                    min_value=0.0,
-                    max_value=5.0,
-                    step=0.05,
-                    value=1.0,
-                )
-                dept_options = {d["nome"]: d["id"] for d in departamentos}
-                dept_sel = st.selectbox("Departamento", options=list(dept_options.keys()))
-                if st.form_submit_button("Salvar"):
-                    if nome_cargo.strip():
-                        peso = peso_cargo if peso_cargo > 0 else None
-                        salvar_cargo(nome_cargo.strip(), nivel_cargo, peso, dept_options[dept_sel])
-                        st.success(f"Cargo '{nome_cargo}' salvo.")
-                        st.rerun()
-                    else:
-                        st.warning("Informe o nome do cargo.")

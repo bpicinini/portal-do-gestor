@@ -61,6 +61,12 @@ USUARIOS_INICIAIS = [
         "perfil": "Usuário",
         "senha": "3s@2026",
     },
+    {
+        "nome": "Mariana Strick",
+        "email": "mariana.strick@3scorporate.com",
+        "perfil": "Usuário",
+        "senha": "mari@3s2026",
+    },
 ]
 
 SESSION_USER_KEY = "auth_usuario"

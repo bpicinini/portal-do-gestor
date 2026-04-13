@@ -113,6 +113,17 @@ def construir_estrutura_reportes(colaboradores):
         grupos = {analista["id"]: [] for analista in analistas}
         usados = set()
 
+        # 1. Prioridade máxima: responsavel_direto definido manualmente no portal
+        for subordinado in base:
+            resp = str(subordinado.get("responsavel_direto") or "").strip()
+            if not resp:
+                continue
+            analista = _buscar_melhor_pessoa(analistas, resp)
+            if analista:
+                grupos[analista["id"]].append({"pessoa": subordinado, "origem": "Definido pelo coordenador"})
+                usados.add(subordinado["id"])
+
+        # 2. Sementes da planilha MEGAZORD (legado)
         for subordinado_hint, analista_hint in sementes.get(departamento, []):
             subordinado = _buscar_melhor_pessoa([p for p in base if p["id"] not in usados], subordinado_hint)
             analista = _buscar_melhor_pessoa(analistas, analista_hint)
@@ -120,6 +131,7 @@ def construir_estrutura_reportes(colaboradores):
                 grupos[analista["id"]].append({"pessoa": subordinado, "origem": "Planilha-base"})
                 usados.add(subordinado["id"])
 
+        # 3. Distribuição provisória para os restantes
         restantes = [p for p in base if p["id"] not in usados]
         for subordinado in restantes:
             candidatos = analistas[:]
