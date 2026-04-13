@@ -24,7 +24,8 @@ HEADERS = {
     SHEET_CARGOS: ["id", "nome", "nivel", "peso_manpower", "departamento_id"],
     SHEET_COLABORADORES: [
         "id", "nome", "cargo_id", "departamento_id", "empresa", "cidade",
-        "tipo_contrato", "gestor_direto", "data_entrada", "data_saida", "status"
+        "tipo_contrato", "gestor_direto", "data_entrada", "data_saida", "status",
+        "responsavel_direto",
     ],
     SHEET_HISTORICO: ["id", "colaborador_id", "nome", "tipo", "cargo", "data", "observacao"],
     SHEET_MANPOWER_MENSAL: ["ano", "mes", "departamento_id", "manpower_total"],
@@ -92,12 +93,19 @@ def _github_put_file(file_bytes, sha=None):
 
 
 def _garantir_sheets(wb):
-    """Cria sheets faltantes e seus headers."""
+    """Cria sheets faltantes e seus headers. Adiciona colunas novas em sheets existentes."""
     for sheet_name, headers in HEADERS.items():
         if sheet_name not in wb.sheetnames:
             ws = wb.create_sheet(sheet_name)
             for col, header in enumerate(headers, 1):
                 ws.cell(row=1, column=col, value=header)
+        else:
+            ws = wb[sheet_name]
+            existing = [ws.cell(row=1, column=c).value for c in range(1, ws.max_column + 1)]
+            for header in headers:
+                if header not in existing:
+                    ws.cell(row=1, column=len(existing) + 1, value=header)
+                    existing.append(header)
     # Remove sheet padrão vazia se existir
     if "Sheet" in wb.sheetnames and len(wb.sheetnames) > 1:
         del wb["Sheet"]

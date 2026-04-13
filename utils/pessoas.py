@@ -156,6 +156,27 @@ def atualizar_colaborador(colab_id, nome=None, cargo_id=None, departamento_id=No
     salvar_workbook(wb)
 
 
+def _coluna_idx(ws, nome_header):
+    """Retorna o índice (1-based) da coluna pelo nome do header, ou None se não encontrar."""
+    for col in range(1, ws.max_column + 1):
+        if ws.cell(row=1, column=col).value == nome_header:
+            return col
+    return None
+
+
+def atualizar_responsavel_direto(colab_id, responsavel_nome):
+    """Atualiza o campo responsavel_direto de um colaborador (usado para reportes no organograma)."""
+    wb = carregar_workbook()
+    ws = wb[SHEET_COLABORADORES]
+    row_num = encontrar_linha(ws, 1, colab_id)
+    if not row_num:
+        raise ValueError(f"Colaborador {colab_id} não encontrado.")
+    col = _coluna_idx(ws, "responsavel_direto")
+    if col:
+        ws.cell(row=row_num, column=col, value=responsavel_nome or None)
+    salvar_workbook(wb)
+
+
 def listar_historico(colaborador_id=None):
     wb = carregar_workbook()
     historico = sheet_to_list(wb[SHEET_HISTORICO])

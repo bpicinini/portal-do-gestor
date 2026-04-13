@@ -10,7 +10,7 @@ from utils.departamentos import (
     salvar_cargo,
 )
 from utils.organograma import construir_estrutura_reportes
-from utils.pessoas import listar_colaboradores
+from utils.pessoas import atualizar_responsavel_direto, listar_colaboradores
 from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
 
 
@@ -220,6 +220,10 @@ st.markdown(
     background: #e5f1dd;
     color: #58785b;
 }
+.report-source.definido {
+    background: #d8edf6;
+    color: #1a6080;
+}
 .report-source.fallback {
     background: #f4e7c5;
     color: #9a6d19;
@@ -298,7 +302,12 @@ def _card_reporte_analista(pessoa):
 def _card_reporte_subordinado(item):
     pessoa = item["pessoa"]
     origem = item["origem"]
-    badge_class = "seed" if origem == "Planilha-base" else "fallback"
+    if origem == "Definido pelo coordenador":
+        badge_class = "definido"
+    elif origem == "Planilha-base":
+        badge_class = "seed"
+    else:
+        badge_class = "fallback"
     meta = str(pessoa.get("unidade") or pessoa.get("empresa") or "").strip()
     return (
         '<div class="report-child">'
@@ -310,11 +319,13 @@ def _card_reporte_subordinado(item):
     )
 
 
-filtro_dept = st.selectbox(
-    "Filtrar departamento",
-    options=["Todos"] + [d["nome"] for d in departamentos],
+_opcoes_filtro = ["Todos"] + [d["nome"] for d in departamentos]
+filtro_dept = st.pills(
+    "Departamento",
+    options=_opcoes_filtro,
+    default="Todos",
     key="filtro_org",
-)
+) or "Todos"
 
 tab_niveis, tab_reportes, tab_quadro, tab_gestao = st.tabs(
     ["Visao por niveis", "Visao por reportes", "Quadro completo", "Gestao"]
@@ -461,6 +472,8 @@ with tab_reportes:
         df_tab = pd.DataFrame(rows_tab)
 
         def _colorir_origem(val):
+            if val == "Definido pelo coordenador":
+                return "background-color: #d8edf6; color: #1a6080;"
             if val == "Planilha-base":
                 return "background-color: #e5f1dd; color: #3d6b40;"
             if val == "Distribuição provisória":
@@ -485,9 +498,19 @@ with tab_reportes:
 with tab_quadro:
     st.subheader("Quadro completo")
     if todos_ativos:
-        df = pd.DataFrame(todos_ativos)
-        df = df[
+        df_raw = pd.DataFrame(todos_ativos)
+
+        # Garante coluna responsavel_direto mesmo em dados antigos
+        if "responsavel_direto" not in df_raw.columns:
+            df_raw["responsavel_direto"] = None
+
+        # Opções de responsável: apenas analistas (nivel 3–6)
+        _analistas = [p for p in todos_ativos if 3 <= float(p.get("cargo_nivel") or 99) < 7]
+        _opcoes_resp = [""] + sorted({a["nome"] for a in _analistas})
+
+        df_quad = df_raw[
             [
+                "id",
                 "nome",
                 "departamento_nome",
                 "cargo_nome",
@@ -495,23 +518,57 @@ with tab_quadro:
                 "peso_manpower",
                 "unidade",
                 "gestor_direto",
+                "responsavel_direto",
             ]
+        ].copy()
+        df_quad.columns = [
+            "ID", "Nome", "Departamento", "Cargo", "Nivel",
+            "MP", "Unidade", "Gestor", "Responsável Direto",
         ]
-        df.columns = ["Nome", "Departamento", "Cargo", "Nivel", "MP", "Unidade", "Gestor Direto"]
-        if filtro_dept != "Todos":
-            df = df[df["Departamento"] == filtro_dept]
-        df = df.sort_values(["Departamento", "Nivel", "Nome"])
 
-        st.dataframe(
-            df,
+        if filtro_dept != "Todos":
+            df_quad = df_quad[df_quad["Departamento"] == filtro_dept]
+
+        df_quad = df_quad.sort_values(["Departamento", "Nivel", "Nome"]).reset_index(drop=True)
+        df_quad["Responsável Direto"] = df_quad["Responsável Direto"].fillna("").astype(str).str.strip()
+
+        edited_quad = st.data_editor(
+            df_quad,
             use_container_width=True,
             hide_index=True,
             column_config={
-                "Nivel": st.column_config.NumberColumn(format="%.1f"),
-                "MP": st.column_config.NumberColumn(format="%.2f"),
+                "ID": st.column_config.NumberColumn(disabled=True, width="small"),
+                "Nome": st.column_config.TextColumn(disabled=True),
+                "Departamento": st.column_config.TextColumn(disabled=True),
+                "Cargo": st.column_config.TextColumn(disabled=True),
+                "Nivel": st.column_config.NumberColumn(format="%.1f", disabled=True, width="small"),
+                "MP": st.column_config.NumberColumn(format="%.2f", disabled=True, width="small"),
+                "Unidade": st.column_config.TextColumn(disabled=True),
+                "Gestor": st.column_config.TextColumn(disabled=True),
+                "Responsável Direto": st.column_config.SelectboxColumn(
+                    options=_opcoes_resp,
+                    help="Analista responsável por este colaborador na visão de reportes imediatos.",
+                ),
             },
+            key="editor_quadro",
         )
-        st.caption(f"Total exibido: {len(df)} colaboradores ativos")
+
+        if st.button("Salvar reportes", type="primary", key="btn_salvar_reportes"):
+            _alteracoes = []
+            for idx in df_quad.index:
+                old_val = str(df_quad.at[idx, "Responsável Direto"] or "").strip()
+                new_val = str(edited_quad.at[idx, "Responsável Direto"] or "").strip()
+                if old_val != new_val:
+                    _alteracoes.append((int(df_quad.at[idx, "ID"]), new_val or None))
+            if _alteracoes:
+                for _cid, _resp in _alteracoes:
+                    atualizar_responsavel_direto(_cid, _resp)
+                st.success(f"{len(_alteracoes)} reporte(s) salvo(s). Acesse a aba 'Visao por reportes' para conferir.")
+                st.rerun()
+            else:
+                st.info("Nenhuma alteração detectada.")
+
+        st.caption(f"Total exibido: {len(df_quad)} colaboradores ativos")
     else:
         st.info("Nenhum colaborador cadastrado.")
 
