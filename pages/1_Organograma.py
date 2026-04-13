@@ -27,40 +27,40 @@ st.markdown(
 <style>
 .card-gerencia {
     background:
-        radial-gradient(circle at top right, rgba(242, 212, 145, 0.28), transparent 28%),
-        linear-gradient(135deg, #183142 0%, #234055 52%, #2a4a5f 100%);
+        radial-gradient(circle at top right, rgba(242, 212, 145, 0.22), transparent 30%),
+        linear-gradient(135deg, #0f2232 0%, #1b3549 55%, #234055 100%);
     color: white;
     border-radius: 22px;
     padding: 18px 20px;
     margin: 4px 2px;
     min-height: 92px;
-    border: 1px solid rgba(216, 165, 67, 0.42);
+    border: 1px solid rgba(216, 165, 67, 0.38);
     border-left: 6px solid #d8a543;
-    box-shadow: 0 20px 44px rgba(24, 49, 66, 0.26);
+    box-shadow: 0 18px 40px rgba(15, 34, 50, 0.28);
     position: relative;
     overflow: hidden;
 }
 .card-coordenador {
-    background:
-        linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%),
-        linear-gradient(135deg, #53707f 0%, #476271 100%);
+    background: linear-gradient(135deg, #1b3a4d 0%, #234055 100%);
     color: white;
     border-radius: 18px;
     padding: 12px 16px;
     margin: 4px 2px;
     min-height: 72px;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-left: 4px solid #9eb5c1;
-    box-shadow: 0 14px 32px rgba(35, 64, 85, 0.12);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-left: 5px solid #5ba8cc;
+    box-shadow: 0 10px 28px rgba(27, 58, 77, 0.18);
 }
 .card-supervisor {
-    background: linear-gradient(135deg, #c89a44 0%, #b47f27 100%);
+    background: linear-gradient(135deg, #2c5268 0%, #3c6478 100%);
     color: white;
     border-radius: 18px;
     padding: 12px 16px;
     margin: 4px 2px;
     min-height: 72px;
-    box-shadow: 0 14px 35px rgba(180, 127, 39, 0.22);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-left: 4px solid #80c2df;
+    box-shadow: 0 8px 22px rgba(44, 82, 104, 0.16);
 }
 .card-gerencia .nome, .card-coordenador .nome, .card-supervisor .nome {
     font-weight: 700;
@@ -73,7 +73,7 @@ st.markdown(
 }
 .card-gerencia .cargo, .card-coordenador .cargo, .card-supervisor .cargo {
     font-size: 12px;
-    opacity: 0.85;
+    opacity: 0.82;
     margin-top: 2px;
 }
 .card-gerencia .cargo {
@@ -85,9 +85,31 @@ st.markdown(
 }
 .card-gerencia .info, .card-coordenador .info, .card-supervisor .info {
     font-size: 11px;
-    opacity: 0.72;
+    opacity: 0.68;
     margin-top: 2px;
 }
+/* Analistas e especialistas (nivel 3–6): tint sutil, borda azul */
+.card-analista {
+    background: #edf3f7;
+    border: 1px solid #c4d6e0;
+    border-left: 4px solid #6aaac8;
+    border-radius: 16px;
+    padding: 9px 12px;
+    margin: 3px 2px;
+    min-height: 62px;
+    box-shadow: 0 4px 14px rgba(35, 64, 85, 0.07);
+}
+.card-analista.nh { border-left: 4px solid #3b82f6; }
+.card-analista.ita { border-left: 4px solid #16a34a; }
+.card-analista .nome {
+    font-weight: 700;
+    font-size: 13px;
+    color: #1e3a4d;
+    line-height: 1.3;
+}
+.card-analista .cargo { font-size: 11px; color: #4e7a92; margin-top: 2px; }
+.card-analista .info  { font-size: 11px; color: #7896a6; margin-top: 1px; }
+/* Assistentes / Estagiários (nivel 7+): neutro, apenas borda fina */
 .card-op {
     background: #fffdf8;
     border: 1px solid #e3d8c5;
@@ -96,30 +118,13 @@ st.markdown(
     padding: 9px 12px;
     margin: 3px 2px;
     min-height: 62px;
-    box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+    box-shadow: 0 4px 14px rgba(35, 64, 85, 0.06);
 }
-.card-op.nh {
-    border-left: 4px solid #3b82f6;
-}
-.card-op.ita {
-    border-left: 4px solid #16a34a;
-}
-.card-op .nome {
-    font-weight: 700;
-    font-size: 13px;
-    color: #234055;
-    line-height: 1.3;
-}
-.card-op .cargo {
-    font-size: 11px;
-    color: #65707a;
-    margin-top: 2px;
-}
-.card-op .info {
-    font-size: 11px;
-    color: #87919a;
-    margin-top: 1px;
-}
+.card-op.nh  { border-left: 4px solid #3b82f6; }
+.card-op.ita { border-left: 4px solid #16a34a; }
+.card-op .nome  { font-weight: 700; font-size: 13px; color: #234055; line-height: 1.3; }
+.card-op .cargo { font-size: 11px; color: #65707a; margin-top: 2px; }
+.card-op .info  { font-size: 11px; color: #87919a; margin-top: 1px; }
 .badge-nh {
     display: inline-block;
     background: #dbeafe;
@@ -175,7 +180,7 @@ st.markdown(
     box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
 }
 .report-head {
-    background: linear-gradient(135deg, #31586c 0%, #234055 100%);
+    background: linear-gradient(135deg, #3a6a80 0%, #4c7d94 100%);
     color: white;
     border-radius: 16px;
     padding: 14px 16px;
@@ -361,6 +366,8 @@ def card_para_nivel(pessoa):
         return _card("card-coordenador", nome, cargo, unidade)
     if nivel <= 2.5:
         return _card("card-supervisor", nome, cargo, unidade)
+    if nivel < 7:
+        return _card("card-analista", nome, cargo, unidade, peso=peso)
     return _card("card-op", nome, cargo, unidade, peso=peso)
 
 
