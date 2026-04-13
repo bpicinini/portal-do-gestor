@@ -6,8 +6,8 @@ import streamlit as st
 from utils.auth import garantir_autenticado
 from utils.departamentos import listar_departamentos
 from utils.organograma import construir_estrutura_reportes
-from utils.pessoas import listar_colaboradores
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
+from utils.pessoas import atualizar_responsavel_direto, listar_colaboradores
+from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
 
 
 garantir_autenticado()
@@ -320,8 +320,8 @@ filtro_dept = st.pills(
 # Gerência geral — aparece em todos os departamentos
 gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
 
-tab_niveis, tab_reportes, tab_quadro, tab_gestao = st.tabs(
-    ["Visao por niveis", "Visao por reportes", "Quadro completo", "Gestao"]
+tab_niveis, tab_reportes, tab_quadro = st.tabs(
+    ["Visao por niveis", "Visao por reportes", "Quadro completo"]
 )
 
 with tab_niveis:
@@ -514,8 +514,13 @@ with tab_quadro:
             "MP", "Unidade", "Gestor", "Responsável Direto",
         ]
 
-        renderizar_dataframe(
-            df,
+        if filtro_dept != "Todos":
+            df_quad = df_quad[df_quad["Departamento"] == filtro_dept]
+        df_quad = df_quad.sort_values(["Departamento", "Nivel", "Nome"]).reset_index(drop=True)
+        df_quad["Responsável Direto"] = df_quad["Responsável Direto"].fillna("").astype(str).str.strip()
+
+        edited_quad = st.data_editor(
+            df_quad,
             use_container_width=True,
             hide_index=True,
             column_config={
@@ -554,52 +559,3 @@ with tab_quadro:
     else:
         st.info("Nenhum colaborador cadastrado.")
 
-with tab_gestao:
-    st.subheader("Gestao")
-    tab_dept, tab_cargo = st.tabs(["Departamentos", "Cargos"])
-
-    with tab_dept:
-        if departamentos:
-            df_dept = pd.DataFrame(departamentos)
-            df_dept.columns = ["ID", "Nome"]
-            renderizar_dataframe(df_dept, use_container_width=True, hide_index=True)
-
-    with tab_cargo:
-        col1, col2 = st.columns([2, 1])
-        with col1:
-            cargos_todos = listar_cargos()
-            if cargos_todos:
-                df_cargos = pd.DataFrame(cargos_todos)
-                df_cargos["departamento"] = df_cargos["departamento_id"].map(deptos_map)
-                df_cargos = df_cargos[["id", "nome", "nivel", "peso_manpower", "departamento"]]
-                df_cargos.columns = ["ID", "Cargo", "Nivel", "Peso MP", "Departamento"]
-                renderizar_dataframe(df_cargos, use_container_width=True, hide_index=True)
-
-        with col2:
-            with st.form("form_cargo", clear_on_submit=True):
-                st.markdown("**Novo cargo**")
-                nome_cargo = st.text_input("Nome do cargo")
-                nivel_cargo = st.number_input(
-                    "Nivel hierarquico",
-                    min_value=0.5,
-                    max_value=10.0,
-                    step=0.5,
-                    value=5.0,
-                )
-                peso_cargo = st.number_input(
-                    "Peso MP (0 = nao conta)",
-                    min_value=0.0,
-                    max_value=5.0,
-                    step=0.05,
-                    value=1.0,
-                )
-                dept_options = {d["nome"]: d["id"] for d in departamentos}
-                dept_sel = st.selectbox("Departamento", options=list(dept_options.keys()))
-                if st.form_submit_button("Salvar"):
-                    if nome_cargo.strip():
-                        peso = peso_cargo if peso_cargo > 0 else None
-                        salvar_cargo(nome_cargo.strip(), nivel_cargo, peso, dept_options[dept_sel])
-                        st.success(f"Cargo '{nome_cargo}' salvo.")
-                        st.rerun()
-                    else:
-                        st.warning("Informe o nome do cargo.")
