@@ -1179,13 +1179,13 @@ with tab_alertas:
                 {"Limite Dev. Container": fmt_data, "Data do Follow": fmt_data},
                 icon="🚨", alerta_key="container_vencido",
                 column_config={
-                    "Processo": st.column_config.Column(width="small"),
-                    "Account": st.column_config.Column(width="small"),
-                    "Cliente": st.column_config.Column(width="medium"),
-                    "Limite Dev. Container": st.column_config.Column("Dev. Container", width="small"),
-                    "Dias Vencido": st.column_config.Column(width="small"),
-                    "Data do Follow": st.column_config.Column("Últ. Follow", width="small"),
-                    "Follow": st.column_config.Column("Follow-up", width="medium"),
+                    "Processo": st.column_config.Column(width=85),
+                    "Account": st.column_config.Column(width=140),
+                    "Cliente": st.column_config.Column(width=150),
+                    "Limite Dev. Container": st.column_config.Column("Dev. Container", width=100),
+                    "Dias Vencido": st.column_config.Column("Vencido", width=75),
+                    "Data do Follow": st.column_config.Column("Últ. Follow", width=100),
+                    "Follow": st.column_config.Column("Follow-up"),
                 },
             )
 
@@ -1206,13 +1206,13 @@ with tab_alertas:
                 {"Limite Dev. Container": fmt_data, "Data do Follow": fmt_data},
                 icon="📦", alerta_key="container_vencendo",
                 column_config={
-                    "Processo": st.column_config.Column(width="small"),
-                    "Account": st.column_config.Column(width="small"),
-                    "Cliente": st.column_config.Column(width="medium"),
-                    "Limite Dev. Container": st.column_config.Column("Dev. Container", width="small"),
-                    "Dias Restantes": st.column_config.Column(width="small"),
-                    "Data do Follow": st.column_config.Column("Últ. Follow", width="small"),
-                    "Follow": st.column_config.Column("Follow-up", width="medium"),
+                    "Processo": st.column_config.Column(width=85),
+                    "Account": st.column_config.Column(width=140),
+                    "Cliente": st.column_config.Column(width=150),
+                    "Limite Dev. Container": st.column_config.Column("Dev. Container", width=100),
+                    "Dias Restantes": st.column_config.Column("Restantes", width=75),
+                    "Data do Follow": st.column_config.Column("Últ. Follow", width=100),
+                    "Follow": st.column_config.Column("Follow-up"),
                 },
             )
 
@@ -1251,13 +1251,13 @@ with tab_alertas:
                 {"Abertura": fmt_data, "Data do Follow": fmt_data},
                 icon="💤", alerta_key="processo_parado",
                 column_config={
-                    "Processo": st.column_config.Column(width="small"),
-                    "Account": st.column_config.Column(width="small"),
-                    "Cliente": st.column_config.Column(width="medium"),
-                    "Abertura": st.column_config.Column(width="small"),
-                    "Dias Parado": st.column_config.Column(width="small"),
-                    "Data do Follow": st.column_config.Column("Últ. Follow", width="small"),
-                    "Follow": st.column_config.Column("Follow-up", width="medium"),
+                    "Processo": st.column_config.Column(width=85),
+                    "Account": st.column_config.Column(width=140),
+                    "Cliente": st.column_config.Column(width=150),
+                    "Abertura": st.column_config.Column(width=90),
+                    "Dias Parado": st.column_config.Column("Parado", width=75),
+                    "Data do Follow": st.column_config.Column("Últ. Follow", width=100),
+                    "Follow": st.column_config.Column("Follow-up"),
                 },
             )
 
@@ -1278,12 +1278,12 @@ with tab_alertas:
                 {"Data do Follow": fmt_data},
                 icon="📅", alerta_key="follow_desatualizado",
                 column_config={
-                    "Processo": st.column_config.Column(width="small"),
-                    "Account": st.column_config.Column(width="small"),
-                    "Cliente": st.column_config.Column(width="medium"),
-                    "Data do Follow": st.column_config.Column("Últ. Follow", width="small"),
-                    "Dias sem Follow": st.column_config.Column("Dias s/ Follow", width="small"),
-                    "Follow": st.column_config.Column("Follow-up", width="medium"),
+                    "Processo": st.column_config.Column(width=85),
+                    "Account": st.column_config.Column(width=140),
+                    "Cliente": st.column_config.Column(width=150),
+                    "Data do Follow": st.column_config.Column("Últ. Follow", width=100),
+                    "Dias sem Follow": st.column_config.Column("s/ Follow", width=75),
+                    "Follow": st.column_config.Column("Follow-up"),
                 },
             )
 
