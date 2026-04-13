@@ -111,6 +111,7 @@ def construir_estrutura_reportes(colaboradores):
         base = [p for p in pessoas_ordenadas if _nivel(p) >= 7]
 
         grupos = {analista["id"]: [] for analista in analistas}
+        grupos_lideres = {lider["id"]: [] for lider in lideres}
         usados = set()
 
         # 1. Prioridade máxima: responsavel_direto definido manualmente no portal
@@ -118,9 +119,16 @@ def construir_estrutura_reportes(colaboradores):
             resp = str(subordinado.get("responsavel_direto") or "").strip()
             if not resp:
                 continue
+            # Primeiro tenta analistas
             analista = _buscar_melhor_pessoa(analistas, resp)
             if analista:
                 grupos[analista["id"]].append({"pessoa": subordinado, "origem": "Definido pelo coordenador"})
+                usados.add(subordinado["id"])
+                continue
+            # Se não encontrou analista, tenta líderes (coordenadores/supervisores)
+            lider = _buscar_melhor_pessoa(lideres, resp)
+            if lider:
+                grupos_lideres[lider["id"]].append({"pessoa": subordinado, "origem": "Definido pelo coordenador"})
                 usados.add(subordinado["id"])
 
         # 2. Sementes da planilha MEGAZORD (legado)
@@ -182,6 +190,17 @@ def construir_estrutura_reportes(colaboradores):
                         ),
                     }
                     for analista in analistas
+                ],
+                "grupos_lideres": [
+                    {
+                        "lider": lider,
+                        "reportes": sorted(
+                            grupos_lideres.get(lider["id"], []),
+                            key=lambda item: (_nivel(item["pessoa"]), normalizar_nome(item["pessoa"]["nome"])),
+                        ),
+                    }
+                    for lider in lideres
+                    if grupos_lideres.get(lider["id"])
                 ],
                 "sem_analista": [p for p in base if p["id"] not in usados and not analistas],
             }

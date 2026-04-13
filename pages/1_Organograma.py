@@ -508,7 +508,7 @@ with tab_reportes:
                 ids_bloco.add(item["pessoa"].get("id"))
         gerencia_extra_rep = [g for g in gerencia_geral if g.get("id") not in ids_bloco]
 
-        # Aplica filtro de unidade nos grupos
+        # Aplica filtro de unidade nos grupos de analistas
         grupos_filtrados = bloco["grupos"]
         if filtro_unidade != "Todas":
             grupos_filtrados = [
@@ -524,10 +524,27 @@ with tab_reportes:
                 or any(str(r["pessoa"].get("unidade") or "") == filtro_unidade for r in g["reportes"])
             ]
 
+        # Aplica filtro de unidade nos grupos de líderes
+        grupos_lideres_filtrados = bloco.get("grupos_lideres", [])
+        if filtro_unidade != "Todas":
+            grupos_lideres_filtrados = [
+                {
+                    "lider": g["lider"],
+                    "reportes": [
+                        r for r in g["reportes"]
+                        if str(r["pessoa"].get("unidade") or "") == filtro_unidade
+                    ],
+                }
+                for g in grupos_lideres_filtrados
+                if str(g["lider"].get("unidade") or "") == filtro_unidade
+                or any(str(r["pessoa"].get("unidade") or "") == filtro_unidade for r in g["reportes"])
+            ]
+
         dept_total = (
             len(gerencia_extra_rep)
             + len(bloco["lideres"])
             + sum(len(g["reportes"]) + 1 for g in grupos_filtrados)
+            + sum(len(g["reportes"]) for g in grupos_lideres_filtrados)
         )
 
         with st.expander(
@@ -542,6 +559,23 @@ with tab_reportes:
                     lideres_html += card_para_nivel(pessoa)
                 lideres_html += "</div>"
                 st.markdown(lideres_html, unsafe_allow_html=True)
+
+            if grupos_lideres_filtrados:
+                st.markdown('<div class="nivel-label">Reportes diretos à coordenação</div>', unsafe_allow_html=True)
+                html = '<div class="report-grid">'
+                for grupo in grupos_lideres_filtrados:
+                    html += '<div class="report-column">'
+                    html += _card_reporte_analista(grupo["lider"])
+                    if grupo["reportes"]:
+                        html += '<div class="report-stack">'
+                        for item in grupo["reportes"]:
+                            html += _card_reporte_subordinado(item)
+                        html += "</div>"
+                    else:
+                        html += '<div class="report-empty">Nenhum reporte alocado.</div>'
+                    html += "</div>"
+                html += "</div>"
+                st.markdown(html, unsafe_allow_html=True)
 
             if grupos_filtrados:
                 st.markdown('<div class="nivel-label">Analistas e reportes</div>', unsafe_allow_html=True)
@@ -559,7 +593,7 @@ with tab_reportes:
                     html += "</div>"
                 html += "</div>"
                 st.markdown(html, unsafe_allow_html=True)
-            else:
+            elif not grupos_lideres_filtrados:
                 st.info("Nao ha analistas para exibir com os filtros atuais.")
 
 
@@ -577,7 +611,8 @@ with tab_quadro:
             df_raw["responsavel_direto"] = None
 
         _analistas = [p for p in todos_ativos if 3 <= float(p.get("cargo_nivel") or 99) < 7]
-        _opcoes_resp = [""] + sorted({a["nome"] for a in _analistas})
+        _lideres_resp = [p for p in todos_ativos if 1 < float(p.get("cargo_nivel") or 99) <= 2.5]
+        _opcoes_resp = [""] + sorted({p["nome"] for p in _lideres_resp + _analistas})
 
         df_quad = df_raw[[
             "id", "nome", "departamento_nome", "cargo_nome", "cargo_nivel",
@@ -616,7 +651,7 @@ with tab_quadro:
                 "Gestor": st.column_config.TextColumn(disabled=True),
                 "Responsável Direto": st.column_config.SelectboxColumn(
                     options=_opcoes_resp,
-                    help="Analista responsável por este colaborador no organograma de reportes.",
+                    help="Analista ou coordenador responsável direto no organograma de reportes.",
                 ),
             },
             key="editor_quadro",
