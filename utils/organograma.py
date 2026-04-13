@@ -169,6 +169,7 @@ def construir_estrutura_reportes(colaboradores):
         estrutura.append(
             {
                 "departamento": departamento,
+                "total_pessoas": len(pessoas),
                 "lideres": lideres,
                 "secoes_lider": secoes_lider,
                 "grupos_sem_lider": _grupos_analista(analistas_sem_lider),
@@ -176,4 +177,5 @@ def construir_estrutura_reportes(colaboradores):
             }
         )
 
+    estrutura.sort(key=lambda b: -b["total_pessoas"])
     return estrutura
