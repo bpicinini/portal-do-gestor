@@ -17,6 +17,8 @@ SHEET_HISTORICO = "Historico"
 SHEET_MANPOWER_MENSAL = "ManpowerMensal"
 SHEET_PERFORMANCE = "Performance"
 SHEET_USUARIOS = "Usuarios"
+SHEET_RESTITUICOES = "Restituicoes"
+SHEET_RESTITUICOES_LOG = "RestituicoesLog"
 
 # Headers de cada sheet
 HEADERS = {
@@ -41,6 +43,16 @@ HEADERS = {
         "senha_salt",
         "ultimo_login",
         "criado_em",
+    ],
+    SHEET_RESTITUICOES: [
+        "id", "numero_processo", "cliente", "cnpj", "status", "processo_ecac",
+        "divisao", "desencaixe", "valor_principal", "valor_corrigido",
+        "responsavel", "data_protocolo", "data_retificacao", "motivo_retificacao",
+        "termo_assinado", "prazo_fatal",
+        "criado_em", "criado_por", "atualizado_em", "atualizado_por",
+    ],
+    SHEET_RESTITUICOES_LOG: [
+        "id", "restituicao_id", "data_hora", "usuario", "tipo", "texto",
     ],
 }
 
