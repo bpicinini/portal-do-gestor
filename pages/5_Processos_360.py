@@ -437,20 +437,20 @@ with tab_analista:
                 valor_aduaneiro=("Valor Aduaneiro", "sum"),
             ).reset_index().sort_values("processos", ascending=False)
 
-            with _col_hdr:
-                _lbl_filtro = f" ({' + '.join(filtro_tipo)})" if filtro_tipo else ""
-                st.markdown(f"#### {len(analistas)} Analistas{_lbl_filtro}")
-
-            # ── Métricas resumo no topo ───────────────────────────────────
+            # Separar analistas normais (cards) dos que vão para auditoria
             _LIMIAR_AUDITORIA = 10
             _analistas_normais = analistas[analistas["processos"] >= _LIMIAR_AUDITORIA]
             _analistas_baixo   = analistas[analistas["processos"] <  _LIMIAR_AUDITORIA]
 
-            _total_proc  = int(analistas["processos"].sum())
-            _media_proc  = round(_total_proc / len(analistas), 1) if len(analistas) else 0
-            _mediana_proc = round(analistas["processos"].median(), 1)
-            _max_proc    = int(analistas["processos"].max()) if len(analistas) else 0
-            _min_proc    = int(analistas["processos"].min()) if len(analistas) else 0
+            with _col_hdr:
+                _lbl_filtro = f" ({' + '.join(filtro_tipo)})" if filtro_tipo else ""
+                st.markdown(f"#### {len(_analistas_normais)} Analistas{_lbl_filtro}")
+
+            # ── Métricas resumo — baseadas apenas nos analistas com cards ─
+            _total_proc   = int(_analistas_normais["processos"].sum())
+            _media_proc   = round(_total_proc / len(_analistas_normais), 1) if len(_analistas_normais) else 0
+            _mediana_proc = round(_analistas_normais["processos"].median(), 1) if len(_analistas_normais) else 0
+            _max_proc     = int(_analistas_normais["processos"].max()) if len(_analistas_normais) else 0
 
             _mc1, _mc2, _mc3, _mc4, _mc5 = st.columns(5)
             _mc1.metric("Total de processos", _total_proc)
