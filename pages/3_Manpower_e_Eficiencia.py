@@ -381,28 +381,39 @@ def cor_meta(val):
     return "color: green; font-weight: bold" if val >= 100 else "color: #9a4a32; font-weight: bold"
 
 
+def _fmt_opcional(val, fmt_fn):
+    """Formata val; retorna '—' se ausente ou zero."""
+    try:
+        if val is None:
+            return "—"
+        f = float(val)
+        if f != f or f == 0:  # NaN or zero
+            return "—"
+        return fmt_fn(f)
+    except Exception:
+        return "—"
+
+
 def render_tabela_performance(df_ano):
     df_show = df_ano[["mes", "volume_score", "manpower", "performance", "meta", "pct_meta"]].copy()
     df_show.columns = ["Mês", "Volume", "Manpower", "Eficiência", "Meta", "% Meta"]
-    # Mantém linhas com eficiência registrada, mesmo quando volume/MP não foram informados
+    # Exibe linhas com eficiência registrada, mesmo quando volume/MP não foram informados
     df_show = df_show[df_show["Eficiência"].notna() & (df_show["Eficiência"] > 0)]
-    # Substitui zeros por None para exibir "—" no lugar de 0
-    df_show["Volume"] = df_show["Volume"].apply(lambda v: v if pd.notna(v) and v > 0 else None)
-    df_show["Manpower"] = df_show["Manpower"].apply(lambda v: v if pd.notna(v) and v > 0 else None)
     df_show["% Meta"] = df_show["% Meta"].apply(
-        lambda val: round(val * 100, 1) if pd.notna(val) and val is not None else None
+        lambda val: round(float(val) * 100, 1) if pd.notna(val) and val is not None else None
     )
 
     styled = (
         df_show.style.map(cor_meta, subset=["% Meta"]).format(
             {
                 "Mês": _nome_mes,
-                "Volume": lambda val: _br_int(val) if pd.notna(val) else "—",
-                "Manpower": lambda val: _br(val, 2) if pd.notna(val) else "—",
+                "Volume": lambda val: _fmt_opcional(val, _br_int),
+                "Manpower": lambda val: _fmt_opcional(val, lambda v: _br(v, 2)),
                 "Eficiência": lambda val: _br(val, 1) if pd.notna(val) else "",
                 "Meta": lambda val: _br(val, 1) if pd.notna(val) else "",
                 "% Meta": lambda val: _br_pct(val, 1) if pd.notna(val) and val is not None else "—",
-            }
+            },
+            na_rep="—",
         )
     )
     n_linhas = len(df_show)
