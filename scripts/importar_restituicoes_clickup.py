@@ -44,7 +44,7 @@ SECAO_PARA_STATUS = {
     "RESTITUIÇÃO SOLICITADA": "Protocolado",
     "PENDENCIA DOC": "Com Pendências",
     "INDEFERIDOS": "Indeferido",
-    "DEFERIDO - PAGAMENTO PROGRAMADO PARA 20/04": "Deferido",
+    "DEFERIDO - PAGAMENTO PROGRAMADO PARA 20/04": "Pago",
 }
 
 # Termos no Task Name que indicam arquivamento por desistência
@@ -344,8 +344,9 @@ def processar_sheet(df: pd.DataFrame, status_default: str | None = None,
 def processar_concluidos(df: pd.DataFrame) -> list[dict]:
     """Sheet 'Concluídos' tem layout diferente: seções no row 0 (horizontal).
 
-    Todos os registros dessa aba representam processos no status ``Deferido``,
-    aguardando pagamento — conforme confirmado com o usuário.
+    Todos os registros dessa aba representam processos com pagamento
+    programado para 20/04 — antecipados para status ``Pago`` já na
+    importação para abastecer a aba Concluídos da UI.
     """
     status = SECAO_PARA_STATUS["DEFERIDO - PAGAMENTO PROGRAMADO PARA 20/04"]
     return processar_sheet(df, status_default=status, forcar_status=True)

@@ -37,6 +37,8 @@ STATUS = [
 ]
 
 # Categorização usada para as 3 abas da UI
+# Concluído = processo efetivamente pago; Deferido ainda aparece em Ativos
+# (direito reconhecido, mas restituição ainda não caiu em conta)
 STATUS_INDEFERIDO = {"Indeferido"}
 STATUS_CONCLUIDO = {"Pago"}
 STATUS_ATIVO = [s for s in STATUS if s not in STATUS_INDEFERIDO and s not in STATUS_CONCLUIDO]
