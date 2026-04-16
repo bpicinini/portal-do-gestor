@@ -441,7 +441,25 @@ with tab_analista:
                 _lbl_filtro = f" ({' + '.join(filtro_tipo)})" if filtro_tipo else ""
                 st.markdown(f"#### {len(analistas)} Analistas{_lbl_filtro}")
 
-            # Processos ativos por analista
+            # ── Métricas resumo no topo ───────────────────────────────────
+            _LIMIAR_AUDITORIA = 10
+            _analistas_normais = analistas[analistas["processos"] >= _LIMIAR_AUDITORIA]
+            _analistas_baixo   = analistas[analistas["processos"] <  _LIMIAR_AUDITORIA]
+
+            _total_proc  = int(analistas["processos"].sum())
+            _media_proc  = round(_total_proc / len(analistas), 1) if len(analistas) else 0
+            _mediana_proc = round(analistas["processos"].median(), 1)
+            _max_proc    = int(analistas["processos"].max()) if len(analistas) else 0
+            _min_proc    = int(analistas["processos"].min()) if len(analistas) else 0
+
+            _mc1, _mc2, _mc3, _mc4, _mc5 = st.columns(5)
+            _mc1.metric("Total de processos", _total_proc)
+            _mc2.metric("Média por analista", _media_proc)
+            _mc3.metric("Mediana", _mediana_proc)
+            _mc4.metric("Maior carteira", _max_proc)
+            _mc5.metric("Menor carteira (≥10)", int(_analistas_normais["processos"].min()) if len(_analistas_normais) else 0)
+
+
             _hoje = pd.Timestamp.now().normalize()
             _status_ativos_sempre = {"Encerramento", "Carregamento", "Registrado/Ag.Desembaraço", "Chegada"}
             _mask_ativos = df["Status"].isin(_status_ativos_sempre)
@@ -468,9 +486,9 @@ with tab_analista:
             else:
                 _tipos_por_analista = {}
 
-            _analistas_filtrados = analistas
+            _analistas_filtrados = _analistas_normais
 
-            # ── Cards ─────────────────────────────────────────────────────
+            # ── Cards (analistas com ≥ 10 processos) ──────────────────────
             cols_por_linha = 3
             for i in range(0, len(_analistas_filtrados), cols_por_linha):
                 cols = st.columns(cols_por_linha)
@@ -589,6 +607,24 @@ with tab_analista:
                                 f'</tr></thead><tbody>{rows_html}</tbody></table>',
                                 unsafe_allow_html=True,
                             )
+
+            # ── Analistas com < 10 processos — lista para auditoria ───────
+            if not _analistas_baixo.empty:
+                st.divider()
+                st.markdown(
+                    f"**⚠ {len(_analistas_baixo)} analista(s) com menos de {_LIMIAR_AUDITORIA} processos** "
+                    "— provável preenchimento incorreto. Verifique os números abaixo:",
+                    unsafe_allow_html=False,
+                )
+                for _, _ab_row in _analistas_baixo.iterrows():
+                    _procs_list = sorted(
+                        df[df["Account"] == _ab_row["Account"]]["Processo"].dropna().astype(str).tolist()
+                    )
+                    _procs_str = " · ".join(_procs_list) if _procs_list else "—"
+                    st.markdown(
+                        f"- **{_ab_row['Account']}** — {int(_ab_row['processos'])} processo(s): "
+                        f"`{_procs_str}`"
+                    )
 
             st.divider()
 
