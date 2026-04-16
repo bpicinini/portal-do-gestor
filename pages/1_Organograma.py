@@ -1,13 +1,14 @@
+from datetime import date
 from html import escape
 
 import pandas as pd
 import streamlit as st
 
 from utils.auth import garantir_autenticado
-from utils.departamentos import listar_departamentos
+from utils.departamentos import listar_cargos, listar_departamentos
 from utils.organograma import construir_estrutura_reportes
-from utils.pessoas import atualizar_responsavel_direto, listar_colaboradores
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.pessoas import atualizar_responsavel_direto, contratar, desligar, listar_colaboradores, listar_historico
+from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
 
 
 garantir_autenticado()
@@ -452,8 +453,10 @@ def _filtrar(pessoas):
 # Gerência geral
 gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
 
-tab_niveis, tab_reportes, tab_quadro = st.tabs(
-    ["Visao por niveis", "Visao por reportes", "Quadro completo"]
+MESES_PT_ORG = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+
+tab_niveis, tab_reportes, tab_quadro, tab_gestao = st.tabs(
+    ["Visao por niveis", "Visao por reportes", "Quadro completo", "Gestao de equipe"]
 )
 
 # ── Tab: Visão por níveis ────────────────────────────────────────────────────
@@ -722,3 +725,117 @@ with tab_quadro:
         st.caption(f"Total exibido: {len(df_quad)} colaboradores")
     else:
         st.info("Nenhum colaborador cadastrado.")
+
+# ── Tab: Gestão de Equipe ─────────────────────────────────────────────────────
+with tab_gestao:
+    st.subheader("Gestao de equipe")
+    st.caption("Registre entradas, desligamentos e consulte o histórico consolidado da equipe.")
+
+    subtab_contrat, subtab_desl, subtab_hist = st.tabs(
+        ["Contratacoes", "Desligamentos", "Historico"]
+    )
+
+    # ── Sub-aba: Contratações ──────────────────────────────────────────
+    with subtab_contrat:
+        st.subheader("Nova Contratacao")
+        st.caption("Ao registrar, o sistema atualiza automaticamente: Organograma + Log + Manpower + Performance")
+
+        with st.form("form_contratacao", clear_on_submit=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                nome_novo = st.text_input("Nome completo")
+                dept_sel = st.selectbox(
+                    "Departamento",
+                    options=[d["nome"] for d in departamentos],
+                    key="gest_dept_contrat",
+                )
+                dept_id_sel = next((d["id"] for d in departamentos if d["nome"] == dept_sel), None)
+                cargos_dept = listar_cargos(dept_id_sel)
+                cargo_options = {c["nome"]: c["id"] for c in cargos_dept}
+                cargo_nomes = list(cargo_options.keys())
+                cargo_sel = st.selectbox("Cargo", options=cargo_nomes, disabled=not cargo_nomes)
+                if not cargo_nomes:
+                    st.info("Cadastre ao menos um cargo nesse departamento antes de registrar.")
+            with col2:
+                unidade = st.selectbox("Unidade", ["Novo Hamburgo", "Itajaí"])
+                gestor = st.text_input("Gestor direto")
+                data_entrada = st.date_input("Data de entrada", value=date.today())
+                obs = st.text_area("Observacao (opcional)", height=68)
+
+            if st.form_submit_button("Registrar contratacao", type="primary", disabled=not cargo_options):
+                if nome_novo.strip() and cargo_sel:
+                    novo_id = contratar(
+                        nome=nome_novo.strip(),
+                        cargo_id=cargo_options[cargo_sel],
+                        departamento_id=dept_id_sel,
+                        empresa=unidade,
+                        cidade=unidade,
+                        gestor_direto=gestor,
+                        data_entrada=data_entrada,
+                        observacao=obs,
+                    )
+                    st.success(f"**{nome_novo}** registrado(a) com sucesso! (ID: {novo_id})")
+                    st.balloons()
+                else:
+                    st.warning("Preencha nome e cargo.")
+
+    # ── Sub-aba: Desligamentos ─────────────────────────────────────────
+    with subtab_desl:
+        st.subheader("Registrar Desligamento")
+        st.caption("Ao registrar, o sistema atualiza automaticamente: Organograma + Log + Manpower + Performance")
+
+        ativos_desl = listar_colaboradores(status="Ativo")
+        if ativos_desl:
+            nomes_ativos = {
+                f"{c['nome']} ({c['cargo_nome']} — {c['departamento_nome']})": c["id"]
+                for c in ativos_desl
+            }
+            with st.form("form_desligamento"):
+                pessoa_sel = st.selectbox("Colaborador", options=list(nomes_ativos.keys()))
+                data_saida = st.date_input("Data de saida", value=date.today())
+                obs_saida = st.text_area("Motivo / Observacao (opcional)", height=68)
+                col1_desl, col2_desl = st.columns([1, 3])
+                with col1_desl:
+                    confirmar = st.checkbox("Confirmo o desligamento")
+                submitted_desl = st.form_submit_button("Registrar desligamento", type="primary")
+
+                if submitted_desl:
+                    if confirmar:
+                        desligar(
+                            colab_id=nomes_ativos[pessoa_sel],
+                            data_saida=data_saida,
+                            observacao=obs_saida,
+                        )
+                        nome_simples = pessoa_sel.split(" (")[0]
+                        st.success(f"**{nome_simples}** desligado(a) com sucesso.")
+                        st.rerun()
+                    else:
+                        st.warning("Marque a confirmacao para prosseguir.")
+        else:
+            st.info("Nenhum colaborador ativo encontrado.")
+
+    # ── Sub-aba: Histórico ─────────────────────────────────────────────
+    with subtab_hist:
+        st.subheader("Log de Movimentacoes")
+        historico = listar_historico()
+        if historico:
+            df_hist = pd.DataFrame(historico)
+            datas = pd.to_datetime(df_hist["data"], errors="coerce")
+            df_hist["data"] = datas.apply(
+                lambda val: f"{MESES_PT_ORG[val.month]}/{val.year}" if pd.notna(val) else ""
+            )
+            df_hist = df_hist[["data", "tipo", "nome", "cargo", "observacao"]]
+            df_hist.columns = ["Periodo", "Evento", "Nome", "Cargo", "Observacao"]
+
+            def _estilo_evento(val):
+                if val == "Entrada":
+                    return "color: green; font-weight: bold"
+                if val == "Saída":
+                    return "color: red; font-weight: bold"
+                return ""
+
+            styled_hist = df_hist.style.map(_estilo_evento, subset=["Evento"])
+            renderizar_dataframe(styled_hist, use_container_width=True, hide_index=True)
+            st.caption(f"{len(df_hist)} registros")
+        else:
+            st.info("Nenhum registro no historico.")
