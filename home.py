@@ -39,11 +39,15 @@ NIVEL_SUP = (2.5, 2.5)
 
 
 def _nivel_do(colab):
+    if not colab:
+        return None
     cargo = cargo_map.get(colab.get("cargo_id")) or {}
     return cargo.get("nivel")
 
 
 def _cargo_nome(colab):
+    if not colab:
+        return ""
     cargo = cargo_map.get(colab.get("cargo_id")) or {}
     return cargo.get("nome") or ""
 
@@ -311,6 +315,31 @@ st.markdown(
     font-size: 12px;
     color: #9aa2ab;
     font-style: italic;
+}
+
+/* ── Botão "Explorar" como link minimalista ──────────────────────────── */
+[data-testid="stMain"] .stButton > button,
+[data-testid="stMain"] .stButton > button:focus:not(:active) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    color: #c79536 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    padding: 8px 4px 18px !important;
+    text-align: right !important;
+    transition: color 0.18s ease, transform 0.18s ease !important;
+}
+[data-testid="stMain"] .stButton > button:hover,
+[data-testid="stMain"] .stButton > button:active {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #234055 !important;
+    transform: translateX(2px);
 }
 
 /* ── Rodapé ────────────────────────────────────────────────────────────── */
