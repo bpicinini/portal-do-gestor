@@ -801,7 +801,7 @@ with tab_clientes:
                     _n = int(_rr["Processos"])
                     _repr_html += (
                         f'<div style="flex:1 1 0;min-width:180px;'
-                        f'background:linear-gradient(135deg,rgba(255,253,248,0.96),rgba(243,237,226,0.96));'
+                        f'background:rgba(245,245,247,0.5);'
                         f'border:1px solid #E5E5EA;border-radius:14px;padding:0.8rem 1rem;'
                         f'border-left:5px solid {_cor};">'
                         f'<div style="font-size:0.72rem;color:#6E6E73;text-transform:uppercase;'
