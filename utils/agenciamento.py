@@ -26,7 +26,7 @@ ETAPAS_ANDAMENTO = ["Ag booking", "Ag embarque", "Embarcado", "Ag faturamento"]
 
 ETAPAS_CORES = {
     "Ag booking": "#4a8ab5",
-    "Ag embarque": "#c79536",
+    "Ag embarque": "#C9A67A",
     "Embarcado": "#234055",
     "Ag faturamento": "#5e8668",
 }
@@ -34,7 +34,7 @@ ETAPAS_CORES = {
 SENIORIDADE_CORES = {
     "Senior": "#234055",
     "Pleno": "#4a8ab5",
-    "Junior": "#c79536",
+    "Junior": "#C9A67A",
     "Assistente": "#8a9ba8",
     "Supervisor": "#5e8668",
     "Coordenador": "#6f7a84",
@@ -42,7 +42,7 @@ SENIORIDADE_CORES = {
 
 MODAL_CORES = {
     "Marítimo": "#234055",
-    "Aéreo": "#c79536",
+    "Aéreo": "#C9A67A",
     "Terrestre": "#5e8668",
     "Demurrage": "#b5423a",
 }
@@ -50,7 +50,7 @@ MODAL_CORES = {
 CARGA_CORES = {
     "FCL": "#234055",
     "LCL": "#4a8ab5",
-    "Aéreo": "#c79536",
+    "Aéreo": "#C9A67A",
     "Rodoviário": "#5e8668",
 }
 

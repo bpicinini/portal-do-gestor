@@ -130,7 +130,7 @@ st.markdown(
         opacity: 0.75;
     }
 
-    .rst-tag-div-leader  { background: #223645; color: #f4e8ca; border-color: #1a2a37; }
+    .rst-tag-div-leader  { background: #223645; color: #ece0c8; border-color: #1a2a37; }
     .rst-tag-div-winning { background: #6e2935; color: #f4d6dc; border-color: #4f1c24; }
 
     .rst-tag-desc-3s {

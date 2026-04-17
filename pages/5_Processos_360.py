@@ -24,14 +24,14 @@ from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
 
 COLOR_NAVY = "#234055"
 COLOR_NAVY_SOFT = "#36586f"
-COLOR_GOLD = "#c79536"
+COLOR_GOLD = "#C9A67A"
 COLOR_GREEN = "#5e8668"
 COLOR_RED = "#b5423a"
 
 STATUS_CORES = {
     "Pré-embarque": "#7ea6c7",
     "Embarque": "#4a8ab5",
-    "Chegada": "#c79536",
+    "Chegada": "#C9A67A",
     "Registrado/Ag.Desembaraço": "#e6a832",
     "Carregamento": "#5e8668",
     "Encerramento": "#234055",
@@ -40,7 +40,7 @@ STATUS_CORES = {
 MODALIDADE_CORES = {
     "OCEANFREIGHT / FCL": "#234055",
     "OCEANFREIGHT / LCL": "#4a8ab5",
-    "AIRFREIGHT": "#c79536",
+    "AIRFREIGHT": "#C9A67A",
     "RODOVIÁRIO": "#5e8668",
     "BREAK BULK": "#8b5e3c",
     "MARÍTIMO / RODOVIÁRIO": "#7ea6c7",
@@ -51,7 +51,7 @@ MODALIDADE_CORES = {
 TIPO_OP_CORES = {
     "Importação Própria": "#4a8ab5",
     "Importação por Conta e Ordem": "#234055",
-    "Encomenda": "#c79536",
+    "Encomenda": "#C9A67A",
 }
 
 # Rótulos e cores para Direto / CO3 / Encomenda (usados em cards e tabelas)
@@ -63,7 +63,7 @@ TIPO_LABELS = {
 TIPO_CORES = {
     "Direto":    "#4a8ab5",
     "CO3":       "#234055",
-    "Encomenda": "#c79536",
+    "Encomenda": "#C9A67A",
 }
 TIPOS_ORDEM = ["Direto", "CO3", "Encomenda"]
 
@@ -300,7 +300,7 @@ with tab_geral:
                 df_acc = df["Account"].value_counts().reset_index()
                 df_acc.columns = ["Account", "Quantidade"]
                 # Gerar cores alternando entre palette
-                acc_palette = ["#234055", "#4a8ab5", "#c79536", "#5e8668", "#e6a832", "#7ea6c7", "#8b5e3c", "#b5423a", "#6f7a84", "#36586f"]
+                acc_palette = ["#234055", "#4a8ab5", "#C9A67A", "#5e8668", "#e6a832", "#7ea6c7", "#8b5e3c", "#b5423a", "#6f7a84", "#36586f"]
                 acc_domain = df_acc["Account"].tolist()
                 acc_range = [acc_palette[i % len(acc_palette)] for i in range(len(acc_domain))]
                 chart_acc = (
@@ -760,10 +760,10 @@ with tab_clientes:
                         flex: 1 1 0; min-width: 110px;
                         background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
-                        border-left: 4px solid #c79536;
+                        border-left: 4px solid #C9A67A;
                     ">
                         <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Encomenda</div>
-                        <div style="color: #c79536; font-size: 1.25rem; font-weight: 800;">{_cli_encomenda}</div>
+                        <div style="color: #C9A67A; font-size: 1.25rem; font-weight: 800;">{_cli_encomenda}</div>
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 150px;

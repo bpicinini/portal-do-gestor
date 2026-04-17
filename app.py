@@ -36,7 +36,7 @@ processar_pendencias()
 
 pages = [
     st.Page("home.py", title="Home", icon="🏠", default=True),
-    st.Page("pages/1_Organograma.py", title="Organograma", icon="🗂️"),
+    st.Page("pages/1_Organograma.py", title="Organograma", icon=":material/account_tree:"),
     st.Page("pages/3_Manpower_e_Eficiencia.py", title="KPIs", icon="📊"),
     st.Page("pages/5_Processos_360.py", title="Processos 360", icon="🚢"),
     st.Page("pages/6_Restituicoes.py", title="Restituições", icon="💰"),
