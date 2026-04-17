@@ -38,13 +38,13 @@ STATUS_CORES = {
     "Indeferido":           {"bg": "#e6dcda", "fg": "#6e3a34", "bd": "#cfbbb7"},
 }
 
-# Ordem de exibição — urgente primeiro, depois progressão
+# Ordem de exibição — progressão do fluxo (Em análise → Pago/Indeferido)
 ORDEM_STATUS = [
-    "Intimação Pendente",
-    "Com Pendências",
     "Em análise",
+    "Com Pendências",
     "Protocolado",
     "Judicializado",
+    "Intimação Pendente",
     "Intimação Respondida",
     "Deferido",
     "Pago",
@@ -57,22 +57,44 @@ ORDEM_STATUS = [
 st.markdown(
     """
     <style>
-    .rst-section {
+    details.rst-section {
         background: var(--surface, #fffdf8);
         border: 1px solid var(--line, #e3d8c5);
         border-radius: 18px;
-        padding: 0.9rem 1rem 0.4rem 1rem;
+        padding: 0.2rem 1rem 0.4rem 1rem;
         margin-bottom: 1rem;
         box-shadow: var(--shadow, 0 8px 22px rgba(35,64,85,0.06));
     }
+    details.rst-section[open] {
+        padding-top: 0.7rem;
+    }
+    details.rst-section > summary {
+        list-style: none;
+        cursor: pointer;
+        user-select: none;
+    }
+    details.rst-section > summary::-webkit-details-marker { display: none; }
+    details.rst-section > summary::marker { content: ""; }
     .rst-section-header {
         display: flex;
         align-items: center;
         gap: 0.6rem;
-        padding: 0.15rem 0.1rem 0.7rem 0.1rem;
+        padding: 0.55rem 0.1rem 0.55rem 0.1rem;
+    }
+    details.rst-section[open] .rst-section-header {
+        padding-bottom: 0.7rem;
         border-bottom: 1px dashed var(--line, #e3d8c5);
         margin-bottom: 0.55rem;
     }
+    .rst-chevron {
+        color: var(--muted, #6f7a84);
+        font-size: 0.75rem;
+        transition: transform 0.15s ease;
+        flex: 0 0 auto;
+        width: 12px;
+        display: inline-block;
+    }
+    details.rst-section[open] .rst-chevron { transform: rotate(90deg); }
     .rst-section-dot {
         width: 10px; height: 10px; border-radius: 50%;
         flex: 0 0 auto;
@@ -151,7 +173,7 @@ st.markdown(
     }
 
     .rst-tag-div-leader  { background: #223645; color: #f4e8ca; border-color: #1a2a37; }
-    .rst-tag-div-winning { background: #1f5e5a; color: #d9efe9; border-color: #18484a; }
+    .rst-tag-div-winning { background: #6e2935; color: #f4d6dc; border-color: #4f1c24; }
 
     .rst-tag-desc-3s {
         background: linear-gradient(135deg, #d59a2b 0%, #bf7f16 100%);
@@ -340,7 +362,8 @@ def _tag_desencaixe(desencaixe) -> str:
 
 
 def _render_row(r: dict) -> str:
-    cliente = escape(str(r.get("cliente") or "—"))
+    cliente_raw = r.get("cliente") or "—"
+    cliente = escape(str(cliente_raw).upper() if cliente_raw != "—" else "—")
     numero = r.get("numero_processo") or "—"
     ecac = r.get("processo_ecac")
     cnpj = r.get("cnpj")
@@ -388,7 +411,7 @@ def _render_row(r: dict) -> str:
     )
 
 
-def _render_secao(status: str, registros_status: list[dict]) -> str:
+def _render_secao(status: str, registros_status: list[dict], aberto: bool = True) -> str:
     cores = STATUS_CORES.get(status, {"bg": "#eef1f4", "fg": "#4a5866", "bd": "#d8dee5"})
     qtd = len(registros_status)
     total_valor = sum(
@@ -397,16 +420,18 @@ def _render_secao(status: str, registros_status: list[dict]) -> str:
     )
     total_txt = _br_moeda(total_valor)
     rows_html = "".join(_render_row(r) for r in registros_status)
+    open_attr = " open" if aberto else ""
     return (
-        '<div class="rst-section">'
-        '<div class="rst-section-header">'
+        f'<details class="rst-section"{open_attr}>'
+        '<summary><div class="rst-section-header">'
+        '<span class="rst-chevron">▶</span>'
         f'<span class="rst-section-dot" style="background:{cores["fg"]};"></span>'
         f'<span class="rst-section-title">{escape(status)}</span>'
         f'<span class="rst-section-count">{qtd}</span>'
         f'<span class="rst-section-total">Total: <strong>{total_txt}</strong></span>'
-        '</div>'
+        '</div></summary>'
         f'{rows_html}'
-        '</div>'
+        '</details>'
     )
 
 
@@ -424,11 +449,43 @@ def _ordenar(registros_status: list[dict], status: str) -> list[dict]:
     )
 
 
+def _filtros(lista: list[dict], key_prefix: str) -> list[dict]:
+    """Renderiza bloco de filtros (cliente / divisão / desencaixe) e
+    devolve a lista filtrada."""
+    if not lista:
+        return lista
+
+    clientes_opts = sorted({str(r.get("cliente")).upper() for r in lista if r.get("cliente")})
+    divisoes_opts = sorted({str(r.get("divisao")) for r in lista if r.get("divisao")})
+    desencaixes_opts = sorted({str(r.get("desencaixe")) for r in lista if r.get("desencaixe")})
+
+    with st.expander("🔍 Filtros", expanded=False):
+        col1, col2, col3 = st.columns(3)
+        sel_cli = col1.multiselect("Cliente", clientes_opts, key=f"{key_prefix}_cli")
+        sel_div = col2.multiselect("Divisão", divisoes_opts, key=f"{key_prefix}_div")
+        sel_des = col3.multiselect("Desencaixe", desencaixes_opts, key=f"{key_prefix}_des")
+
+    filtrados = lista
+    if sel_cli:
+        sel_up = {c.upper() for c in sel_cli}
+        filtrados = [r for r in filtrados if str(r.get("cliente") or "").upper() in sel_up]
+    if sel_div:
+        filtrados = [r for r in filtrados if str(r.get("divisao") or "") in sel_div]
+    if sel_des:
+        filtrados = [r for r in filtrados if str(r.get("desencaixe") or "") in sel_des]
+
+    if len(filtrados) != len(lista):
+        st.caption(f"Mostrando **{len(filtrados)}** de {len(lista)} processos (filtros ativos)")
+
+    return filtrados
+
+
 def _render_grupo(lista: list[dict], status_permitidos) -> None:
     if not lista:
-        st.info("Nenhum processo nesta categoria.")
+        st.info("Nenhum processo corresponde aos filtros.")
         return
     permitidos = set(status_permitidos)
+    algum = False
     for status in ORDEM_STATUS:
         if status not in permitidos:
             continue
@@ -437,6 +494,9 @@ def _render_grupo(lista: list[dict], status_permitidos) -> None:
             continue
         subset = _ordenar(subset, status)
         st.markdown(_render_secao(status, subset), unsafe_allow_html=True)
+        algum = True
+    if not algum:
+        st.info("Nenhum processo nesta categoria.")
 
 
 # ── Abas ─────────────────────────────────────────────────────────────
@@ -450,13 +510,13 @@ tab_ativos, tab_concluidos, tab_indeferidos = st.tabs(
 )
 
 with tab_ativos:
-    _render_grupo(ativos, STATUS_ATIVO)
+    _render_grupo(_filtros(ativos, "ativos"), STATUS_ATIVO)
 
 with tab_concluidos:
-    _render_grupo(concluidos, STATUS_CONCLUIDO)
+    _render_grupo(_filtros(concluidos, "concluidos"), STATUS_CONCLUIDO)
 
 with tab_indeferidos:
-    _render_grupo(indeferidos, STATUS_INDEFERIDO)
+    _render_grupo(_filtros(indeferidos, "indeferidos"), STATUS_INDEFERIDO)
 
 
 st.caption(
