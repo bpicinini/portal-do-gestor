@@ -471,17 +471,34 @@ def _render_popover(r: dict, user_nome: str) -> None:
     _render_timeline(rid)
 
 
+def _render_popover_view(r: dict) -> None:
+    rid = r.get("id")
+    st.markdown(
+        f"**{escape(str(r.get('cliente') or '—'))}** · "
+        f"Nº {escape(str(r.get('numero_processo') or '—'))}"
+    )
+    status_atual = r.get("status") or "—"
+    st.caption(f"Status atual: {escape(str(status_atual))}")
+    st.markdown("###### Histórico")
+    _render_timeline(rid)
+
+
 def _render_linha(r: dict, user_nome: str) -> None:
-    c_info, c_tags, c_meta, c_edit = st.columns([3, 4, 2, 1], gap="small")
+    c_info, c_tags, c_meta, c_acoes = st.columns([3, 4, 2, 2], gap="small")
     with c_info:
         st.markdown(_html_cliente(r), unsafe_allow_html=True)
     with c_tags:
         st.markdown(_html_tags(r), unsafe_allow_html=True)
     with c_meta:
         st.markdown(_html_meta(r), unsafe_allow_html=True)
-    with c_edit:
-        with st.popover("✎ Editar", use_container_width=True):
-            _render_popover(r, user_nome)
+    with c_acoes:
+        c_view, c_edit = st.columns(2, gap="small")
+        with c_view:
+            with st.popover("👁 Ver", use_container_width=True):
+                _render_popover_view(r)
+        with c_edit:
+            with st.popover("✎ Editar", use_container_width=True):
+                _render_popover(r, user_nome)
 
 
 def _render_secao(status: str, registros_status: list[dict], user_nome: str) -> None:
