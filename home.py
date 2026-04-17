@@ -263,10 +263,13 @@ st.markdown(
 .hm-deptc-name {
     font-size: 20px;
     font-weight: 700;
-    color: #111111;
     letter-spacing: -0.02em;
     line-height: 1.1;
 }
+.hm-deptc-name.dept-importacao { color: #4F46E5; }
+.hm-deptc-name.dept-agenciamento { color: #7C3AED; }
+.hm-deptc-name.dept-exportacao { color: #0891B2; }
+.hm-deptc-name.dept-seguro { color: #059669; }
 .hm-deptc-count {
     background: #F2F2F7;
     color: #6E6E73;
@@ -292,12 +295,10 @@ st.markdown(
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    font-weight: 700;
+    font-weight: 600;
+    color: #6E6E73;
     min-width: 110px;
 }
-.hm-deptc-leader-role.role-coord { color: #4F46E5; }
-.hm-deptc-leader-role.role-sup   { color: #7C3AED; }
-.hm-deptc-leader-role.role-dir   { color: #111111; }
 .hm-deptc-leader-name {
     color: #111111;
     font-weight: 500;
@@ -456,36 +457,44 @@ st.markdown(
 )
 
 
-def _render_leader_line(cargo_nome_original, default_role, pessoa, role_class=""):
+def _render_leader_line(cargo_nome_original, default_role, pessoa):
     """Uma linha de liderança dentro do card. Sufixo do cargo ajusta gênero."""
     if not pessoa:
         return ""
     nome = pessoa.get("nome", "—")
-    # Usa o nome do cargo real quando disponível (ex.: "Coordenadora", "Supervisor")
     rotulo = cargo_nome_original or default_role
-    cls = f"hm-deptc-leader-role {role_class}".strip()
     return (
         f'<div class="hm-deptc-leader">'
-        f'<span class="{cls}">{rotulo}</span>'
+        f'<span class="hm-deptc-leader-role">{rotulo}</span>'
         f'<span class="hm-deptc-leader-name">{nome}</span>'
         f"</div>"
     )
 
 
+_DEPT_CSS_CLASS = {
+    "Importação": "dept-importacao",
+    "Agenciamento": "dept-agenciamento",
+    "Exportação": "dept-exportacao",
+    "Seguro Internacional": "dept-seguro",
+}
+
+
 def _render_dept_card(card):
     coord = card["coord"]
     sup = card["sup"]
-    coord_html = _render_leader_line(_cargo_nome(coord), "Coordenação", coord, "role-coord")
-    sup_html = _render_leader_line(_cargo_nome(sup), "Supervisão", sup, "role-sup")
+    coord_html = _render_leader_line(_cargo_nome(coord), "Coordenação", coord)
+    sup_html = _render_leader_line(_cargo_nome(sup), "Supervisão", sup)
     if not coord_html and not sup_html:
         leaders_html = '<div class="hm-deptc-empty">Liderança a definir</div>'
     else:
         leaders_html = coord_html + sup_html
 
+    dept_cls = _DEPT_CSS_CLASS.get(card["nome"], "")
+
     return f"""
     <div class="hm-deptc">
         <div class="hm-deptc-top">
-            <div class="hm-deptc-name">{card["nome"]}</div>
+            <div class="hm-deptc-name {dept_cls}">{card["nome"]}</div>
             <div class="hm-deptc-count">{card["total"]} pessoas</div>
         </div>
         <div class="hm-deptc-leaders">{leaders_html}</div>
