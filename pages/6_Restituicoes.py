@@ -116,14 +116,18 @@ st.markdown(
         font-size: 0.74rem;
         font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
         letter-spacing: -0.01em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
+    .rst-cliente-proc span { white-space: nowrap; }
     .rst-cliente-proc span + span::before {
         content: "·";
         margin: 0 0.35rem;
         color: var(--line, #e3d8c5);
     }
 
-    .rst-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+    .rst-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; justify-content: flex-end; }
     .rst-tag {
         display: inline-flex; align-items: center;
         padding: 0.18rem 0.55rem;
@@ -499,7 +503,7 @@ def _render_popover_view(r: dict) -> None:
 def _render_linha(r: dict, user_nome: str) -> None:
     rid = r.get("id")
     with st.container(key=f"rst-row-{rid}"):
-        c_info, c_tags, c_meta, c_acoes = st.columns([3, 4, 2, 2], gap="small")
+        c_info, c_tags, c_meta, c_acoes = st.columns([5, 3, 2, 2], gap="small")
         with c_info:
             st.markdown(_html_cliente(r), unsafe_allow_html=True)
         with c_tags:
