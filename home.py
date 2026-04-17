@@ -234,31 +234,28 @@ st.markdown(
     border: 1px solid #ece6d7;
     border-left: 3px solid #C9A67A;
     border-radius: 18px;
-    padding: 18px 24px 16px;
-    min-height: 150px;
+    padding: 14px 18px 12px;
+    min-height: auto;
     box-shadow: 0 4px 14px rgba(35, 64, 85, 0.04);
-    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    transition: all 0.2s ease;
     pointer-events: none; /* cliques passam para o botão overlay atrás */
 }
 [data-testid="stColumn"]:has(.hm-deptc):hover .hm-deptc {
     transform: translateY(-2px);
-    background: linear-gradient(180deg, #fffaf0 0%, #fff7e8 100%);
-    border-color: #C9A67A;
-    border-left: 4px solid #C9A67A;
-    padding-left: 23px; /* compensa o +1px da borda esquerda */
-    box-shadow:
-        0 0 0 3px rgba(201, 166, 122, 0.18),
-        0 14px 32px rgba(201, 166, 122, 0.22);
+    background: #ffffff;
+    border-color: rgba(201, 166, 122, 0.55);
+    border-left-color: #C9A67A;
+    box-shadow: 0 10px 24px rgba(35, 64, 85, 0.08);
 }
 .hm-deptc-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 14px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
 }
 .hm-deptc-name {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 800;
     color: #234055;
     letter-spacing: -0.02em;
@@ -268,8 +265,8 @@ st.markdown(
     background: rgba(35, 64, 85, 0.08);
     color: #234055;
     font-weight: 800;
-    font-size: 15px;
-    padding: 8px 16px;
+    font-size: 13px;
+    padding: 6px 14px;
     border-radius: 999px;
     white-space: nowrap;
 }
@@ -282,16 +279,16 @@ st.markdown(
     display: flex;
     align-items: baseline;
     gap: 12px;
-    font-size: 14px;
-    line-height: 1.3;
+    font-size: 13px;
+    line-height: 1.25;
 }
 .hm-deptc-leader-role {
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 800;
     color: #C9A67A;
-    min-width: 120px;
+    min-width: 110px;
 }
 .hm-deptc-leader-name {
     color: #234055;
@@ -335,21 +332,21 @@ st.markdown(
     pointer-events: auto !important;
 }
 
-/* ── Atalhos de módulos (cards pequenos, transparentes, linha única) ── */
+/* ── Atalhos de módulos (cards maior, pode quebrar em múltiplas linhas) ── */
 .hm-mods-title {
     font-size: 11px;
     font-weight: 800;
     color: #234055;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    margin: 32px 0 12px;
+    margin: 36px 0 16px;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a {
     background: #ffffff !important;
     border: 1px solid #ece6d7 !important;
     border-radius: 14px !important;
-    padding: 12px 10px !important;
-    min-height: 54px !important;
+    padding: 16px 14px !important;
+    min-height: 72px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -370,9 +367,10 @@ st.markdown(
     font-weight: 700 !important;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a p {
-    font-size: 13px !important;
+    font-size: 14px !important;
     margin: 0 !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
+    text-align: center !important;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover,
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover p,
@@ -387,12 +385,14 @@ st.markdown(
 @media (max-width: 640px) {
     .hm-banner { flex-direction: column; align-items: flex-start; gap: 10px; padding: 20px 22px; }
     .hm-banner-title { font-size: 22px; }
-    .hm-lead-card { padding: 4px 0 4px 14px; }
+    .hm-lead-card { padding: 14px 16px; }
     .hm-lead-name { font-size: 18px; }
-    .hm-deptc { padding: 14px 18px; min-height: auto; }
-    .hm-deptc-name { font-size: 20px; }
-    .hm-deptc-leader { font-size: 13px; }
-    .hm-deptc-leader-role { min-width: 100px; }
+    .hm-deptc { padding: 12px 16px; }
+    .hm-deptc-name { font-size: 18px; }
+    .hm-deptc-count { font-size: 12px; }
+    .hm-deptc-leader { font-size: 12px; }
+    .hm-deptc-leader-role { min-width: 90px; }
+    [data-testid="stMain"] [data-testid="stPageLink"] a { padding: 14px 10px !important; min-height: 64px !important; }
 }
 </style>
 """,
