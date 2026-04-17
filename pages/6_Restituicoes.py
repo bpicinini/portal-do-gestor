@@ -3,7 +3,8 @@ junto à Receita Federal, substituindo o antigo controle via ClickUp.
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
+from html import escape
 
 import pandas as pd
 import streamlit as st
@@ -23,11 +24,183 @@ garantir_autenticado()
 aplicar_estilos_globais()
 
 
+# ── Paleta por status (progressão visual) ────────────────────────────
+
+STATUS_CORES = {
+    "Em análise":           {"bg": "#eef1f4", "fg": "#4a5866", "bd": "#d8dee5"},
+    "Com Pendências":       {"bg": "#fdf1d8", "fg": "#8a6a1f", "bd": "#f2dea8"},
+    "Protocolado":          {"bg": "#e0ecf6", "fg": "#2d5f82", "bd": "#b9d4e8"},
+    "Judicializado":        {"bg": "#ece3f4", "fg": "#5b3d83", "bd": "#d3c2e5"},
+    "Intimação Pendente":   {"bg": "#fbe1de", "fg": "#a2322a", "bd": "#f2b9b2"},
+    "Intimação Respondida": {"bg": "#d9efe9", "fg": "#236b62", "bd": "#b2dfd4"},
+    "Deferido":             {"bg": "#dcecd7", "fg": "#3d6e43", "bd": "#bad6b1"},
+    "Pago":                 {"bg": "#c8e5c0", "fg": "#2a5a33", "bd": "#a3cf98"},
+    "Indeferido":           {"bg": "#e6dcda", "fg": "#6e3a34", "bd": "#cfbbb7"},
+}
+
+# Ordem de exibição — urgente primeiro, depois progressão
+ORDEM_STATUS = [
+    "Intimação Pendente",
+    "Com Pendências",
+    "Em análise",
+    "Protocolado",
+    "Judicializado",
+    "Intimação Respondida",
+    "Deferido",
+    "Pago",
+    "Indeferido",
+]
+
+
+# ── CSS local ────────────────────────────────────────────────────────
+
+st.markdown(
+    """
+    <style>
+    .rst-section {
+        background: var(--surface, #fffdf8);
+        border: 1px solid var(--line, #e3d8c5);
+        border-radius: 18px;
+        padding: 0.9rem 1rem 0.4rem 1rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow, 0 8px 22px rgba(35,64,85,0.06));
+    }
+    .rst-section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.15rem 0.1rem 0.7rem 0.1rem;
+        border-bottom: 1px dashed var(--line, #e3d8c5);
+        margin-bottom: 0.55rem;
+    }
+    .rst-section-dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        flex: 0 0 auto;
+    }
+    .rst-section-title {
+        font-weight: 800;
+        font-size: 0.98rem;
+        color: var(--navy, #234055);
+        letter-spacing: -0.01em;
+    }
+    .rst-section-count {
+        background: rgba(35,64,85,0.07);
+        color: var(--navy, #234055);
+        border-radius: 999px;
+        padding: 0.08rem 0.55rem;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+    .rst-section-total {
+        margin-left: auto;
+        color: var(--muted, #6f7a84);
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+    .rst-section-total strong { color: var(--navy, #234055); }
+
+    .rst-row {
+        display: grid;
+        grid-template-columns: 1.4fr 2.2fr 1fr;
+        gap: 0.85rem;
+        padding: 0.55rem 0.2rem;
+        border-bottom: 1px solid rgba(227,216,197,0.4);
+        align-items: center;
+    }
+    .rst-row:last-child { border-bottom: none; }
+
+    .rst-cliente { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+    .rst-cliente-nome {
+        color: var(--navy, #234055);
+        font-weight: 700;
+        font-size: 0.92rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .rst-cliente-proc {
+        color: var(--muted, #6f7a84);
+        font-size: 0.74rem;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        letter-spacing: -0.01em;
+    }
+    .rst-cliente-proc span + span::before {
+        content: "·";
+        margin: 0 0.35rem;
+        color: var(--line, #e3d8c5);
+    }
+
+    .rst-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+    .rst-tag {
+        display: inline-flex; align-items: center;
+        padding: 0.18rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
+    .rst-tag-status { padding-left: 0.45rem; padding-right: 0.7rem; }
+    .rst-tag-status::before {
+        content: "";
+        width: 6px; height: 6px; border-radius: 50%;
+        background: currentColor;
+        margin-right: 5px;
+        opacity: 0.75;
+    }
+
+    .rst-tag-div-leader  { background: #223645; color: #f4e8ca; border-color: #1a2a37; }
+    .rst-tag-div-winning { background: #1f5e5a; color: #d9efe9; border-color: #18484a; }
+
+    .rst-tag-desc-3s {
+        background: linear-gradient(135deg, #d59a2b 0%, #bf7f16 100%);
+        color: #fff;
+        border-color: #a96b0f;
+        text-transform: uppercase;
+        box-shadow: 0 2px 6px rgba(191,127,22,0.25);
+    }
+    .rst-tag-desc-cliente { background: #eef1f4; color: #6f7a84; border-color: #dce1e7; }
+
+    .rst-meta {
+        display: flex; flex-direction: column; gap: 0.15rem;
+        align-items: flex-end;
+        text-align: right;
+        min-width: 0;
+    }
+    .rst-valor {
+        color: var(--navy, #234055);
+        font-weight: 800;
+        font-size: 0.95rem;
+        letter-spacing: -0.01em;
+    }
+    .rst-datas {
+        color: var(--muted, #6f7a84);
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+    .rst-datas.warn { color: #a2322a; font-weight: 800; }
+
+    @media (max-width: 900px) {
+        .rst-row {
+            grid-template-columns: 1fr;
+            gap: 0.4rem;
+            padding: 0.6rem 0.1rem;
+        }
+        .rst-meta { align-items: flex-start; text-align: left; }
+        .rst-section-total { font-size: 0.76rem; }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 # ── Formatação ───────────────────────────────────────────────────────
 
 
 def _br_moeda(valor) -> str:
-    if valor is None or pd.isna(valor):
+    if valor is None or (isinstance(valor, float) and pd.isna(valor)):
         return "—"
     try:
         v = float(valor)
@@ -59,28 +232,31 @@ def _soma(registros, campo: str) -> float:
     return total
 
 
-# ── Carregamento de dados ────────────────────────────────────────────
+def _valor_exibicao(r: dict):
+    """Usa valor_corrigido quando disponível (Deferido/Pago)."""
+    status = r.get("status")
+    if status in STATUS_CONCLUIDO or status == "Deferido":
+        v = r.get("valor_corrigido")
+        if v is not None:
+            return v
+    return r.get("valor_principal")
+
+
+# ── Carregamento ─────────────────────────────────────────────────────
 
 registros = listar_restituicoes()
-
 ativos = [r for r in registros if r.get("status") in STATUS_ATIVO]
 concluidos = [r for r in registros if r.get("status") in STATUS_CONCLUIDO]
 indeferidos = [r for r in registros if r.get("status") in STATUS_INDEFERIDO]
 pendentes = intimacoes_pendentes()
 
-# "Total em recuperação" = valor principal dos ativos
-# "Aguardando pagamento" = valor corrigido (ou principal) dos Deferidos não pagos
-# "Recuperado" = valor corrigido (ou principal) dos Pago
 total_recuperacao = _soma(ativos, "valor_principal")
-
-deferidos = [r for r in concluidos if r.get("status") == "Deferido"]
-pagos = [r for r in concluidos if r.get("status") == "Pago"]
-
+deferidos = [r for r in ativos if r.get("status") == "Deferido"]
 total_deferido = sum(
     float(r.get("valor_corrigido") or r.get("valor_principal") or 0) for r in deferidos
 )
 total_pago = sum(
-    float(r.get("valor_corrigido") or r.get("valor_principal") or 0) for r in pagos
+    float(r.get("valor_corrigido") or r.get("valor_principal") or 0) for r in concluidos
 )
 
 
@@ -101,7 +277,7 @@ if pendentes:
     valor = _br_moeda(_soma(pendentes, "valor_principal"))
     st.error(
         f"**⚠ {qtd} {rotulo}** aguardando resposta — total de {valor} em jogo. "
-        f"Abra a aba **Ativos** e filtre por status *Intimação Pendente* para responder.",
+        f"Abra a aba **Ativos** e role até a seção *Intimação Pendente* para responder.",
         icon="🚨",
     )
 
@@ -122,7 +298,7 @@ c2.metric(
 c3.metric(
     "Já recuperado",
     _br_moeda(total_pago),
-    help=f"{len(pagos)} processos pagos",
+    help=f"{len(concluidos)} processos pagos",
 )
 c4.metric(
     "Intimações pendentes",
@@ -131,56 +307,136 @@ c4.metric(
 )
 
 
-# ── Construção de DataFrames para exibição ──────────────────────────
+# ── Render helpers ──────────────────────────────────────────────────
 
 
-COLUNAS_BASE = [
-    ("numero_processo", "Nº Processo"),
-    ("cliente", "Cliente"),
-    ("status", "Status"),
-    ("processo_ecac", "Processo e-CAC"),
-    ("divisao", "Divisão"),
-    ("desencaixe", "Desencaixe"),
-    ("valor_principal", "Valor Principal"),
-    ("responsavel", "Responsável"),
-    ("data_protocolo", "Data Protocolo"),
-    ("prazo_fatal", "Prazo Fatal"),
-    ("motivo_retificacao", "Motivo Retificação"),
-]
-
-COLUNAS_CONCLUIDOS = [
-    ("numero_processo", "Nº Processo"),
-    ("cliente", "Cliente"),
-    ("status", "Status"),
-    ("processo_ecac", "Processo e-CAC"),
-    ("divisao", "Divisão"),
-    ("desencaixe", "Desencaixe"),
-    ("valor_principal", "Valor Principal"),
-    ("valor_corrigido", "Valor Corrigido"),
-    ("responsavel", "Responsável"),
-    ("data_protocolo", "Data Protocolo"),
-    ("motivo_retificacao", "Motivo Retificação"),
-]
+def _tag_status(status: str) -> str:
+    cores = STATUS_CORES.get(status, {"bg": "#eef1f4", "fg": "#4a5866", "bd": "#d8dee5"})
+    return (
+        f'<span class="rst-tag rst-tag-status" '
+        f'style="background:{cores["bg"]};color:{cores["fg"]};border-color:{cores["bd"]};">'
+        f'{escape(status)}</span>'
+    )
 
 
-def _montar_df(lista: list[dict], colunas: list[tuple[str, str]]) -> pd.DataFrame:
+def _tag_divisao(divisao) -> str:
+    if not divisao:
+        return ""
+    dv = str(divisao).strip()
+    if not dv:
+        return ""
+    cls = "rst-tag-div-leader" if dv.lower().startswith("leader") else "rst-tag-div-winning"
+    return f'<span class="rst-tag {cls}">{escape(dv)}</span>'
+
+
+def _tag_desencaixe(desencaixe) -> str:
+    if not desencaixe:
+        return ""
+    dx = str(desencaixe).strip()
+    if not dx:
+        return ""
+    cls = "rst-tag-desc-3s" if dx.lower() == "3s" else "rst-tag-desc-cliente"
+    return f'<span class="rst-tag {cls}">{escape(dx)}</span>'
+
+
+def _render_row(r: dict) -> str:
+    cliente = escape(str(r.get("cliente") or "—"))
+    numero = r.get("numero_processo") or "—"
+    ecac = r.get("processo_ecac")
+    cnpj = r.get("cnpj")
+
+    proc_parts = [f'<span>Nº {escape(str(numero))}</span>']
+    if ecac and str(ecac).strip():
+        proc_parts.append(f'<span>e-CAC {escape(str(ecac))}</span>')
+    if cnpj and str(cnpj).strip():
+        proc_parts.append(f'<span>CNPJ {escape(str(cnpj))}</span>')
+
+    status = r.get("status") or "—"
+    tags = (
+        _tag_status(status)
+        + _tag_divisao(r.get("divisao"))
+        + _tag_desencaixe(r.get("desencaixe"))
+    )
+
+    valor = _br_moeda(_valor_exibicao(r))
+    data_prot = _br_data(r.get("data_protocolo"))
+
+    prazo = r.get("prazo_fatal")
+    prazo_html = ""
+    if prazo:
+        prazo_txt = _br_data(prazo)
+        cls = " warn" if status == "Intimação Pendente" else ""
+        label = "Prazo fatal" if status == "Intimação Pendente" else "Prazo"
+        prazo_html = f'<div class="rst-datas{cls}">{label}: {escape(prazo_txt)}</div>'
+
+    data_html = ""
+    if data_prot != "—":
+        data_html = f'<div class="rst-datas">Protocolo: {escape(data_prot)}</div>'
+
+    return (
+        '<div class="rst-row">'
+        f'<div class="rst-cliente">'
+        f'<div class="rst-cliente-nome">{cliente}</div>'
+        f'<div class="rst-cliente-proc">{"".join(proc_parts)}</div>'
+        '</div>'
+        f'<div class="rst-tags">{tags}</div>'
+        f'<div class="rst-meta">'
+        f'<div class="rst-valor">{valor}</div>'
+        f'{data_html}{prazo_html}'
+        '</div>'
+        '</div>'
+    )
+
+
+def _render_secao(status: str, registros_status: list[dict]) -> str:
+    cores = STATUS_CORES.get(status, {"bg": "#eef1f4", "fg": "#4a5866", "bd": "#d8dee5"})
+    qtd = len(registros_status)
+    total_valor = sum(
+        float(r.get("valor_corrigido") or r.get("valor_principal") or 0)
+        for r in registros_status
+    )
+    total_txt = _br_moeda(total_valor)
+    rows_html = "".join(_render_row(r) for r in registros_status)
+    return (
+        '<div class="rst-section">'
+        '<div class="rst-section-header">'
+        f'<span class="rst-section-dot" style="background:{cores["fg"]};"></span>'
+        f'<span class="rst-section-title">{escape(status)}</span>'
+        f'<span class="rst-section-count">{qtd}</span>'
+        f'<span class="rst-section-total">Total: <strong>{total_txt}</strong></span>'
+        '</div>'
+        f'{rows_html}'
+        '</div>'
+    )
+
+
+def _ordenar(registros_status: list[dict], status: str) -> list[dict]:
+    if status == "Intimação Pendente":
+        # prazo fatal mais próximo primeiro (None no fim)
+        return sorted(
+            registros_status,
+            key=lambda r: (r.get("prazo_fatal") is None, r.get("prazo_fatal") or ""),
+        )
+    return sorted(
+        registros_status,
+        key=lambda r: (r.get("data_protocolo") is None, r.get("data_protocolo") or ""),
+        reverse=True,
+    )
+
+
+def _render_grupo(lista: list[dict], status_permitidos) -> None:
     if not lista:
-        return pd.DataFrame(columns=[rotulo for _, rotulo in colunas])
-    linhas = []
-    for r in lista:
-        linha = {}
-        for campo, rotulo in colunas:
-            valor = r.get(campo)
-            if campo in ("valor_principal", "valor_corrigido"):
-                linha[rotulo] = _br_moeda(valor)
-            elif campo in ("data_protocolo", "data_retificacao", "prazo_fatal"):
-                linha[rotulo] = _br_data(valor)
-            elif valor is None:
-                linha[rotulo] = "—"
-            else:
-                linha[rotulo] = valor
-        linhas.append(linha)
-    return pd.DataFrame(linhas)
+        st.info("Nenhum processo nesta categoria.")
+        return
+    permitidos = set(status_permitidos)
+    for status in ORDEM_STATUS:
+        if status not in permitidos:
+            continue
+        subset = [r for r in lista if r.get("status") == status]
+        if not subset:
+            continue
+        subset = _ordenar(subset, status)
+        st.markdown(_render_secao(status, subset), unsafe_allow_html=True)
 
 
 # ── Abas ─────────────────────────────────────────────────────────────
@@ -194,28 +450,16 @@ tab_ativos, tab_concluidos, tab_indeferidos = st.tabs(
 )
 
 with tab_ativos:
-    if not ativos:
-        st.info("Nenhum processo ativo no momento.")
-    else:
-        df = _montar_df(ativos, COLUNAS_BASE)
-        st.dataframe(df, hide_index=True, use_container_width=True)
+    _render_grupo(ativos, STATUS_ATIVO)
 
 with tab_concluidos:
-    if not concluidos:
-        st.info("Nenhum processo concluído ainda.")
-    else:
-        df = _montar_df(concluidos, COLUNAS_CONCLUIDOS)
-        st.dataframe(df, hide_index=True, use_container_width=True)
+    _render_grupo(concluidos, STATUS_CONCLUIDO)
 
 with tab_indeferidos:
-    if not indeferidos:
-        st.info("Nenhum processo indeferido.")
-    else:
-        df = _montar_df(indeferidos, COLUNAS_BASE)
-        st.dataframe(df, hide_index=True, use_container_width=True)
+    _render_grupo(indeferidos, STATUS_INDEFERIDO)
 
 
 st.caption(
-    "Visão somente leitura. A edição direta na tabela, timeline de comentários, "
+    "Visão somente leitura. Edição inline, timeline de comentários, "
     "filtros avançados e criação de novos processos chegam nos próximos passos."
 )
