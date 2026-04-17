@@ -32,7 +32,7 @@ STATUS_CORES = {
     "Pré-embarque": "#7ea6c7",
     "Embarque": "#4a8ab5",
     "Chegada": "#8E8E93",
-    "Registrado/Ag.Desembaraço": "#e6a832",
+    "Registrado/Ag.Desembaraço": "#8E8E93",
     "Carregamento": "#5e8668",
     "Encerramento": "#111111",
 }
@@ -44,7 +44,7 @@ MODALIDADE_CORES = {
     "RODOVIÁRIO": "#5e8668",
     "BREAK BULK": "#8b5e3c",
     "MARÍTIMO / RODOVIÁRIO": "#7ea6c7",
-    "AÉREO / MARÍTIMO": "#e6a832",
+    "AÉREO / MARÍTIMO": "#8E8E93",
     "FERROVIÁRIO": "#6E6E73",
 }
 
@@ -184,7 +184,7 @@ with tab_geral:
             st.markdown(
                 f"""
                 <div style="
-                    background: linear-gradient(135deg, rgba(255,253,248,0.96), rgba(243,237,226,0.96));
+                    background: linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96));
                     border: 1px solid #E5E5EA; border-radius: 20px;
                     padding: 1rem 1.4rem; margin-bottom: 1rem;
                     box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
@@ -300,7 +300,7 @@ with tab_geral:
                 df_acc = df["Account"].value_counts().reset_index()
                 df_acc.columns = ["Account", "Quantidade"]
                 # Gerar cores alternando entre palette
-                acc_palette = ["#111111", "#4a8ab5", "#C9A67A", "#5e8668", "#e6a832", "#7ea6c7", "#8b5e3c", "#b5423a", "#6E6E73", "#36586f"]
+                acc_palette = ["#111111", "#4a8ab5", "#C9A67A", "#5e8668", "#8E8E93", "#7ea6c7", "#8b5e3c", "#b5423a", "#6E6E73", "#36586f"]
                 acc_domain = df_acc["Account"].tolist()
                 acc_range = [acc_palette[i % len(acc_palette)] for i in range(len(acc_domain))]
                 chart_acc = (
@@ -514,7 +514,7 @@ with tab_analista:
                         st.markdown(
                             f"""
                             <div style="
-                                background: linear-gradient(135deg, rgba(255,253,248,0.96), rgba(243,237,226,0.96));
+                                background: linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96));
                                 border: 1px solid #E5E5EA;
                                 border-radius: 18px;
                                 padding: 1rem 1.2rem;
@@ -728,7 +728,7 @@ with tab_clientes:
             st.markdown(
                 f"""
                 <div style="
-                    background: linear-gradient(135deg, rgba(255,253,248,0.96), rgba(243,237,226,0.96));
+                    background: linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96));
                     border: 1px solid #E5E5EA; border-radius: 20px;
                     padding: 1rem 1.4rem; margin-bottom: 1rem;
                     box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
