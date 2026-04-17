@@ -44,32 +44,39 @@ def aplicar_estilos_globais():
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
         :root {
-            --bg: #f6f2ea;
-            --surface: #fffdf8;
-            --surface-soft: #f3ede2;
-            --line: #e3d8c5;
-            --text: #223645;
-            --muted: #6f7a84;
-            --navy: #234055;
-            --navy-soft: #36586f;
-            --gold: #C9A67A;
-            --gold-soft: #ECE0C8;
-            --green: #5e8668;
-            --green-soft: #e3f0de;
-            --shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+            --bg: #F5F5F7;
+            --surface: #FFFFFF;
+            --surface-soft: #FAFAFA;
+            --line: #E5E5EA;
+            --line-soft: #F2F2F7;
+            --text: #111111;
+            --muted: #6E6E73;
+            --navy: #111111;
+            --navy-soft: #333333;
+            --accent: #111111;
+            --accent-soft: rgba(17, 17, 17, 0.04);
+            --role-coord: #4F46E5;
+            --role-sup: #7C3AED;
+            --role-dir: #111111;
+            --green: #2E7D4F;
+            --green-soft: #E8F4EC;
+            --gold: #111111;
+            --gold-soft: rgba(17, 17, 17, 0.04);
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
 
         html, body, [class*="css"] {
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .stApp {
-            background:
-                radial-gradient(circle at top left, rgba(201, 166, 122, 0.05), transparent 24%),
-                linear-gradient(180deg, #f8f4ed 0%, var(--bg) 100%);
+            background: var(--bg);
             color: var(--text);
         }
 
@@ -79,12 +86,16 @@ def aplicar_estilos_globais():
         }
 
         [data-testid="stHeader"] {
-            background: rgba(248, 244, 237, 0.8);
+            background: rgba(245, 245, 247, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         [data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #fcfaf5 0%, #f6f0e6 100%);
+            background: var(--surface-soft);
             border-right: 1px solid var(--line);
+            width: 220px !important;
+            min-width: 220px !important;
         }
 
         [data-testid="stSidebarContent"] {
@@ -101,114 +112,154 @@ def aplicar_estilos_globais():
         [data-testid="stSidebarNavItems"] a,
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"],
         [data-testid="stSidebar"] li a {
-            border-radius: 14px;
-            margin: 0.18rem 0 0.28rem 0;
-            padding: 0.62rem 0.85rem;
-            color: var(--text) !important;
-            transition: all 0.18s ease;
+            border-radius: 10px;
+            margin: 0.14rem 0 0.14rem 0;
+            padding: 0.56rem 0.8rem;
+            color: var(--muted) !important;
+            transition: all 0.18s ease-in-out;
             text-decoration: none !important;
+            font-weight: 500;
         }
 
         [data-testid="stSidebarNav"] a span,
         [data-testid="stSidebarNavItems"] a span,
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"] span,
         [data-testid="stSidebar"] li a span {
-            color: var(--text) !important;
+            color: var(--muted) !important;
         }
 
         [data-testid="stSidebarNav"] a:hover,
         [data-testid="stSidebarNavItems"] a:hover,
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"]:hover,
         [data-testid="stSidebar"] li a:hover {
-            background: #efe6d6;
-            color: var(--navy) !important;
+            background: rgba(17, 17, 17, 0.05);
+            color: var(--text) !important;
         }
 
         [data-testid="stSidebarNav"] a:hover span,
         [data-testid="stSidebarNavItems"] a:hover span,
         [data-testid="stSidebar"] li a:hover span {
-            color: var(--navy) !important;
+            color: var(--text) !important;
         }
 
         [data-testid="stSidebarNav"] a[aria-current="page"],
         [data-testid="stSidebarNavItems"] a[aria-current="page"],
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"],
         [data-testid="stSidebar"] li a[aria-current="page"] {
-            background: linear-gradient(135deg, #efe7d6 0%, #f6efe1 100%);
-            color: var(--navy) !important;
-            font-weight: 700;
-            border: 1px solid #dccfb2;
-            box-shadow: inset 4px 0 0 var(--gold);
+            background: rgba(17, 17, 17, 0.06);
+            color: var(--text) !important;
+            font-weight: 600;
+            border: none;
+            box-shadow: none;
         }
 
         [data-testid="stSidebarNav"] a[aria-current="page"] span,
         [data-testid="stSidebarNavItems"] a[aria-current="page"] span,
         [data-testid="stSidebar"] li a[aria-current="page"] span {
-            color: var(--navy) !important;
+            color: var(--text) !important;
         }
 
         [data-testid="stSidebarNav"] span,
         [data-testid="stSidebarNavItems"] span {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
         }
 
         h1, h2, h3 {
-            color: var(--navy);
+            color: var(--text);
             letter-spacing: -0.02em;
+            font-weight: 700;
+        }
+
+        h4, h5, h6 {
+            color: var(--text);
+            letter-spacing: -0.01em;
         }
 
         div[data-testid="stMetric"] {
             background: var(--surface);
             border: 1px solid var(--line);
-            border-radius: 20px;
+            border-radius: 14px;
             padding: 1rem 1.1rem;
             box-shadow: var(--shadow);
+            transition: all 0.2s ease-in-out;
+        }
+
+        div[data-testid="stMetric"]:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-hover);
         }
 
         div[data-testid="stMetricLabel"] {
             color: var(--muted);
+            font-weight: 500;
         }
 
         div[data-testid="stMetricValue"] {
-            color: var(--navy);
+            color: var(--text);
+            font-weight: 700;
         }
 
         .stTabs [data-baseweb="tab-list"] {
-            gap: 0.5rem;
+            gap: 0.4rem;
             background: transparent;
+            border-bottom: 1px solid var(--line);
         }
 
         .stTabs [data-baseweb="tab"] {
-            background: var(--surface-soft);
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            padding: 0.45rem 0.95rem;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0.6rem 0.9rem;
             color: var(--muted);
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .stTabs [data-baseweb="tab"]:hover {
+            color: var(--text);
+            background: rgba(17, 17, 17, 0.02);
         }
 
         .stTabs [aria-selected="true"] {
-            background: linear-gradient(135deg, #ede2cd 0%, #f6efe1 100%);
-            color: var(--navy) !important;
-            border-color: #d8cbae !important;
+            background: transparent;
+            color: var(--text) !important;
+            border-bottom: 2px solid var(--text) !important;
+            font-weight: 600;
         }
 
         .stButton button,
         .stDownloadButton button,
         .stFormSubmitButton button {
-            border-radius: 14px;
-            border: 1px solid #b8a079;
-            background: linear-gradient(135deg, #c9a67a 0%, #a88a62 100%);
-            color: white;
-            font-weight: 700;
-            box-shadow: 0 10px 24px rgba(163, 133, 96, 0.16);
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: var(--surface);
+            color: var(--text);
+            font-weight: 500;
+            box-shadow: none;
+            transition: all 0.2s ease-in-out;
         }
 
         .stButton button:hover,
         .stDownloadButton button:hover,
         .stFormSubmitButton button:hover {
-            border-color: #8e7350;
-            background: linear-gradient(135deg, #b8946c 0%, #907753 100%);
-            color: white;
+            border-color: #111111;
+            background: rgba(17, 17, 17, 0.04);
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+
+        .stButton button[kind="primary"],
+        .stFormSubmitButton button[kind="primary"] {
+            background: #111111;
+            color: #FFFFFF;
+            border-color: #111111;
+        }
+
+        .stButton button[kind="primary"]:hover,
+        .stFormSubmitButton button[kind="primary"]:hover {
+            background: #2a2a2a;
+            border-color: #2a2a2a;
+            color: #FFFFFF;
         }
 
         .stTextInput > div > div,
@@ -217,29 +268,31 @@ def aplicar_estilos_globais():
         .stSelectbox > div > div,
         .stTextArea textarea {
             background: var(--surface) !important;
-            border-radius: 14px !important;
+            border-radius: 10px !important;
             border: 1px solid var(--line) !important;
         }
 
         .stRadio > div,
         div[data-testid="stExpander"] {
-            background: rgba(255, 253, 248, 0.6);
-            border-radius: 18px;
+            background: var(--surface);
+            border-radius: 14px;
         }
 
         div[data-testid="stExpander"] {
             border: 1px solid var(--line);
+            box-shadow: var(--shadow);
         }
 
         .stAlert {
-            border-radius: 16px;
+            border-radius: 12px;
             border: 1px solid var(--line);
+            background: var(--surface);
         }
 
         .dashboard-shell {
-            background: linear-gradient(135deg, rgba(255,253,248,0.96) 0%, rgba(243,237,226,0.96) 100%);
+            background: var(--surface);
             border: 1px solid var(--line);
-            border-radius: 26px;
+            border-radius: 18px;
             padding: 1.2rem 1.4rem;
             margin-bottom: 1.25rem;
             box-shadow: var(--shadow);
@@ -256,55 +309,63 @@ def aplicar_estilos_globais():
             color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.14em;
-            font-size: 0.72rem;
-            font-weight: 800;
-            margin-bottom: 0.35rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
         }
 
         .dashboard-title {
-            color: var(--navy);
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1.02;
+            color: var(--text);
+            font-size: 1.9rem;
+            font-weight: 700;
+            line-height: 1.05;
             margin: 0;
+            letter-spacing: -0.025em;
         }
 
         .dashboard-desc {
             color: var(--muted);
-            font-size: 0.98rem;
-            margin-top: 0.45rem;
+            font-size: 0.95rem;
+            margin-top: 0.4rem;
+            font-weight: 400;
         }
 
         .dashboard-badge {
-            background: linear-gradient(135deg, var(--green-soft) 0%, #eef7e8 100%);
-            color: var(--green);
-            border: 1px solid #cddfc8;
+            background: var(--line-soft);
+            color: var(--muted);
+            border: 1px solid var(--line);
             border-radius: 999px;
-            padding: 0.55rem 0.9rem;
-            font-size: 0.84rem;
-            font-weight: 800;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.78rem;
+            font-weight: 600;
             white-space: nowrap;
+            letter-spacing: 0.01em;
         }
 
         .dashboard-meta {
-            margin-top: 0.95rem;
+            margin-top: 0.85rem;
             display: flex;
             flex-wrap: wrap;
-            gap: 0.7rem;
+            gap: 0.55rem;
         }
 
         .dashboard-pill {
-            background: rgba(255, 255, 255, 0.72);
+            background: var(--line-soft);
             border: 1px solid var(--line);
             border-radius: 999px;
-            padding: 0.42rem 0.75rem;
-            color: var(--navy-soft);
-            font-size: 0.84rem;
-            font-weight: 700;
+            padding: 0.38rem 0.7rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
         /* ── Responsividade mobile ── */
         @media (max-width: 768px) {
+            [data-testid="stSidebar"] {
+                width: auto !important;
+                min-width: 0 !important;
+            }
+
             .block-container {
                 padding-left: 0.6rem !important;
                 padding-right: 0.6rem !important;
@@ -502,11 +563,16 @@ def _aplicar_dark_mode():
             --muted: #8b949e;
             --navy: #c9d6e0;
             --navy-soft: #8faabb;
-            --gold: #e0a83d;
-            --gold-soft: #2a2210;
+            --accent: #e6e6e6;
+            --accent-soft: rgba(255, 255, 255, 0.06);
+            --role-coord: #8b83ef;
+            --role-sup: #b29aef;
+            --role-dir: #e6e6e6;
+            --gold: #e6e6e6;
+            --gold-soft: rgba(255, 255, 255, 0.06);
             --green: #7aad86;
             --green-soft: #1a2a1e;
-            --shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
+            --shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
         }
 
         /* ── Kill all backdrop-filter (light theme bleeds through) ── */
@@ -533,7 +599,7 @@ def _aplicar_dark_mode():
 
         .stApp {
             background:
-                radial-gradient(circle at top left, rgba(224, 168, 61, 0.04), transparent 24%),
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.02), transparent 24%),
                 linear-gradient(180deg, #0d1117 0%, #0d1117 100%) !important;
         }
 
@@ -585,16 +651,16 @@ def _aplicar_dark_mode():
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"] *,
         [data-testid="stSidebar"] li a[aria-current="page"],
         [data-testid="stSidebar"] li a[aria-current="page"] * {
-            background: linear-gradient(135deg, rgba(224, 168, 61, 0.12) 0%, rgba(224, 168, 61, 0.06) 100%) !important;
-            color: var(--gold) !important;
-            border-color: rgba(224, 168, 61, 0.25) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #fff !important;
+            border-color: transparent !important;
         }
         [data-testid="stSidebarNav"] a[aria-current="page"],
         [data-testid="stSidebarNavItems"] a[aria-current="page"],
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"],
         [data-testid="stSidebar"] li a[aria-current="page"] {
-            border: 1px solid rgba(224, 168, 61, 0.25) !important;
-            box-shadow: inset 4px 0 0 var(--gold) !important;
+            border: 1px solid transparent !important;
+            box-shadow: none !important;
         }
 
         /* Sidebar collapse button */
@@ -681,21 +747,33 @@ def _aplicar_dark_mode():
         .stTabs [data-baseweb="tab"] * { color: inherit !important; }
         .stTabs [aria-selected="true"],
         .stTabs [aria-selected="true"] * {
-            background: linear-gradient(135deg, rgba(224, 168, 61, 0.15) 0%, rgba(224, 168, 61, 0.08) 100%) !important;
-            color: var(--gold) !important;
-            border-color: rgba(224, 168, 61, 0.3) !important;
+            background: transparent !important;
+            color: var(--text) !important;
+            border-color: transparent !important;
+            border-bottom: 2px solid var(--text) !important;
         }
 
         .stButton button,
         .stDownloadButton button,
         .stFormSubmitButton button {
-            background: linear-gradient(135deg, #c98e23 0%, #a96b0f 100%) !important;
-            color: #fff !important;
+            background: var(--surface) !important;
+            border-color: var(--line) !important;
+            color: var(--text) !important;
         }
         .stButton button *,
         .stDownloadButton button *,
         .stFormSubmitButton button * {
-            color: #fff !important;
+            color: var(--text) !important;
+        }
+        .stButton button[kind="primary"],
+        .stFormSubmitButton button[kind="primary"] {
+            background: #fff !important;
+            color: #0d1117 !important;
+            border-color: #fff !important;
+        }
+        .stButton button[kind="primary"] *,
+        .stFormSubmitButton button[kind="primary"] * {
+            color: #0d1117 !important;
         }
 
         .stTextInput > div > div,
@@ -769,9 +847,9 @@ def _aplicar_dark_mode():
             --gdg-text-header: #8b949e !important;
             --gdg-text-header-selected: #c9d6e0 !important;
             --gdg-text-group-header: #8b949e !important;
-            --gdg-bg-search-result: rgba(224, 168, 61, 0.15) !important;
-            --gdg-accent-color: #c98e23 !important;
-            --gdg-accent-light: rgba(201, 142, 35, 0.15) !important;
+            --gdg-bg-search-result: rgba(255, 255, 255, 0.06) !important;
+            --gdg-accent-color: #8b83ef !important;
+            --gdg-accent-light: rgba(139, 131, 239, 0.15) !important;
             --gdg-accent-fg: #fff !important;
             --gdg-link-color: #58a6ff !important;
             --gdg-cell-horizontal-padding: 10px !important;
@@ -783,15 +861,6 @@ def _aplicar_dark_mode():
             color: var(--text) !important;
         }
 
-        /* st.page_link */
-        [data-testid="stPageLink"],
-        [data-testid="stPageLink"] a,
-        [data-testid="stPageLink-NavLink"],
-        [data-testid="stPageLink-NavLink"] * {
-            background: var(--surface) !important;
-            border-color: var(--line) !important;
-            color: var(--gold) !important;
-        }
 
         /* st.subheader */
         [data-testid="stSubheader"],
@@ -854,7 +923,7 @@ def _aplicar_dark_mode():
         }
         .hm-kpi:hover {
             background: #1c2333 !important;
-            border-color: rgba(224, 168, 61, 0.4) !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
         }
         .hm-kpi-label { color: var(--muted) !important; }
         .hm-kpi-value { color: var(--navy) !important; }
@@ -881,7 +950,7 @@ def _aplicar_dark_mode():
         }
         .hm-sec:hover {
             background: #1c2333 !important;
-            border-color: rgba(224, 168, 61, 0.4) !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
         }
         .hm-sec-title { color: var(--navy) !important; }
         .hm-sec-desc  { color: var(--muted) !important; }
@@ -901,8 +970,8 @@ def _aplicar_dark_mode():
             color: #e87c75 !important;
         }
         .hm-alert-badge.warning {
-            background: rgba(224, 168, 61, 0.15) !important;
-            border-color: rgba(224, 168, 61, 0.25) !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
             color: var(--gold) !important;
         }
         .hm-alert-badge.info {
@@ -919,11 +988,11 @@ def _aplicar_dark_mode():
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
             border-color: var(--line) !important;
-            border-top-color: rgba(224, 168, 61, 0.5) !important;
+            border-top-color: rgba(255, 255, 255, 0.18) !important;
         }
         .hm-dept-card:hover {
             background: #1c2333 !important;
-            border-color: rgba(224, 168, 61, 0.4) !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
         }
         .hm-dept-card-name     { color: var(--navy) !important; }
         .hm-dept-card-num-val  { color: var(--navy) !important; }
@@ -985,7 +1054,7 @@ def _aplicar_dark_mode():
         .report-child .cargo { color: var(--muted) !important; }
         .report-child .meta  { color: #6e7a86 !important; }
         .report-source.seed { background: rgba(122, 173, 134, 0.15) !important; color: var(--green) !important; }
-        .report-source.fallback { background: rgba(224, 168, 61, 0.15) !important; color: var(--gold) !important; }
+        .report-source.fallback { background: rgba(255, 255, 255, 0.06) !important; color: var(--gold) !important; }
         .report-empty { color: var(--muted) !important; }
 
         /* ══ CONTROLE DE PESSOAS ══ */
@@ -1010,10 +1079,10 @@ def _aplicar_dark_mode():
         .user-email { color: var(--muted) !important; }
         .user-status { color: var(--green) !important; }
         .user-status.inativo { color: var(--gold) !important; }
-        .user-role { background: rgba(224, 168, 61, 0.12) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
-        .user-role.admin { background: rgba(224, 168, 61, 0.12) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
+        .user-role { background: rgba(255, 255, 255, 0.06) !important; border-color: rgba(255, 255, 255, 0.1) !important; color: var(--gold) !important; }
+        .user-role.admin { background: rgba(255, 255, 255, 0.06) !important; border-color: rgba(255, 255, 255, 0.1) !important; color: var(--gold) !important; }
         .user-role.usuario, .user-role.user { background: rgba(122, 173, 134, 0.12) !important; border-color: rgba(122, 173, 134, 0.2) !important; color: var(--green) !important; }
-        .user-tag { background: rgba(224, 168, 61, 0.1) !important; border-color: rgba(224, 168, 61, 0.2) !important; color: var(--gold) !important; }
+        .user-tag { background: rgba(255, 255, 255, 0.06) !important; border-color: rgba(255, 255, 255, 0.1) !important; color: var(--gold) !important; }
         .profile-card { background: var(--surface) !important; border-color: var(--line) !important; }
 
         /* ══ HTML tables (global dark override) ══ */

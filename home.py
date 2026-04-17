@@ -138,36 +138,42 @@ st.markdown(
 <style>
 .block-container { padding-top: 1rem !important; }
 
-/* ── Fundo da homepage (override) ─────────────────────────────────────────
-   Remove o gradiente radial+linear padrão em favor de um branco quase puro,
-   para dar mais leveza/claridade à página principal. */
-.stApp {
-    background: #fbfaf7 !important;
-}
-
-/* ── Banner de boas-vindas ───────────────────────────────────────────────── */
+/* ── Banner de boas-vindas (sem moldura — apenas tipografia) ─────────── */
 .hm-banner {
-    background: #ffffff;
-    border: 1px solid #ece6d7;
-    border-radius: 24px;
-    padding: 26px 34px;
-    margin-bottom: 20px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 8px 0 18px;
+    margin-bottom: 18px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    color: #223645;
-    box-shadow: 0 6px 22px rgba(35, 64, 85, 0.05);
+    align-items: flex-start;
+    color: #111111;
+    box-shadow: none;
+    gap: 16px;
 }
-.hm-banner-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin: 0; color: #234055; }
-.hm-banner-sub   { font-size: 13px; color: #6f7a84; margin-top: 5px; }
-.hm-banner-date  {
-    background: #f7f3ea;
-    border: 1px solid #ece6d7;
+.hm-banner-title {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin: 0;
+    color: #111111;
+    line-height: 1.1;
+}
+.hm-banner-sub {
+    font-size: 14px;
+    color: #6E6E73;
+    margin-top: 6px;
+    font-weight: 400;
+}
+.hm-banner-date {
+    background: #FFFFFF;
+    border: 1px solid #E5E5EA;
     border-radius: 999px;
     padding: 8px 16px;
     font-size: 13px;
-    font-weight: 700;
-    color: #234055;
+    font-weight: 500;
+    color: #111111;
     white-space: nowrap;
 }
 
@@ -176,32 +182,37 @@ st.markdown(
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
 }
 .hm-lead-card {
-    background: transparent;
-    border: 2px dashed #C9A67A;
-    border-radius: 18px;
-    padding: 18px 22px;
-    color: #234055;
+    background: #FFFFFF;
+    border: 1px solid #E5E5EA;
+    border-radius: 16px;
+    padding: 22px 24px;
+    color: #111111;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    box-shadow: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease-in-out;
+}
+.hm-lead-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 .hm-lead-role {
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.14em;
-    font-weight: 800;
-    color: #C9A67A;
+    font-weight: 600;
+    color: #6E6E73;
     margin-bottom: 6px;
 }
 .hm-lead-name {
     font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    color: #234055;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: #111111;
     line-height: 1.15;
 }
 
@@ -213,97 +224,91 @@ st.markdown(
     margin-bottom: 14px;
 }
 .hm-section-title {
-    font-size: 12px;
-    font-weight: 800;
-    color: #234055;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111111;
+    letter-spacing: -0.01em;
+    text-transform: none;
 }
 .hm-section-hint {
-    font-size: 11px;
-    color: #7d8790;
-    font-weight: 600;
+    font-size: 12px;
+    color: #6E6E73;
+    font-weight: 400;
 }
 
 /* ── Cards de departamento ─────────────────────────────────────────────── */
-/* Mesma linguagem dos atalhos de módulo + barra dourada à esquerda
-   (ecoando o destaque da seção de lideranças). */
 .hm-deptc {
-    background: #ffffff;
-    border: 1px solid #ece6d7;
-    border-left: 3px solid #C9A67A;
-    border-radius: 18px;
-    padding: 14px 18px 12px;
+    background: #FFFFFF;
+    border: 1px solid #E5E5EA;
+    border-radius: 16px;
+    padding: 18px 22px 16px;
     min-height: auto;
-    box-shadow: 0 4px 14px rgba(35, 64, 85, 0.04);
-    transition: all 0.2s ease;
-    pointer-events: none; /* cliques passam para o botão overlay atrás */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease-in-out;
+    pointer-events: none;
 }
 [data-testid="stColumn"]:has(.hm-deptc):hover .hm-deptc {
-    transform: translateY(-2px);
-    background: #ffffff;
-    border-color: rgba(201, 166, 122, 0.55);
-    border-left-color: #C9A67A;
-    box-shadow: 0 10px 24px rgba(35, 64, 85, 0.08);
+    transform: translateY(-1px);
+    background: #FFFFFF;
+    border-color: #D1D1D6;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 .hm-deptc-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 14px;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 .hm-deptc-name {
-    font-size: 22px;
-    font-weight: 800;
-    color: #234055;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111111;
     letter-spacing: -0.02em;
     line-height: 1.1;
 }
 .hm-deptc-count {
-    background: rgba(35, 64, 85, 0.08);
-    color: #234055;
-    font-weight: 800;
-    font-size: 13px;
-    padding: 6px 14px;
+    background: #F2F2F7;
+    color: #6E6E73;
+    font-weight: 500;
+    font-size: 12px;
+    padding: 5px 12px;
     border-radius: 999px;
     white-space: nowrap;
 }
 .hm-deptc-leaders {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 .hm-deptc-leader {
     display: flex;
     align-items: baseline;
     gap: 12px;
     font-size: 13px;
-    line-height: 1.25;
+    line-height: 1.3;
 }
 .hm-deptc-leader-role {
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    font-weight: 800;
-    color: #C9A67A;
+    font-weight: 700;
     min-width: 110px;
 }
+.hm-deptc-leader-role.role-coord { color: #4F46E5; }
+.hm-deptc-leader-role.role-sup   { color: #7C3AED; }
+.hm-deptc-leader-role.role-dir   { color: #111111; }
 .hm-deptc-leader-name {
-    color: #234055;
-    font-weight: 700;
+    color: #111111;
+    font-weight: 500;
 }
 .hm-deptc-empty {
     font-size: 13px;
-    color: #9aa2ab;
+    color: #8E8E93;
     font-style: italic;
 }
 
-/* Card inteiro clicável: botão transparente cobrindo o card.
-   O stElementContainer que embala o botão também precisa de position:
-   absolute — só a div interna .stButton não basta em versões recentes
-   do Streamlit. O card (.hm-deptc) fica com pointer-events:none
-   para que o clique atravesse até o botão atrás. */
+/* Card inteiro clicável: botão transparente cobrindo o card. */
 [data-testid="stColumn"]:has(.hm-deptc) {
     position: relative;
 }
@@ -331,44 +336,43 @@ st.markdown(
     pointer-events: auto !important;
 }
 
-/* ── Atalhos de módulos (cards maior, pode quebrar em múltiplas linhas) ── */
+/* ── Atalhos de módulos (minimalistas, Apple-style) ─────────────────── */
 .hm-mods-title {
-    font-size: 11px;
-    font-weight: 800;
-    color: #234055;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin: 36px 0 16px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111111;
+    letter-spacing: -0.01em;
+    margin: 40px 0 16px;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a {
-    background: #ffffff !important;
-    border: 1px solid #ece6d7 !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E5E5EA !important;
     border-radius: 14px !important;
-    padding: 20px 16px !important;
-    min-height: 96px !important;
+    padding: 22px 14px !important;
+    min-height: 104px !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 10px !important;
-    transition: all 0.2s ease !important;
-    box-shadow: 0 2px 8px rgba(35, 64, 85, 0.03) !important;
+    transition: all 0.2s ease-in-out !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover {
-    background: #ffffff !important;
-    border-color: rgba(201, 166, 122, 0.55) !important;
+    background: #FFFFFF !important;
+    border-color: #D1D1D6 !important;
     transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(35, 64, 85, 0.08) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a,
 [data-testid="stMain"] [data-testid="stPageLink"] a p,
 [data-testid="stMain"] [data-testid="stPageLink"] a > div {
-    color: #234055 !important;
-    font-weight: 700 !important;
+    color: #111111 !important;
+    font-weight: 500 !important;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a p {
-    font-size: 15px !important;
-    font-weight: 800 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
     margin: 0 !important;
     white-space: normal !important;
     text-align: center !important;
@@ -377,7 +381,7 @@ st.markdown(
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover,
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover p,
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover > div {
-    color: #C9A67A !important;
+    color: #111111 !important;
 }
 
 /* ── Responsivo ────────────────────────────────────────────────────────── */
@@ -385,16 +389,16 @@ st.markdown(
     .hm-lead-strip { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
-    .hm-banner { flex-direction: column; align-items: flex-start; gap: 10px; padding: 20px 22px; }
-    .hm-banner-title { font-size: 22px; }
-    .hm-lead-card { padding: 14px 16px; }
+    .hm-banner { flex-direction: column; align-items: flex-start; gap: 10px; padding: 6px 0 12px; }
+    .hm-banner-title { font-size: 24px; }
+    .hm-lead-card { padding: 16px 18px; }
     .hm-lead-name { font-size: 18px; }
-    .hm-deptc { padding: 12px 16px; }
+    .hm-deptc { padding: 14px 16px; }
     .hm-deptc-name { font-size: 18px; }
-    .hm-deptc-count { font-size: 12px; }
+    .hm-deptc-count { font-size: 11px; }
     .hm-deptc-leader { font-size: 12px; }
     .hm-deptc-leader-role { min-width: 90px; }
-    [data-testid="stMain"] [data-testid="stPageLink"] a { padding: 14px 10px !important; min-height: 64px !important; }
+    [data-testid="stMain"] [data-testid="stPageLink"] a { padding: 16px 10px !important; min-height: 72px !important; }
 }
 </style>
 """,
@@ -452,16 +456,17 @@ st.markdown(
 )
 
 
-def _render_leader_line(cargo_nome_original, default_role, pessoa):
+def _render_leader_line(cargo_nome_original, default_role, pessoa, role_class=""):
     """Uma linha de liderança dentro do card. Sufixo do cargo ajusta gênero."""
     if not pessoa:
         return ""
     nome = pessoa.get("nome", "—")
     # Usa o nome do cargo real quando disponível (ex.: "Coordenadora", "Supervisor")
     rotulo = cargo_nome_original or default_role
+    cls = f"hm-deptc-leader-role {role_class}".strip()
     return (
         f'<div class="hm-deptc-leader">'
-        f'<span class="hm-deptc-leader-role">{rotulo}</span>'
+        f'<span class="{cls}">{rotulo}</span>'
         f'<span class="hm-deptc-leader-name">{nome}</span>'
         f"</div>"
     )
@@ -470,8 +475,8 @@ def _render_leader_line(cargo_nome_original, default_role, pessoa):
 def _render_dept_card(card):
     coord = card["coord"]
     sup = card["sup"]
-    coord_html = _render_leader_line(_cargo_nome(coord), "Coordenação", coord)
-    sup_html = _render_leader_line(_cargo_nome(sup), "Supervisão", sup)
+    coord_html = _render_leader_line(_cargo_nome(coord), "Coordenação", coord, "role-coord")
+    sup_html = _render_leader_line(_cargo_nome(sup), "Supervisão", sup, "role-sup")
     if not coord_html and not sup_html:
         leaders_html = '<div class="hm-deptc-empty">Liderança a definir</div>'
     else:
