@@ -179,16 +179,15 @@ st.markdown(
     margin-bottom: 28px;
 }
 .hm-lead-card {
-    background: #ffffff;
-    border: 1px solid #ece6d7;
-    border-left: 3px solid #C9A67A;
+    background: transparent;
+    border: 2px dashed #C9A67A;
     border-radius: 18px;
     padding: 18px 22px;
     color: #234055;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    box-shadow: 0 4px 14px rgba(35, 64, 85, 0.04);
+    box-shadow: none;
 }
 .hm-lead-role {
     font-size: 10px;
@@ -345,12 +344,13 @@ st.markdown(
     background: #ffffff !important;
     border: 1px solid #ece6d7 !important;
     border-radius: 14px !important;
-    padding: 16px 14px !important;
-    min-height: 72px !important;
+    padding: 20px 16px !important;
+    min-height: 96px !important;
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;
+    gap: 10px !important;
     transition: all 0.2s ease !important;
     box-shadow: 0 2px 8px rgba(35, 64, 85, 0.03) !important;
 }
@@ -367,10 +367,12 @@ st.markdown(
     font-weight: 700 !important;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a p {
-    font-size: 14px !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
     margin: 0 !important;
     white-space: normal !important;
     text-align: center !important;
+    letter-spacing: -0.01em;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover,
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover p,
@@ -494,6 +496,8 @@ def _ir_para_dept(nome):
 # Grid 2×2 — cada card é inteiramente clicável via overlay invisível
 for i in range(0, len(dept_cards), 2):
     col_a, col_b = st.columns(2, gap="medium")
+    if i > 0:  # Espaço extra antes de cada linha (exceto a primeira)
+        st.markdown('<div style="height: 12px;"></div>', unsafe_allow_html=True)
     linha = dept_cards[i : i + 2]
     for col, card in zip((col_a, col_b), linha):
         with col:
