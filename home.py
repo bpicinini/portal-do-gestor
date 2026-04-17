@@ -10,7 +10,7 @@ from datetime import date
 
 import streamlit as st
 
-from utils.auth import garantir_autenticado, obter_usuario_atual
+from utils.auth import garantir_autenticado, obter_usuario_atual, usuario_admin
 from utils.departamentos import listar_cargos, listar_departamentos
 from utils.pessoas import listar_colaboradores
 from utils.ui import aplicar_estilos_globais
@@ -66,15 +66,6 @@ def _procurar_por_nome(termos):
         if all(t in nome for t in termos_norm):
             return c
     return None
-
-
-def _iniciais(nome):
-    partes = [p for p in str(nome or "").split() if p]
-    if not partes:
-        return "·"
-    if len(partes) == 1:
-        return partes[0][:2].upper()
-    return (partes[0][0] + partes[-1][0]).upper()
 
 
 # Diretor e Gerente: busca dinâmica + fallback institucional
@@ -181,48 +172,34 @@ st.markdown(
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
-    margin-bottom: 26px;
+    margin-bottom: 28px;
 }
 .hm-lead-card {
-    background: linear-gradient(135deg, rgba(35, 64, 85, 0.92) 0%, rgba(27, 53, 73, 0.95) 100%);
-    border: 1px solid rgba(199, 149, 54, 0.32);
-    border-left: 5px solid #c79536;
-    border-radius: 22px;
-    padding: 20px 22px;
-    color: #f6ecd8;
+    background: transparent;
+    border: none;
+    border-left: 3px solid #c79536;
+    border-radius: 0;
+    padding: 6px 0 6px 18px;
+    color: #234055;
     display: flex;
-    align-items: center;
-    gap: 18px;
-    box-shadow: 0 14px 36px rgba(15, 34, 50, 0.22);
-}
-.hm-lead-avatar {
-    width: 62px; height: 62px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #e9c174, #c79536 55%, #8a6424);
-    color: #1b3549;
-    font-size: 22px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 6px 16px rgba(199, 149, 54, 0.3);
-    letter-spacing: -0.02em;
+    box-shadow: none;
 }
 .hm-lead-role {
     font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-weight: 700;
-    color: #e9c174;
-    margin-bottom: 4px;
+    letter-spacing: 0.14em;
+    font-weight: 800;
+    color: #c79536;
+    margin-bottom: 6px;
 }
 .hm-lead-name {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 800;
     letter-spacing: -0.01em;
-    color: #ffffff;
-    line-height: 1.2;
+    color: #234055;
+    line-height: 1.15;
 }
 
 /* ── Título da seção ───────────────────────────────────────────────────── */
@@ -251,106 +228,134 @@ st.markdown(
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255, 255, 255, 0.55);
-    border-left: 4px solid #c79536;
-    border-radius: 20px;
-    padding: 22px 24px 18px;
-    min-height: 168px;
+    border-left: 5px solid #c79536;
+    border-radius: 22px;
+    padding: 26px 30px 24px;
+    min-height: 210px;
     box-shadow: 0 6px 24px rgba(35, 64, 85, 0.06);
-    transition: all 0.2s ease;
+    transition: all 0.22s ease;
 }
-.hm-deptc:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 16px 40px rgba(35, 64, 85, 0.12);
+[data-testid="stColumn"]:has(.hm-deptc):hover .hm-deptc {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 44px rgba(35, 64, 85, 0.14);
     border-left-color: #234055;
-    background: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.78);
 }
 .hm-deptc-top {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 14px;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
 }
 .hm-deptc-name {
-    font-size: 20px;
+    font-size: 28px;
     font-weight: 800;
     color: #234055;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
 }
 .hm-deptc-count {
     background: rgba(35, 64, 85, 0.08);
     color: #234055;
     font-weight: 800;
-    font-size: 13px;
-    padding: 6px 12px;
+    font-size: 15px;
+    padding: 8px 16px;
     border-radius: 999px;
     white-space: nowrap;
 }
 .hm-deptc-leaders {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 }
 .hm-deptc-leader {
     display: flex;
     align-items: baseline;
-    gap: 8px;
-    font-size: 13px;
-    line-height: 1.35;
+    gap: 12px;
+    font-size: 16px;
+    line-height: 1.3;
 }
 .hm-deptc-leader-role {
-    font-size: 10px;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 700;
+    letter-spacing: 0.1em;
+    font-weight: 800;
     color: #c79536;
-    min-width: 96px;
+    min-width: 120px;
 }
 .hm-deptc-leader-name {
     color: #234055;
     font-weight: 700;
 }
 .hm-deptc-empty {
-    font-size: 12px;
+    font-size: 13px;
     color: #9aa2ab;
     font-style: italic;
 }
 
-/* ── Botão "Explorar" como link minimalista ──────────────────────────── */
-[data-testid="stMain"] .stButton > button,
-[data-testid="stMain"] .stButton > button:focus:not(:active) {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    color: #c79536 !important;
-    font-size: 12px !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.08em !important;
-    text-transform: uppercase !important;
-    padding: 8px 4px 18px !important;
-    text-align: right !important;
-    transition: color 0.18s ease, transform 0.18s ease !important;
+/* Card inteiro clicável: overlay transparente do st.button sobre o card */
+[data-testid="stColumn"]:has(.hm-deptc) {
+    position: relative;
 }
-[data-testid="stMain"] .stButton > button:hover,
-[data-testid="stMain"] .stButton > button:active {
+[data-testid="stColumn"]:has(.hm-deptc) [data-testid="stButton"] {
+    position: absolute !important;
+    inset: 0 !important;
+    margin: 0 !important;
+    z-index: 5 !important;
+}
+[data-testid="stColumn"]:has(.hm-deptc) [data-testid="stButton"] > button {
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    color: #234055 !important;
-    transform: translateX(2px);
+    cursor: pointer !important;
 }
 
-/* ── Rodapé ────────────────────────────────────────────────────────────── */
-.hm-footnote {
-    margin-top: 28px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(35, 64, 85, 0.08);
+/* ── Atalhos de módulos (cards pequenos, transparentes, linha única) ── */
+.hm-mods-title {
     font-size: 11px;
-    color: #7d8790;
-    text-align: center;
-    font-weight: 500;
+    font-weight: 800;
+    color: #234055;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 32px 0 12px;
+}
+[data-testid="stMain"] [data-testid="stPageLink"] a {
+    background: transparent !important;
+    border: 1px solid rgba(35, 64, 85, 0.12) !important;
+    border-radius: 14px !important;
+    padding: 12px 10px !important;
+    min-height: 54px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+}
+[data-testid="stMain"] [data-testid="stPageLink"] a:hover {
+    background: rgba(199, 149, 54, 0.08) !important;
+    border-color: rgba(199, 149, 54, 0.45) !important;
+    transform: translateY(-1px);
+}
+[data-testid="stMain"] [data-testid="stPageLink"] a > div,
+[data-testid="stMain"] [data-testid="stPageLink"] a p,
+[data-testid="stMain"] [data-testid="stPageLink"] a span {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #234055 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+}
+[data-testid="stMain"] [data-testid="stPageLink"] a:hover p,
+[data-testid="stMain"] [data-testid="stPageLink"] a:hover span,
+[data-testid="stMain"] [data-testid="stPageLink"] a:hover > div {
+    color: #c79536 !important;
 }
 
 /* ── Responsivo ────────────────────────────────────────────────────────── */
@@ -360,9 +365,12 @@ st.markdown(
 @media (max-width: 640px) {
     .hm-banner { flex-direction: column; align-items: flex-start; gap: 10px; padding: 20px 22px; }
     .hm-banner-title { font-size: 22px; }
-    .hm-lead-card { padding: 16px 18px; }
-    .hm-lead-avatar { width: 52px; height: 52px; font-size: 18px; }
-    .hm-lead-name { font-size: 17px; }
+    .hm-lead-card { padding: 4px 0 4px 14px; }
+    .hm-lead-name { font-size: 18px; }
+    .hm-deptc { padding: 20px 22px; min-height: auto; }
+    .hm-deptc-name { font-size: 22px; }
+    .hm-deptc-leader { font-size: 14px; }
+    .hm-deptc-leader-role { min-width: 100px; }
 }
 </style>
 """,
@@ -393,11 +401,8 @@ lead_cards_html = ""
 for l in LIDERANCA:
     lead_cards_html += f"""
     <div class="hm-lead-card">
-        <div class="hm-lead-avatar">{_iniciais(l["nome"])}</div>
-        <div>
-            <div class="hm-lead-role">{l["cargo"]}</div>
-            <div class="hm-lead-name">{l["nome"]}</div>
-        </div>
+        <div class="hm-lead-role">{l["cargo"]}</div>
+        <div class="hm-lead-name">{l["nome"]}</div>
     </div>"""
 
 st.markdown(
@@ -464,7 +469,7 @@ def _ir_para_dept(nome):
     st.switch_page("pages/1_Organograma.py")
 
 
-# Grid 2×2
+# Grid 2×2 — cada card é inteiramente clicável via overlay invisível
 for i in range(0, len(dept_cards), 2):
     col_a, col_b = st.columns(2, gap="medium")
     linha = dept_cards[i : i + 2]
@@ -472,19 +477,28 @@ for i in range(0, len(dept_cards), 2):
         with col:
             st.markdown(_render_dept_card(card), unsafe_allow_html=True)
             if st.button(
-                f"Explorar {card['nome']} →",
+                " ",
                 key=f"go_dept_{card['id']}",
                 use_container_width=True,
             ):
                 _ir_para_dept(card["nome"])
 
 
-# ── Rodapé ────────────────────────────────────────────────────────────────────
+# ── Atalhos para módulos ──────────────────────────────────────────────────────
+modulos = [
+    ("pages/1_Organograma.py", "Organograma", "🗂️"),
+    ("pages/3_Manpower_e_Eficiencia.py", "KPIs", "📊"),
+    ("pages/5_Processos_360.py", "Processos 360", "🚢"),
+    ("pages/6_Restituicoes.py", "Restituições", "💰"),
+]
+if usuario_admin():
+    modulos.append(("pages/4_Usuarios.py", "Usuários", "🔐"))
+
 st.markdown(
-    """
-    <div class="hm-footnote">
-        Para KPIs, volumes e indicadores operacionais, acesse as páginas específicas pelo menu lateral.
-    </div>
-    """,
+    '<div class="hm-mods-title">Módulos</div>',
     unsafe_allow_html=True,
 )
+mod_cols = st.columns(len(modulos), gap="small")
+for col, (pg, label, icon) in zip(mod_cols, modulos):
+    with col:
+        st.page_link(pg, label=label, icon=icon, use_container_width=True)
