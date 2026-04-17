@@ -9,11 +9,15 @@ from html import escape
 import pandas as pd
 import streamlit as st
 
-from utils.auth import garantir_autenticado
+from utils.auth import garantir_autenticado, obter_usuario_atual
 from utils.restituicoes import (
+    DESENCAIXES,
+    DIVISOES,
+    STATUS,
     STATUS_ATIVO,
     STATUS_CONCLUIDO,
     STATUS_INDEFERIDO,
+    criar_restituicao,
     intimacoes_pendentes,
     listar_restituicoes,
 )
@@ -38,15 +42,15 @@ STATUS_CORES = {
     "Indeferido":           {"bg": "#e6dcda", "fg": "#6e3a34", "bd": "#cfbbb7"},
 }
 
-# Ordem de exibição — progressão do fluxo (Em análise → Pago/Indeferido)
+# Ordem de exibição — Deferido no topo (quase ganhos), Com Pendências no fim
 ORDEM_STATUS = [
+    "Deferido",
+    "Intimação Respondida",
+    "Intimação Pendente",
+    "Judicializado",
+    "Protocolado",
     "Em análise",
     "Com Pendências",
-    "Protocolado",
-    "Judicializado",
-    "Intimação Pendente",
-    "Intimação Respondida",
-    "Deferido",
     "Pago",
     "Indeferido",
 ]
@@ -501,11 +505,12 @@ def _render_grupo(lista: list[dict], status_permitidos) -> None:
 
 # ── Abas ─────────────────────────────────────────────────────────────
 
-tab_ativos, tab_concluidos, tab_indeferidos = st.tabs(
+tab_ativos, tab_concluidos, tab_indeferidos, tab_novo = st.tabs(
     [
         f"Ativos ({len(ativos)})",
         f"Concluídos ({len(concluidos)})",
         f"Indeferidos ({len(indeferidos)})",
+        "➕ Novo",
     ]
 )
 
@@ -518,8 +523,79 @@ with tab_concluidos:
 with tab_indeferidos:
     _render_grupo(_filtros(indeferidos, "indeferidos"), STATUS_INDEFERIDO)
 
+with tab_novo:
+    st.markdown("##### Adicionar novo processo de restituição")
+    st.caption("Apenas o **cliente** é obrigatório. Os demais campos podem ser completados depois.")
+
+    with st.form("form_novo_rst", clear_on_submit=True):
+        col_a, col_b = st.columns(2)
+
+        with col_a:
+            cliente_in = st.text_input("Cliente *", key="nv_cliente", placeholder="Ex: MAHINDRA")
+            numero_in = st.text_input("Nº do Processo", key="nv_numero", placeholder="Ex: OE1234/24")
+            cnpj_in = st.text_input("CNPJ", key="nv_cnpj", placeholder="00.000.000/0000-00")
+            ecac_in = st.text_input("Processo e-CAC", key="nv_ecac", placeholder="Ex: 13033.000000/2024-00")
+            status_in = st.selectbox("Status", STATUS, index=STATUS.index("Em análise"), key="nv_status")
+            divisao_in = st.selectbox("Divisão", ["—"] + list(DIVISOES), key="nv_divisao")
+            desencaixe_in = st.selectbox("Desencaixe", ["—"] + list(DESENCAIXES), key="nv_desencaixe")
+
+        with col_b:
+            valor_principal_in = st.number_input(
+                "Valor principal (R$)", min_value=0.0, step=100.0, format="%.2f", key="nv_vp"
+            )
+            valor_corrigido_in = st.number_input(
+                "Valor corrigido (R$)", min_value=0.0, step=100.0, format="%.2f", key="nv_vc"
+            )
+            responsavel_in = st.text_input("Responsável", key="nv_resp")
+            data_protocolo_in = st.date_input(
+                "Data de protocolo", value=None, format="DD/MM/YYYY", key="nv_dp"
+            )
+            prazo_fatal_in = st.date_input(
+                "Prazo fatal", value=None, format="DD/MM/YYYY", key="nv_pf"
+            )
+            termo_assinado_in = st.checkbox("Termo assinado", key="nv_termo")
+            motivo_in = st.text_area(
+                "Motivo de retificação", key="nv_motivo", height=80
+            )
+
+        enviar = st.form_submit_button("Criar processo", type="primary", use_container_width=True)
+
+        if enviar:
+            cliente_limpo = (cliente_in or "").strip().upper()
+            if not cliente_limpo:
+                st.error("Informe o cliente.")
+            else:
+                dados = {
+                    "cliente": cliente_limpo,
+                    "numero_processo": (numero_in or "").strip() or None,
+                    "cnpj": (cnpj_in or "").strip() or None,
+                    "processo_ecac": (ecac_in or "").strip() or None,
+                    "status": status_in,
+                    "divisao": divisao_in if divisao_in != "—" else None,
+                    "desencaixe": desencaixe_in if desencaixe_in != "—" else None,
+                    "valor_principal": valor_principal_in or None,
+                    "valor_corrigido": valor_corrigido_in or None,
+                    "responsavel": (responsavel_in or "").strip() or None,
+                    "data_protocolo": data_protocolo_in,
+                    "prazo_fatal": prazo_fatal_in,
+                    "termo_assinado": bool(termo_assinado_in),
+                    "motivo_retificacao": (motivo_in or "").strip() or None,
+                }
+                user = obter_usuario_atual() or {}
+                user_nome = user.get("nome") or user.get("email") or "desconhecido"
+                try:
+                    novo_id = criar_restituicao(dados, user_nome)
+                except Exception as e:
+                    st.error(f"Erro ao criar processo: {e}")
+                else:
+                    st.success(
+                        f"Processo **{dados['cliente']}** "
+                        f"({dados.get('numero_processo') or f'#{novo_id}'}) "
+                        f"criado com status **{status_in}**."
+                    )
+                    st.rerun()
+
 
 st.caption(
-    "Visão somente leitura. Edição inline, timeline de comentários, "
-    "filtros avançados e criação de novos processos chegam nos próximos passos."
+    "Edição inline na tabela e timeline de comentários chegam nos próximos passos."
 )
