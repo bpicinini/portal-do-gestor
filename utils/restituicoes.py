@@ -177,8 +177,9 @@ def intimacoes_pendentes() -> list[dict]:
 
 
 def _escrever_linha(ws, headers: list[str], valores: dict, linha: int) -> None:
+    # atribuição direta em .value — ws.cell(..., value=None) é ignorado pelo openpyxl
     for col_idx, header in enumerate(headers, 1):
-        ws.cell(row=linha, column=col_idx, value=valores.get(header))
+        ws.cell(row=linha, column=col_idx).value = valores.get(header)
 
 
 def _registrar_log(wb, restituicao_id: int, tipo: str, texto: str, usuario: str) -> None:
