@@ -938,7 +938,7 @@ with col_proc:
     st.page_link("pages/5_Processos_360.py", label="Explorar Processos 360 →", icon="🚢", use_container_width=True)
 with col_pess:
     st.markdown(pess_card, unsafe_allow_html=True)
-    st.page_link("pages/2_Controle_de_Pessoas.py", label="Explorar Controle de Pessoas →", icon="👥", use_container_width=True)
+    st.page_link("pages/1_Organograma.py", label="Explorar Gestão de Equipe →", icon="👥", use_container_width=True)
 
 # ── Backup (admin only) ───────────────────────────────────────────────────────
 if usuario_admin():
