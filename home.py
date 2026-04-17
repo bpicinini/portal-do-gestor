@@ -175,16 +175,16 @@ st.markdown(
     margin-bottom: 28px;
 }
 .hm-lead-card {
-    background: transparent;
-    border: none;
+    background: #fffdf8;
+    border: 1px solid #e3d8c5;
     border-left: 3px solid #C9A67A;
-    border-radius: 0;
-    padding: 6px 0 6px 18px;
+    border-radius: 18px;
+    padding: 18px 22px;
     color: #234055;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    box-shadow: none;
+    box-shadow: 0 8px 22px rgba(35, 64, 85, 0.06);
 }
 .hm-lead-role {
     font-size: 10px;
@@ -226,21 +226,22 @@ st.markdown(
 /* Mesma linguagem dos atalhos de módulo + barra dourada à esquerda
    (ecoando o destaque da seção de lideranças). */
 .hm-deptc {
-    background: transparent;
-    border: 1px solid rgba(35, 64, 85, 0.12);
+    background: #fffdf8;
+    border: 1px solid #e3d8c5;
     border-left: 3px solid #C9A67A;
-    border-radius: 14px;
+    border-radius: 18px;
     padding: 18px 24px 16px;
     min-height: 150px;
-    box-shadow: none;
+    box-shadow: 0 8px 22px rgba(35, 64, 85, 0.06);
     transition: all 0.2s ease;
     pointer-events: none; /* cliques passam para o botão overlay atrás */
 }
 [data-testid="stColumn"]:has(.hm-deptc):hover .hm-deptc {
-    transform: translateY(-1px);
-    background: rgba(201, 166, 122, 0.10);
+    transform: translateY(-2px);
+    background: #ffffff;
     border-color: rgba(201, 166, 122, 0.55);
     border-left-color: #C9A67A;
+    box-shadow: 0 14px 32px rgba(35, 64, 85, 0.10);
 }
 .hm-deptc-top {
     display: flex;
@@ -337,8 +338,8 @@ st.markdown(
     margin: 32px 0 12px;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a {
-    background: transparent !important;
-    border: 1px solid rgba(35, 64, 85, 0.12) !important;
+    background: rgba(255, 253, 248, 0.75) !important;
+    border: 1px solid #e3d8c5 !important;
     border-radius: 14px !important;
     padding: 12px 10px !important;
     min-height: 54px !important;
@@ -347,12 +348,13 @@ st.markdown(
     justify-content: center !important;
     gap: 8px !important;
     transition: all 0.2s ease !important;
-    box-shadow: none !important;
+    box-shadow: 0 4px 14px rgba(35, 64, 85, 0.04) !important;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover {
-    background: rgba(201, 166, 122, 0.10) !important;
+    background: #ffffff !important;
     border-color: rgba(201, 166, 122, 0.55) !important;
     transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(35, 64, 85, 0.08) !important;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a,
 [data-testid="stMain"] [data-testid="stPageLink"] a p,
