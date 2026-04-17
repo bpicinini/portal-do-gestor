@@ -45,7 +45,7 @@ st.markdown(
     <style>
     .user-toolbar {
         background: linear-gradient(135deg, rgba(255,253,248,0.98) 0%, rgba(243,237,226,0.95) 100%);
-        border: 1px solid #e3d8c5;
+        border: 1px solid #E5E5EA;
         border-radius: 22px;
         padding: 16px 18px;
         box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
@@ -53,8 +53,8 @@ st.markdown(
     }
 
     .user-panel {
-        background: #fffdf8;
-        border: 1px solid #e3d8c5;
+        background: #FFFFFF;
+        border: 1px solid #E5E5EA;
         border-radius: 24px;
         padding: 20px 22px;
         box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
@@ -62,14 +62,14 @@ st.markdown(
     }
 
     .user-panel-title {
-        color: #234055;
+        color: #111111;
         font-size: 22px;
         font-weight: 800;
         margin: 0;
     }
 
     .user-panel-sub {
-        color: #6f7a84;
+        color: #6E6E73;
         font-size: 13px;
         margin-top: 4px;
     }
@@ -87,7 +87,7 @@ st.markdown(
 
     .user-table th {
         text-align: left;
-        color: #6f7a84;
+        color: #6E6E73;
         font-size: 11px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -98,14 +98,14 @@ st.markdown(
 
     .user-table td {
         padding: 14px 10px;
-        border-bottom: 1px solid #efe7da;
+        border-bottom: 1px solid #E5E5EA;
         vertical-align: top;
-        color: #223645;
+        color: #111111;
     }
 
     .user-name {
         font-weight: 800;
-        color: #234055;
+        color: #111111;
     }
 
     .user-email {
@@ -160,22 +160,22 @@ st.markdown(
     }
 
     .profile-card {
-        background: linear-gradient(180deg, #fffdf8 0%, #f5eee2 100%);
-        border: 1px solid #e3d8c5;
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%);
+        border: 1px solid #E5E5EA;
         border-radius: 20px;
         padding: 18px;
         box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
     }
 
     .profile-title {
-        color: #234055;
+        color: #111111;
         font-size: 16px;
         font-weight: 800;
         margin: 0;
     }
 
     .profile-desc {
-        color: #6f7a84;
+        color: #6E6E73;
         font-size: 13px;
         margin-top: 8px;
         line-height: 1.55;
@@ -216,8 +216,8 @@ with tab_usuarios:
     st.markdown(
         """
         <div class="user-toolbar">
-            <strong style="color:#234055;">Gestão inicial de usuários</strong>
-            <div style="color:#6f7a84; font-size:13px; margin-top:4px;">
+            <strong style="color:#111111;">Gestão inicial de usuários</strong>
+            <div style="color:#6E6E73; font-size:13px; margin-top:4px;">
                 Nesta primeira etapa, o portal já exige login e senha e permite cadastrar novos acessos manualmente.
             </div>
         </div>

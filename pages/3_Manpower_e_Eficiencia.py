@@ -22,7 +22,7 @@ DEPARTAMENTO_COM_DADOS = "Importação"
 MESES_PT = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
 MESES_ORDEM = MESES_PT[1:]
 COLOR_NAVY = "#31586c"
-COLOR_NAVY_DARK = "#234055"
+COLOR_NAVY_DARK = "#111111"
 COLOR_GOLD = "#d6b36a"
 COLOR_GREEN = "#6d8e65"
 
@@ -306,7 +306,7 @@ def chart_mp_historico(df_all):
     return (
         alt.Chart(df)
         .mark_line(
-            point=alt.OverlayMarkDef(filled=True, fill="#fffdf8", stroke=COLOR_NAVY_DARK, size=62),
+            point=alt.OverlayMarkDef(filled=True, fill="#FFFFFF", stroke=COLOR_NAVY_DARK, size=62),
             color=COLOR_NAVY_DARK,
             strokeWidth=3,
         )
@@ -584,7 +584,7 @@ def _ag_chart_etapas(resumo):
     if df.empty:
         return None
     total = df["Processos"].sum()
-    cores = [ag.ETAPAS_CORES.get(e, "#6f7a84") for e in df["Etapa"]]
+    cores = [ag.ETAPAS_CORES.get(e, "#6E6E73") for e in df["Etapa"]]
     donut = (
         alt.Chart(df)
         .mark_arc(innerRadius=55, outerRadius=90, cornerRadius=4)
@@ -708,7 +708,7 @@ def _ag_chart_andamento_stacked(resumo):
     if not rows:
         return None
     df = pd.DataFrame(rows)
-    cores = [ag.ETAPAS_CORES.get(e, "#6f7a84") for e in ag.ETAPAS_ANDAMENTO if e in df["Etapa"].values]
+    cores = [ag.ETAPAS_CORES.get(e, "#6E6E73") for e in ag.ETAPAS_ANDAMENTO if e in df["Etapa"].values]
     etapas_presentes = [e for e in ag.ETAPAS_ANDAMENTO if e in df["Etapa"].values]
     return (
         alt.Chart(df)
@@ -829,7 +829,7 @@ def _render_agenciamento():
                 pct_cap = round(total_and / cap_max * 100, 1) if cap_max else 0
                 analistas_ativos = len([a for a in res["andamento"] if a["total"] > 0])
                 st.markdown(
-                    f'<p style="margin:0.3rem 0 0.8rem 0;color:#6f7a84;">'
+                    f'<p style="margin:0.3rem 0 0.8rem 0;color:#6E6E73;">'
                     f'Carteira: <b>{_br_int(total_and)}</b> processos em andamento '
                     f'({_br(pct_cap, 1)}% da capacidade {cap_min}-{cap_max}) · '
                     f'<b>{analistas_ativos}</b> analistas ativos</p>',
@@ -1145,7 +1145,7 @@ def _render_agenciamento():
                     if "tipo_carga" in faturados.columns:
                         df_c = faturados["tipo_carga"].value_counts().reset_index()
                         df_c.columns = ["Tipo", "Processos"]
-                        cores = [ag.CARGA_CORES.get(t, "#6f7a84") for t in df_c["Tipo"]]
+                        cores = [ag.CARGA_CORES.get(t, "#6E6E73") for t in df_c["Tipo"]]
                         st.altair_chart(
                             alt.Chart(df_c).mark_arc(innerRadius=50, outerRadius=85, cornerRadius=4)
                             .encode(
@@ -1159,7 +1159,7 @@ def _render_agenciamento():
                     if "modal" in faturados.columns:
                         df_m = faturados["modal"].value_counts().reset_index()
                         df_m.columns = ["Modal", "Processos"]
-                        cores = [ag.MODAL_CORES.get(m, "#6f7a84") for m in df_m["Modal"]]
+                        cores = [ag.MODAL_CORES.get(m, "#6E6E73") for m in df_m["Modal"]]
                         st.altair_chart(
                             alt.Chart(df_m).mark_arc(innerRadius=50, outerRadius=85, cornerRadius=4)
                             .encode(

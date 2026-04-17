@@ -104,7 +104,7 @@ st.markdown(
 
     .rst-cliente { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
     .rst-cliente-nome {
-        color: var(--navy, #234055);
+        color: var(--navy, #111111);
         font-weight: 700;
         font-size: 0.92rem;
         white-space: nowrap;
@@ -112,7 +112,7 @@ st.markdown(
         text-overflow: ellipsis;
     }
     .rst-cliente-proc {
-        color: var(--muted, #6f7a84);
+        color: var(--muted, #6E6E73);
         font-size: 0.74rem;
         font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
         letter-spacing: -0.01em;
@@ -124,7 +124,7 @@ st.markdown(
     .rst-cliente-proc span + span::before {
         content: "·";
         margin: 0 0.35rem;
-        color: var(--line, #e3d8c5);
+        color: var(--line, #E5E5EA);
     }
 
     .rst-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; justify-content: flex-end; }
@@ -147,7 +147,7 @@ st.markdown(
         opacity: 0.75;
     }
 
-    .rst-tag-div-leader  { background: #223645; color: #ece0c8; border-color: #1a2a37; }
+    .rst-tag-div-leader  { background: #111111; color: #ece0c8; border-color: #1a2a37; }
     .rst-tag-div-winning { background: #6e2935; color: #f4d6dc; border-color: #4f1c24; }
 
     .rst-tag-desc-3s {
@@ -156,7 +156,7 @@ st.markdown(
         border-color: #e4d2a0;
         font-weight: 800;
     }
-    .rst-tag-desc-cliente { background: #eef1f4; color: #6f7a84; border-color: #dce1e7; }
+    .rst-tag-desc-cliente { background: #eef1f4; color: #6E6E73; border-color: #dce1e7; }
 
     .rst-meta {
         display: flex; flex-direction: column; gap: 0.15rem;
@@ -165,13 +165,13 @@ st.markdown(
         min-width: 0;
     }
     .rst-valor {
-        color: var(--navy, #234055);
+        color: var(--navy, #111111);
         font-weight: 800;
         font-size: 0.95rem;
         letter-spacing: -0.01em;
     }
     .rst-datas {
-        color: var(--muted, #6f7a84);
+        color: var(--muted, #6E6E73);
         font-size: 0.72rem;
         font-weight: 600;
     }
@@ -180,24 +180,24 @@ st.markdown(
     /* Timeline dentro do popover */
     .rst-log { display: flex; flex-direction: column; gap: 0.45rem; max-height: 260px; overflow-y: auto; }
     .rst-log-item {
-        background: var(--surface-soft, #f3ede2);
-        border: 1px solid var(--line, #e3d8c5);
+        background: var(--surface-soft, #FAFAFA);
+        border: 1px solid var(--line, #E5E5EA);
         border-radius: 10px;
         padding: 0.5rem 0.65rem;
     }
     .rst-log-head {
         display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: baseline;
         font-size: 0.72rem;
-        color: var(--muted, #6f7a84);
+        color: var(--muted, #6E6E73);
         font-weight: 700;
     }
     .rst-log-icon { font-size: 0.8rem; }
-    .rst-log-tipo { color: var(--navy, #234055); text-transform: uppercase; letter-spacing: 0.06em; }
+    .rst-log-tipo { color: var(--navy, #111111); text-transform: uppercase; letter-spacing: 0.06em; }
     .rst-log-data { font-family: ui-monospace, Menlo, Consolas, monospace; }
     .rst-log-user { font-style: italic; }
     .rst-log-text {
         margin-top: 0.2rem;
-        color: var(--text, #223645);
+        color: var(--text, #111111);
         font-size: 0.85rem;
         line-height: 1.35;
         word-break: break-word;

@@ -22,7 +22,7 @@ from utils.processos360 import (
 )
 from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
 
-COLOR_NAVY = "#234055"
+COLOR_NAVY = "#111111"
 COLOR_NAVY_SOFT = "#36586f"
 COLOR_GOLD = "#C9A67A"
 COLOR_GREEN = "#5e8668"
@@ -34,23 +34,23 @@ STATUS_CORES = {
     "Chegada": "#C9A67A",
     "Registrado/Ag.Desembaraço": "#e6a832",
     "Carregamento": "#5e8668",
-    "Encerramento": "#234055",
+    "Encerramento": "#111111",
 }
 
 MODALIDADE_CORES = {
-    "OCEANFREIGHT / FCL": "#234055",
+    "OCEANFREIGHT / FCL": "#111111",
     "OCEANFREIGHT / LCL": "#4a8ab5",
     "AIRFREIGHT": "#C9A67A",
     "RODOVIÁRIO": "#5e8668",
     "BREAK BULK": "#8b5e3c",
     "MARÍTIMO / RODOVIÁRIO": "#7ea6c7",
     "AÉREO / MARÍTIMO": "#e6a832",
-    "FERROVIÁRIO": "#6f7a84",
+    "FERROVIÁRIO": "#6E6E73",
 }
 
 TIPO_OP_CORES = {
     "Importação Própria": "#4a8ab5",
-    "Importação por Conta e Ordem": "#234055",
+    "Importação por Conta e Ordem": "#111111",
     "Encomenda": "#C9A67A",
 }
 
@@ -62,7 +62,7 @@ TIPO_LABELS = {
 }
 TIPO_CORES = {
     "Direto":    "#4a8ab5",
-    "CO3":       "#234055",
+    "CO3":       "#111111",
     "Encomenda": "#C9A67A",
 }
 TIPOS_ORDEM = ["Direto", "CO3", "Encomenda"]
@@ -151,7 +151,7 @@ def _msg_sem_dados():
 
 def _tag_html(tipo):
     """Gera HTML de tag colorida para tipo de operação (Direto/CO3/Encomenda)."""
-    cor = TIPO_CORES.get(tipo, "#6f7a84")
+    cor = TIPO_CORES.get(tipo, "#6E6E73")
     return (
         f'<span style="background:{cor};color:#fff;border-radius:5px;'
         f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
@@ -185,25 +185,25 @@ with tab_geral:
                 f"""
                 <div style="
                     background: linear-gradient(135deg, rgba(255,253,248,0.96), rgba(243,237,226,0.96));
-                    border: 1px solid #e3d8c5; border-radius: 20px;
+                    border: 1px solid #E5E5EA; border-radius: 20px;
                     padding: 1rem 1.4rem; margin-bottom: 1rem;
                     box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
                     display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
                 ">
                     <div style="flex: 0 0 auto; margin-right: 0.8rem;">
-                        <span style="color: #6f7a84; font-size: 0.7rem; text-transform: uppercase; font-weight: 800;">Total</span><br/>
-                        <span style="color: #234055; font-size: 1.8rem; font-weight: 800;">{total:,}</span>
+                        <span style="color: #6E6E73; font-size: 0.7rem; text-transform: uppercase; font-weight: 800;">Total</span><br/>
+                        <span style="color: #111111; font-size: 1.8rem; font-weight: 800;">{total:,}</span>
                     </div>
                     {"".join(f'''
                     <div style="
                         flex: 1 1 0; min-width: 120px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
+                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid {STATUS_CORES.get(s, '#ccc')};
                     ">
-                        <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{s}</div>
-                        <div style="color: #234055; font-size: 1.25rem; font-weight: 800;">{len(df[df["Status"] == s])}</div>
-                        <div style="color: {STATUS_CORES.get(s, "#6f7a84")}; font-size: 0.78rem; font-weight: 700;">{len(df[df["Status"] == s]) / total * 100:.1f}%</div>
+                        <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{s}</div>
+                        <div style="color: #111111; font-size: 1.25rem; font-weight: 800;">{len(df[df["Status"] == s])}</div>
+                        <div style="color: {STATUS_CORES.get(s, "#6E6E73")}; font-size: 0.78rem; font-weight: 700;">{len(df[df["Status"] == s]) / total * 100:.1f}%</div>
                     </div>
                     ''' for s in STATUS_ORDEM)}
                 </div>
@@ -253,7 +253,7 @@ with tab_geral:
                         _outros = pd.DataFrame([{"Modalidade": "Outros", "Quantidade": df_mod.iloc[4:]["Quantidade"].sum()}])
                         df_mod = pd.concat([_top4, _outros], ignore_index=True)
                     mod_domain = df_mod["Modalidade"].tolist()
-                    mod_range = [MODALIDADE_CORES.get(m, "#6f7a84") for m in mod_domain]
+                    mod_range = [MODALIDADE_CORES.get(m, "#6E6E73") for m in mod_domain]
                     _total_mod = df_mod["Quantidade"].sum()
                     df_mod["Pct"] = (df_mod["Quantidade"] / _total_mod * 100).round(1)
                     df_mod["Label"] = df_mod["Pct"].apply(lambda v: f"{v:.1f}%")
@@ -300,7 +300,7 @@ with tab_geral:
                 df_acc = df["Account"].value_counts().reset_index()
                 df_acc.columns = ["Account", "Quantidade"]
                 # Gerar cores alternando entre palette
-                acc_palette = ["#234055", "#4a8ab5", "#C9A67A", "#5e8668", "#e6a832", "#7ea6c7", "#8b5e3c", "#b5423a", "#6f7a84", "#36586f"]
+                acc_palette = ["#111111", "#4a8ab5", "#C9A67A", "#5e8668", "#e6a832", "#7ea6c7", "#8b5e3c", "#b5423a", "#6E6E73", "#36586f"]
                 acc_domain = df_acc["Account"].tolist()
                 acc_range = [acc_palette[i % len(acc_palette)] for i in range(len(acc_domain))]
                 chart_acc = (
@@ -332,7 +332,7 @@ with tab_geral:
                         _outrost = pd.DataFrame([{"Tipo": "Outros", "Quantidade": df_tipo.iloc[4:]["Quantidade"].sum()}])
                         df_tipo = pd.concat([_top4t, _outrost], ignore_index=True)
                     tipo_domain = df_tipo["Tipo"].tolist()
-                    tipo_range = [TIPO_OP_CORES.get(t, "#6f7a84") for t in tipo_domain]
+                    tipo_range = [TIPO_OP_CORES.get(t, "#6E6E73") for t in tipo_domain]
                     _total_tipo = df_tipo["Quantidade"].sum()
                     df_tipo["Pct"] = (df_tipo["Quantidade"] / _total_tipo * 100).round(1)
                     df_tipo["Label"] = df_tipo["Pct"].apply(lambda v: f"{v:.1f}%")
@@ -515,35 +515,35 @@ with tab_analista:
                             f"""
                             <div style="
                                 background: linear-gradient(135deg, rgba(255,253,248,0.96), rgba(243,237,226,0.96));
-                                border: 1px solid #e3d8c5;
+                                border: 1px solid #E5E5EA;
                                 border-radius: 18px;
                                 padding: 1rem 1.2rem;
                                 margin-bottom: 0.2rem;
                                 box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
                             ">
-                                <div style="font-weight: 800; color: #234055; font-size: 1.05rem;
+                                <div style="font-weight: 800; color: #111111; font-size: 1.05rem;
                                             margin-bottom: 0.4rem; display:flex; align-items:center; flex-wrap:wrap; gap:2px;">
                                     {row['Account']}{tags_html}
                                 </div>
                                 <div style="display: flex; gap: 1.2rem; margin-bottom: 0.5rem;">
                                     <div>
-                                        <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Processos</span><br/>
-                                        <span style="color: #234055; font-size: 1.3rem; font-weight: 800;">{int(row['processos'])}</span>
+                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Processos</span><br/>
+                                        <span style="color: #111111; font-size: 1.3rem; font-weight: 800;">{int(row['processos'])}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ativos</span><br/>
-                                        <span style="color: #234055; font-size: 1.3rem; font-weight: 800;">{n_ativos}</span>
+                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ativos</span><br/>
+                                        <span style="color: #111111; font-size: 1.3rem; font-weight: 800;">{n_ativos}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Clientes</span><br/>
+                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Clientes</span><br/>
                                         <span style="color: #5e8668; font-size: 1.3rem; font-weight: 800;">{int(row['clientes'])}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6f7a84; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</span><br/>
-                                        <span style="color: #234055; font-size: 1rem; font-weight: 700;">{_br_moeda(row['valor_aduaneiro'], 0)}</span>
+                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</span><br/>
+                                        <span style="color: #111111; font-size: 1rem; font-weight: 700;">{_br_moeda(row['valor_aduaneiro'], 0)}</span>
                                     </div>
                                 </div>
-                                <div style="font-size: 0.75rem; color: #6f7a84;">{status_pills}</div>
+                                <div style="font-size: 0.75rem; color: #6E6E73;">{status_pills}</div>
                             </div>
                             """,
                             unsafe_allow_html=True,
@@ -588,22 +588,22 @@ with tab_analista:
                                 )
                                 rows_html += (
                                     f'<tr style="border-bottom:1px solid #f0e8d8;">'
-                                    f'<td style="padding:5px 8px;font-size:0.8rem;color:#234055;">'
+                                    f'<td style="padding:5px 8px;font-size:0.8rem;color:#111111;">'
                                     f'{cl_row["_ClienteBase"]}</td>'
                                     f'<td style="padding:5px 8px;font-size:0.8rem;text-align:center;'
-                                    f'color:#234055;font-weight:700;">{int(cl_row["processos"])}</td>'
+                                    f'color:#111111;font-weight:700;">{int(cl_row["processos"])}</td>'
                                     f'<td style="padding:5px 8px;">{tags_cl}</td>'
                                     f'</tr>'
                                 )
                             st.markdown(
                                 f'<table style="width:100%;border-collapse:collapse;">'
-                                f'<thead><tr style="background:#f6f0e4;">'
+                                f'<thead><tr style="background:#FAFAFA;">'
                                 f'<th style="text-align:left;padding:6px 8px;font-size:0.67rem;'
-                                f'color:#6f7a84;text-transform:uppercase;font-weight:700;">Cliente</th>'
+                                f'color:#6E6E73;text-transform:uppercase;font-weight:700;">Cliente</th>'
                                 f'<th style="text-align:center;padding:6px 8px;font-size:0.67rem;'
-                                f'color:#6f7a84;text-transform:uppercase;font-weight:700;">Proc.</th>'
+                                f'color:#6E6E73;text-transform:uppercase;font-weight:700;">Proc.</th>'
                                 f'<th style="text-align:left;padding:6px 8px;font-size:0.67rem;'
-                                f'color:#6f7a84;text-transform:uppercase;font-weight:700;">Tipo</th>'
+                                f'color:#6E6E73;text-transform:uppercase;font-weight:700;">Tipo</th>'
                                 f'</tr></thead><tbody>{rows_html}</tbody></table>',
                                 unsafe_allow_html=True,
                             )
@@ -729,50 +729,50 @@ with tab_clientes:
                 f"""
                 <div style="
                     background: linear-gradient(135deg, rgba(255,253,248,0.96), rgba(243,237,226,0.96));
-                    border: 1px solid #e3d8c5; border-radius: 20px;
+                    border: 1px solid #E5E5EA; border-radius: 20px;
                     padding: 1rem 1.4rem; margin-bottom: 1rem;
                     box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
                     display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
                 ">
                     <div style="flex: 0 0 auto; margin-right: 0.8rem;">
-                        <span style="color: #6f7a84; font-size: 0.7rem; text-transform: uppercase; font-weight: 800;">Clientes</span><br/>
+                        <span style="color: #6E6E73; font-size: 0.7rem; text-transform: uppercase; font-weight: 800;">Clientes</span><br/>
                         <span style="color: #5e8668; font-size: 1.8rem; font-weight: 800;">{total_clientes}</span>
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 110px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
+                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #4a8ab5;
                     ">
-                        <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Direto</div>
+                        <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Direto</div>
                         <div style="color: #4a8ab5; font-size: 1.25rem; font-weight: 800;">{_cli_direto}</div>
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 110px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
+                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
-                        border-left: 4px solid #234055;
+                        border-left: 4px solid #111111;
                     ">
-                        <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">CO3</div>
-                        <div style="color: #234055; font-size: 1.25rem; font-weight: 800;">{_cli_co3}</div>
+                        <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">CO3</div>
+                        <div style="color: #111111; font-size: 1.25rem; font-weight: 800;">{_cli_co3}</div>
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 110px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
+                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #C9A67A;
                     ">
-                        <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Encomenda</div>
+                        <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Encomenda</div>
                         <div style="color: #C9A67A; font-size: 1.25rem; font-weight: 800;">{_cli_encomenda}</div>
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 150px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 14px;
+                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
-                        border-left: 4px solid #234055;
+                        border-left: 4px solid #111111;
                     ">
-                        <div style="color: #6f7a84; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</div>
-                        <div style="color: #234055; font-size: 1.05rem; font-weight: 800;">{_br_moeda(_val_total, 0)}</div>
+                        <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</div>
+                        <div style="color: #111111; font-size: 1.05rem; font-weight: 800;">{_br_moeda(_val_total, 0)}</div>
                     </div>
                 </div>
                 """,
@@ -796,19 +796,19 @@ with tab_clientes:
                 # Cards visuais com barra de progresso (3 tipos apenas)
                 _repr_html = '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem;">'
                 for _, _rr in df_repr.sort_values("Processos", ascending=False).iterrows():
-                    _cor = TIPO_CORES.get(_rr["Tipo"], "#6f7a84")
+                    _cor = TIPO_CORES.get(_rr["Tipo"], "#6E6E73")
                     _pct = _rr["Percentual"]
                     _n = int(_rr["Processos"])
                     _repr_html += (
                         f'<div style="flex:1 1 0;min-width:180px;'
                         f'background:linear-gradient(135deg,rgba(255,253,248,0.96),rgba(243,237,226,0.96));'
-                        f'border:1px solid #e3d8c5;border-radius:14px;padding:0.8rem 1rem;'
+                        f'border:1px solid #E5E5EA;border-radius:14px;padding:0.8rem 1rem;'
                         f'border-left:5px solid {_cor};">'
-                        f'<div style="font-size:0.72rem;color:#6f7a84;text-transform:uppercase;'
+                        f'<div style="font-size:0.72rem;color:#6E6E73;text-transform:uppercase;'
                         f'font-weight:700;margin-bottom:0.3rem;">{_rr["Tipo"]}</div>'
                         f'<div style="display:flex;align-items:baseline;gap:0.5rem;">'
                         f'<span style="font-size:1.6rem;font-weight:800;color:{_cor};">{_n}</span>'
-                        f'<span style="font-size:0.85rem;font-weight:700;color:#6f7a84;">'
+                        f'<span style="font-size:0.85rem;font-weight:700;color:#6E6E73;">'
                         f'{_pct:.1f}%</span>'
                         f'</div>'
                         f'<div style="background:#e8e0d4;border-radius:4px;height:8px;'
@@ -895,7 +895,7 @@ with tab_clientes:
                         f'<div style="margin:0.6rem 0 0.2rem;">'
                         f'<span style="background:{_tipo_cor};color:#fff;border-radius:6px;'
                         f'padding:3px 14px;font-size:0.78rem;font-weight:800;">{_tipo_label}</span>'
-                        f' <span style="color:#6f7a84;font-size:0.78rem;font-weight:600;">'
+                        f' <span style="color:#6E6E73;font-size:0.78rem;font-weight:600;">'
                         f'{len(df_cli[df_cli["_Tipo"] == _tipo_label])} processos</span></div>',
                         unsafe_allow_html=True,
                     )
@@ -940,7 +940,7 @@ with tab_clientes:
                 _mod_range = list(MODALIDADE_CORES.values())
                 # Adicionar modalidades não mapeadas
                 _mods_extra = set(df_mod_cli["Modalidade"].unique()) - set(_mod_domain)
-                _palette_extra = ["#6f7a84", "#a1887f", "#78909c", "#8d6e63", "#90a4ae"]
+                _palette_extra = ["#6E6E73", "#a1887f", "#78909c", "#8d6e63", "#90a4ae"]
                 for i, m in enumerate(_mods_extra):
                     _mod_domain.append(m)
                     _mod_range.append(_palette_extra[i % len(_palette_extra)])
@@ -991,9 +991,9 @@ with tab_clientes:
             _pct_80 = df_pareto.loc[_idx_80, "% Acumulado"]
 
             st.markdown(
-                f'<div style="background:rgba(199,149,54,0.08);border:1px solid #e3d8c5;'
+                f'<div style="background:rgba(199,149,54,0.08);border:1px solid #E5E5EA;'
                 f'border-radius:12px;padding:0.7rem 1rem;margin-bottom:0.8rem;'
-                f'font-size:0.88rem;color:#234055;">'
+                f'font-size:0.88rem;color:#111111;">'
                 f'📊 Os <b>top {_n_80} clientes</b> ({(_n_80 / total_clientes * 100):.0f}% da base) '
                 f'representam <b>{_pct_80:.1f}%</b> dos processos.'
                 f'</div>',
@@ -1113,25 +1113,25 @@ with tab_clientes:
 
                 _rows_html_cli += (
                     f'<tr style="border-bottom:1px solid #f0e8d8;">'
-                    f'<td style="padding:6px 8px;font-size:0.82rem;color:#234055;font-weight:600;">{_r["Cliente"]}</td>'
-                    f'<td style="padding:6px 8px;font-size:0.82rem;text-align:center;color:#234055;font-weight:800;">{int(_r["Processos"])}</td>'
-                    f'<td style="padding:6px 8px;font-size:0.8rem;color:#234055;">{_val_ad}</td>'
-                    f'<td style="padding:6px 8px;font-size:0.8rem;text-align:center;color:#234055;">{_cnt}</td>'
+                    f'<td style="padding:6px 8px;font-size:0.82rem;color:#111111;font-weight:600;">{_r["Cliente"]}</td>'
+                    f'<td style="padding:6px 8px;font-size:0.82rem;text-align:center;color:#111111;font-weight:800;">{int(_r["Processos"])}</td>'
+                    f'<td style="padding:6px 8px;font-size:0.8rem;color:#111111;">{_val_ad}</td>'
+                    f'<td style="padding:6px 8px;font-size:0.8rem;text-align:center;color:#111111;">{_cnt}</td>'
                     f'<td style="padding:6px 8px;">{_tags_cli}</td>'
-                    f'<td style="padding:6px 8px;font-size:0.7rem;color:#6f7a84;">{_st_info}</td>'
+                    f'<td style="padding:6px 8px;font-size:0.7rem;color:#6E6E73;">{_st_info}</td>'
                     f'</tr>'
                 )
 
             st.markdown(
-                f'<div style="max-height:500px;overflow-y:auto;border:1px solid #e3d8c5;border-radius:12px;">'
+                f'<div style="max-height:500px;overflow-y:auto;border:1px solid #E5E5EA;border-radius:12px;">'
                 f'<table style="width:100%;border-collapse:collapse;">'
-                f'<thead><tr style="background:#f6f0e4;position:sticky;top:0;">'
-                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Cliente</th>'
-                f'<th style="text-align:center;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Proc.</th>'
-                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Valor Aduaneiro</th>'
-                f'<th style="text-align:center;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Cnt.</th>'
-                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Tipo</th>'
-                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6f7a84;text-transform:uppercase;font-weight:700;">Status</th>'
+                f'<thead><tr style="background:#FAFAFA;position:sticky;top:0;">'
+                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Cliente</th>'
+                f'<th style="text-align:center;padding:8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Proc.</th>'
+                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Valor Aduaneiro</th>'
+                f'<th style="text-align:center;padding:8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Cnt.</th>'
+                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Tipo</th>'
+                f'<th style="text-align:left;padding:8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Status</th>'
                 f'</tr></thead><tbody>{_rows_html_cli}</tbody></table></div>',
                 unsafe_allow_html=True,
             )
@@ -1159,19 +1159,19 @@ with tab_alertas:
                 ("Canal Vermelho", len(alertas["canal_vermelho"]), COLOR_RED),
                 ("Canal Amarelo", len(alertas["canal_amarelo"]), COLOR_GOLD),
                 ("Saldo Negativo", len(alertas["saldo_negativo"]), COLOR_RED),
-                ("Proc. Parado", len(alertas.get("processo_parado", [])), "#6f7a84"),
+                ("Proc. Parado", len(alertas.get("processo_parado", [])), "#6E6E73"),
                 ("Follow > 10d", len(alertas["follow_desatualizado"]), "#b58c23"),
                 ("Valor > R$ 1M", len(alertas["valor_alto"]), COLOR_GOLD),
-                ("LI Indeferida", len(alertas["li_indeferida"]), "#6f7a84"),
+                ("LI Indeferida", len(alertas["li_indeferida"]), "#6E6E73"),
             ]
             pills_html = "".join(
                 f'<div style="'
                 f"flex: 1 1 0; min-width: 100px; text-align: center;"
-                f"background: rgba(255,255,255,0.6); border: 1px solid #e3d8c5; border-radius: 12px;"
+                f"background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 12px;"
                 f"padding: 0.45rem 0.5rem; border-top: 3px solid {cor};"
                 f'">'
-                f'<div style="color: #6f7a84; font-size: 0.6rem; text-transform: uppercase; font-weight: 700; white-space: nowrap;">{label}</div>'
-                f'<div style="color: {cor if n > 0 else "#234055"}; font-size: 1.3rem; font-weight: 800;">{n}</div>'
+                f'<div style="color: #6E6E73; font-size: 0.6rem; text-transform: uppercase; font-weight: 700; white-space: nowrap;">{label}</div>'
+                f'<div style="color: {cor if n > 0 else "#111111"}; font-size: 1.3rem; font-weight: 800;">{n}</div>'
                 f"</div>"
                 for label, n, cor in items
             )
