@@ -356,6 +356,23 @@ def _tag_desencaixe(desencaixe) -> str:
     return f'<span class="rst-tag {cls}">{escape(dx)}</span>'
 
 
+def _fmt_ecac(raw: str) -> str:
+    """Formata processo e-CAC: 12345.123456/1234-12"""
+    if not raw:
+        return "—"
+    s = str(raw).strip().replace(".", "").replace("/", "").replace("-", "")
+    if len(s) < 14:
+        return str(raw).strip()
+    return f"{s[:5]}.{s[5:11]}/{s[11:15]}-{s[15:17]}"
+
+
+def _fmt_cnpj(raw: str) -> str:
+    """Formata CNPJ: números puros sem formatação"""
+    if not raw:
+        return "—"
+    return str(raw).strip().replace(".", "").replace("/", "").replace("-", "")
+
+
 def _html_cliente(r: dict) -> str:
     cliente_raw = r.get("cliente") or "—"
     cliente = escape(str(cliente_raw).upper() if cliente_raw != "—" else "—")
@@ -365,9 +382,11 @@ def _html_cliente(r: dict) -> str:
 
     proc_parts = [f'<span>Nº {escape(str(numero))}</span>']
     if ecac and str(ecac).strip():
-        proc_parts.append(f'<span>e-CAC {escape(str(ecac))}</span>')
+        ecac_fmt = _fmt_ecac(str(ecac))
+        proc_parts.append(f'<span>e-CAC {escape(ecac_fmt)}</span>')
     if cnpj and str(cnpj).strip():
-        proc_parts.append(f'<span>CNPJ {escape(str(cnpj))}</span>')
+        cnpj_fmt = _fmt_cnpj(str(cnpj))
+        proc_parts.append(f'<span>CNPJ {escape(cnpj_fmt)}</span>')
 
     return (
         '<div class="rst-cliente">'
