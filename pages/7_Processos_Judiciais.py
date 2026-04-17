@@ -1,5 +1,6 @@
-"""Módulo de Processos Judiciais & Administrativos — gestão de processos judiciais,
-administrativos e extrajudiciais para a 3S Corporate.
+"""Módulo de Processos Judiciais & Administrativos.
+
+Gestão de processos judiciais, administrativos e extrajudiciais para a 3S Corporate.
 """
 from __future__ import annotations
 
