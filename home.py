@@ -223,23 +223,21 @@ st.markdown(
 }
 
 /* ── Cards de departamento ─────────────────────────────────────────────── */
+/* Mesma linguagem visual dos atalhos de módulo: fundo transparente,
+   borda fina navy, hover com tint dourado + leve elevação. */
 .hm-deptc {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-left: 5px solid #c79536;
-    border-radius: 22px;
+    background: transparent;
+    border: 1px solid rgba(35, 64, 85, 0.12);
+    border-radius: 14px;
     padding: 26px 30px 24px;
     min-height: 210px;
-    box-shadow: 0 6px 24px rgba(35, 64, 85, 0.06);
-    transition: all 0.22s ease;
+    box-shadow: none;
+    transition: all 0.2s ease;
 }
 [data-testid="stColumn"]:has(.hm-deptc):hover .hm-deptc {
-    transform: translateY(-3px);
-    box-shadow: 0 18px 44px rgba(35, 64, 85, 0.14);
-    border-left-color: #234055;
-    background: rgba(255, 255, 255, 0.78);
+    transform: translateY(-1px);
+    background: rgba(199, 149, 54, 0.08);
+    border-color: rgba(199, 149, 54, 0.45);
 }
 .hm-deptc-top {
     display: flex;
@@ -343,17 +341,19 @@ st.markdown(
     border-color: rgba(199, 149, 54, 0.45) !important;
     transform: translateY(-1px);
 }
-[data-testid="stMain"] [data-testid="stPageLink"] a > div,
+[data-testid="stMain"] [data-testid="stPageLink"] a,
 [data-testid="stMain"] [data-testid="stPageLink"] a p,
-[data-testid="stMain"] [data-testid="stPageLink"] a span {
-    font-size: 13px !important;
-    font-weight: 700 !important;
+[data-testid="stMain"] [data-testid="stPageLink"] a > div {
     color: #234055 !important;
+    font-weight: 700 !important;
+}
+[data-testid="stMain"] [data-testid="stPageLink"] a p {
+    font-size: 13px !important;
     margin: 0 !important;
     white-space: nowrap !important;
 }
+[data-testid="stMain"] [data-testid="stPageLink"] a:hover,
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover p,
-[data-testid="stMain"] [data-testid="stPageLink"] a:hover span,
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover > div {
     color: #c79536 !important;
 }
@@ -486,7 +486,7 @@ for i in range(0, len(dept_cards), 2):
 
 # ── Atalhos para módulos ──────────────────────────────────────────────────────
 modulos = [
-    ("pages/1_Organograma.py", "Organograma", "🗂️"),
+    ("pages/1_Organograma.py", "Organograma", ":material/account_tree:"),
     ("pages/3_Manpower_e_Eficiencia.py", "KPIs", "📊"),
     ("pages/5_Processos_360.py", "Processos 360", "🚢"),
     ("pages/6_Restituicoes.py", "Restituições", "💰"),
