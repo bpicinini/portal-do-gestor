@@ -176,15 +176,15 @@ st.markdown(
         opacity: 0.75;
     }
 
-    .rst-tag-div-leader  { background: #223645; color: #f4e8ca; border-color: #1a2a37; }
+    .rst-tag-div-leader  { background: #223645; color: #ece0c8; border-color: #1a2a37; }
     .rst-tag-div-winning { background: #6e2935; color: #f4d6dc; border-color: #4f1c24; }
 
     .rst-tag-desc-3s {
-        background: linear-gradient(135deg, #d59a2b 0%, #bf7f16 100%);
+        background: linear-gradient(135deg, #c9a67a 0%, #a88a62 100%);
         color: #fff;
-        border-color: #a96b0f;
+        border-color: #8e7350;
         text-transform: uppercase;
-        box-shadow: 0 2px 6px rgba(191,127,22,0.25);
+        box-shadow: 0 2px 6px rgba(163,133,96,0.22);
     }
     .rst-tag-desc-cliente { background: #eef1f4; color: #6f7a84; border-color: #dce1e7; }
 

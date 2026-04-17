@@ -154,11 +154,11 @@ st.markdown(
     letter-spacing: 0.05em;
     margin: 14px 0 6px 0;
     padding-left: 8px;
-    border-left: 3px solid #c79536;
+    border-left: 3px solid #C9A67A;
 }
 .conector {
     text-align: center;
-    color: #c79536;
+    color: #C9A67A;
     font-size: 20px;
     margin: 2px 0;
 }
@@ -256,7 +256,7 @@ st.markdown(
 }
 .lider-secao {
     border: 1px solid #e0d5c2;
-    border-top: 4px solid #c79536;
+    border-top: 4px solid #C9A67A;
     border-radius: 18px;
     padding: 16px 16px 12px;
     margin-bottom: 18px;

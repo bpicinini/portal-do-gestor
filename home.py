@@ -177,7 +177,7 @@ st.markdown(
 .hm-lead-card {
     background: transparent;
     border: none;
-    border-left: 3px solid #c79536;
+    border-left: 3px solid #C9A67A;
     border-radius: 0;
     padding: 6px 0 6px 18px;
     color: #234055;
@@ -191,7 +191,7 @@ st.markdown(
     text-transform: uppercase;
     letter-spacing: 0.14em;
     font-weight: 800;
-    color: #c79536;
+    color: #C9A67A;
     margin-bottom: 6px;
 }
 .hm-lead-name {
@@ -223,28 +223,31 @@ st.markdown(
 }
 
 /* ── Cards de departamento ─────────────────────────────────────────────── */
-/* Mesma linguagem visual dos atalhos de módulo: fundo transparente,
-   borda fina navy, hover com tint dourado + leve elevação. */
+/* Mesma linguagem dos atalhos de módulo + barra dourada à esquerda
+   (ecoando o destaque da seção de lideranças). */
 .hm-deptc {
     background: transparent;
     border: 1px solid rgba(35, 64, 85, 0.12);
+    border-left: 3px solid #C9A67A;
     border-radius: 14px;
-    padding: 26px 30px 24px;
-    min-height: 210px;
+    padding: 18px 24px 16px;
+    min-height: 150px;
     box-shadow: none;
     transition: all 0.2s ease;
+    pointer-events: none; /* cliques passam para o botão overlay atrás */
 }
 [data-testid="stColumn"]:has(.hm-deptc):hover .hm-deptc {
     transform: translateY(-1px);
-    background: rgba(199, 149, 54, 0.08);
-    border-color: rgba(199, 149, 54, 0.45);
+    background: rgba(201, 166, 122, 0.10);
+    border-color: rgba(201, 166, 122, 0.55);
+    border-left-color: #C9A67A;
 }
 .hm-deptc-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 14px;
-    margin-bottom: 22px;
+    margin-bottom: 14px;
 }
 .hm-deptc-name {
     font-size: 28px;
@@ -265,13 +268,13 @@ st.markdown(
 .hm-deptc-leaders {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
 }
 .hm-deptc-leader {
     display: flex;
     align-items: baseline;
     gap: 12px;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.3;
 }
 .hm-deptc-leader-role {
@@ -279,7 +282,7 @@ st.markdown(
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 800;
-    color: #c79536;
+    color: #C9A67A;
     min-width: 120px;
 }
 .hm-deptc-leader-name {
@@ -292,19 +295,28 @@ st.markdown(
     font-style: italic;
 }
 
-/* Card inteiro clicável: overlay transparente do st.button sobre o card */
+/* Card inteiro clicável: botão transparente cobrindo o card.
+   O stElementContainer que embala o botão também precisa de position:
+   absolute — só a div interna .stButton não basta em versões recentes
+   do Streamlit. O card (.hm-deptc) fica com pointer-events:none
+   para que o clique atravesse até o botão atrás. */
 [data-testid="stColumn"]:has(.hm-deptc) {
     position: relative;
 }
+[data-testid="stColumn"]:has(.hm-deptc) [data-testid="stElementContainer"]:has([data-testid="stButton"]),
 [data-testid="stColumn"]:has(.hm-deptc) [data-testid="stButton"] {
     position: absolute !important;
     inset: 0 !important;
     margin: 0 !important;
-    z-index: 5 !important;
+    padding: 0 !important;
+    z-index: 3 !important;
+    width: 100% !important;
+    height: 100% !important;
 }
 [data-testid="stColumn"]:has(.hm-deptc) [data-testid="stButton"] > button {
     width: 100% !important;
     height: 100% !important;
+    min-height: 100% !important;
     opacity: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -312,6 +324,7 @@ st.markdown(
     border: none !important;
     box-shadow: none !important;
     cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 /* ── Atalhos de módulos (cards pequenos, transparentes, linha única) ── */
@@ -337,8 +350,8 @@ st.markdown(
     box-shadow: none !important;
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover {
-    background: rgba(199, 149, 54, 0.08) !important;
-    border-color: rgba(199, 149, 54, 0.45) !important;
+    background: rgba(201, 166, 122, 0.10) !important;
+    border-color: rgba(201, 166, 122, 0.55) !important;
     transform: translateY(-1px);
 }
 [data-testid="stMain"] [data-testid="stPageLink"] a,
@@ -355,7 +368,7 @@ st.markdown(
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover,
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover p,
 [data-testid="stMain"] [data-testid="stPageLink"] a:hover > div {
-    color: #c79536 !important;
+    color: #C9A67A !important;
 }
 
 /* ── Responsivo ────────────────────────────────────────────────────────── */
@@ -367,9 +380,9 @@ st.markdown(
     .hm-banner-title { font-size: 22px; }
     .hm-lead-card { padding: 4px 0 4px 14px; }
     .hm-lead-name { font-size: 18px; }
-    .hm-deptc { padding: 20px 22px; min-height: auto; }
-    .hm-deptc-name { font-size: 22px; }
-    .hm-deptc-leader { font-size: 14px; }
+    .hm-deptc { padding: 14px 18px; min-height: auto; }
+    .hm-deptc-name { font-size: 20px; }
+    .hm-deptc-leader { font-size: 13px; }
     .hm-deptc-leader-role { min-width: 100px; }
 }
 </style>

@@ -55,8 +55,8 @@ def aplicar_estilos_globais():
             --muted: #6f7a84;
             --navy: #234055;
             --navy-soft: #36586f;
-            --gold: #c79536;
-            --gold-soft: #f2e2ba;
+            --gold: #C9A67A;
+            --gold-soft: #ECE0C8;
             --green: #5e8668;
             --green-soft: #e3f0de;
             --shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
@@ -68,7 +68,7 @@ def aplicar_estilos_globais():
 
         .stApp {
             background:
-                radial-gradient(circle at top left, rgba(199, 149, 54, 0.07), transparent 24%),
+                radial-gradient(circle at top left, rgba(201, 166, 122, 0.05), transparent 24%),
                 linear-gradient(180deg, #f8f4ed 0%, var(--bg) 100%);
             color: var(--text);
         }
@@ -134,10 +134,10 @@ def aplicar_estilos_globais():
         [data-testid="stSidebarNavItems"] a[aria-current="page"],
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"],
         [data-testid="stSidebar"] li a[aria-current="page"] {
-            background: linear-gradient(135deg, #f4e8ca 0%, #f8f1df 100%);
+            background: linear-gradient(135deg, #efe7d6 0%, #f6efe1 100%);
             color: var(--navy) !important;
             font-weight: 700;
-            border: 1px solid #ead9ac;
+            border: 1px solid #dccfb2;
             box-shadow: inset 4px 0 0 var(--gold);
         }
 
@@ -187,27 +187,27 @@ def aplicar_estilos_globais():
         }
 
         .stTabs [aria-selected="true"] {
-            background: linear-gradient(135deg, #f3e2b9 0%, #f8f0dd 100%);
+            background: linear-gradient(135deg, #ede2cd 0%, #f6efe1 100%);
             color: var(--navy) !important;
-            border-color: #e8d39b !important;
+            border-color: #d8cbae !important;
         }
 
         .stButton button,
         .stDownloadButton button,
         .stFormSubmitButton button {
             border-radius: 14px;
-            border: 1px solid #d4b164;
-            background: linear-gradient(135deg, #d59a2b 0%, #bf7f16 100%);
+            border: 1px solid #b8a079;
+            background: linear-gradient(135deg, #c9a67a 0%, #a88a62 100%);
             color: white;
             font-weight: 700;
-            box-shadow: 0 10px 24px rgba(191, 127, 22, 0.18);
+            box-shadow: 0 10px 24px rgba(163, 133, 96, 0.16);
         }
 
         .stButton button:hover,
         .stDownloadButton button:hover,
         .stFormSubmitButton button:hover {
-            border-color: #b77811;
-            background: linear-gradient(135deg, #c98e23 0%, #a96b0f 100%);
+            border-color: #8e7350;
+            background: linear-gradient(135deg, #b8946c 0%, #907753 100%);
             color: white;
         }
 
