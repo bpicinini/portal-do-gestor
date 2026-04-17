@@ -97,8 +97,8 @@ st.markdown(
         transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     }
     div[class*="st-key-rst-row-"]:hover {
-        border-color: var(--gold, #c9a67a);
-        background: rgba(201, 166, 122, 0.07);
+        border-color: #8E8E93;
+        background: rgba(142, 142, 147, 0.07);
         box-shadow: 0 2px 6px rgba(35, 64, 85, 0.08);
     }
 

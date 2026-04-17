@@ -31,7 +31,7 @@ COLOR_RED = "#b5423a"
 STATUS_CORES = {
     "Pré-embarque": "#7ea6c7",
     "Embarque": "#4a8ab5",
-    "Chegada": "#C9A67A",
+    "Chegada": "#8E8E93",
     "Registrado/Ag.Desembaraço": "#e6a832",
     "Carregamento": "#5e8668",
     "Encerramento": "#111111",
@@ -40,7 +40,7 @@ STATUS_CORES = {
 MODALIDADE_CORES = {
     "OCEANFREIGHT / FCL": "#111111",
     "OCEANFREIGHT / LCL": "#4a8ab5",
-    "AIRFREIGHT": "#C9A67A",
+    "AIRFREIGHT": "#8E8E93",
     "RODOVIÁRIO": "#5e8668",
     "BREAK BULK": "#8b5e3c",
     "MARÍTIMO / RODOVIÁRIO": "#7ea6c7",
@@ -51,7 +51,7 @@ MODALIDADE_CORES = {
 TIPO_OP_CORES = {
     "Importação Própria": "#4a8ab5",
     "Importação por Conta e Ordem": "#111111",
-    "Encomenda": "#C9A67A",
+    "Encomenda": "#8E8E93",
 }
 
 # Rótulos e cores para Direto / CO3 / Encomenda (usados em cards e tabelas)
@@ -63,7 +63,7 @@ TIPO_LABELS = {
 TIPO_CORES = {
     "Direto":    "#4a8ab5",
     "CO3":       "#111111",
-    "Encomenda": "#C9A67A",
+    "Encomenda": "#8E8E93",
 }
 TIPOS_ORDEM = ["Direto", "CO3", "Encomenda"]
 

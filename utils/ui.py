@@ -272,14 +272,15 @@ def aplicar_estilos_globais():
             border: 1px solid var(--line) !important;
         }
 
-        .stRadio > div,
-        div[data-testid="stExpander"] {
-            background: var(--surface);
+        .stRadio > div {
+            background: transparent;
             border-radius: 14px;
         }
 
         div[data-testid="stExpander"] {
+            background: var(--surface);
             border: 1px solid var(--line);
+            border-radius: 14px;
             box-shadow: var(--shadow);
         }
 
