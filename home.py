@@ -527,10 +527,10 @@ for i in range(0, len(dept_cards), 2):
 # ── Atalhos para módulos ──────────────────────────────────────────────────────
 modulos = [
     ("pages/1_Organograma.py", "Organograma", ":material/account_tree:"),
-    ("pages/3_Manpower_e_Eficiencia.py", "KPIs", "📊"),
-    ("pages/5_Processos_360.py", "Processos 360", "🚢"),
-    ("pages/6_Restituicoes.py", "Restituições", "💰"),
-    ("pages/7_Processos_Judiciais.py", "Processos Judiciais", "⚖️"),
+    ("pages/3_Manpower_e_Eficiencia.py", "KPIs", ":material/bar_chart:"),
+    ("pages/5_Processos_360.py", "Processos 360", ":material/local_shipping:"),
+    ("pages/6_Restituicoes.py", "Restituições", ":material/currency_exchange:"),
+    ("pages/7_Processos_Judiciais.py", "Processos Judiciais", ":material/gavel:"),
 ]
 
 st.markdown(

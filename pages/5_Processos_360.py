@@ -587,7 +587,7 @@ with tab_analista:
                                     for t in cl_row["tipos"]
                                 )
                                 rows_html += (
-                                    f'<tr style="border-bottom:1px solid #f0e8d8;">'
+                                    f'<tr style="border-bottom:1px solid #E5E5EA;">'
                                     f'<td style="padding:5px 8px;font-size:0.8rem;color:#111111;">'
                                     f'{cl_row["_ClienteBase"]}</td>'
                                     f'<td style="padding:5px 8px;font-size:0.8rem;text-align:center;'
@@ -811,7 +811,7 @@ with tab_clientes:
                         f'<span style="font-size:0.85rem;font-weight:700;color:#6E6E73;">'
                         f'{_pct:.1f}%</span>'
                         f'</div>'
-                        f'<div style="background:#e8e0d4;border-radius:4px;height:8px;'
+                        f'<div style="background:#F2F2F7;border-radius:4px;height:8px;'
                         f'margin-top:0.4rem;overflow:hidden;">'
                         f'<div style="background:{_cor};height:100%;width:{_pct}%;'
                         f'border-radius:4px;"></div>'
@@ -991,7 +991,7 @@ with tab_clientes:
             _pct_80 = df_pareto.loc[_idx_80, "% Acumulado"]
 
             st.markdown(
-                f'<div style="background:rgba(199,149,54,0.08);border:1px solid #E5E5EA;'
+                f'<div style="background:rgba(142, 142, 147, 0.08);border:1px solid #E5E5EA;'
                 f'border-radius:12px;padding:0.7rem 1rem;margin-bottom:0.8rem;'
                 f'font-size:0.88rem;color:#111111;">'
                 f'📊 Os <b>top {_n_80} clientes</b> ({(_n_80 / total_clientes * 100):.0f}% da base) '
@@ -1112,7 +1112,7 @@ with tab_clientes:
                 _st_info = _status_por_cliente.get(_r["Cliente"], "")
 
                 _rows_html_cli += (
-                    f'<tr style="border-bottom:1px solid #f0e8d8;">'
+                    f'<tr style="border-bottom:1px solid #E5E5EA;">'
                     f'<td style="padding:6px 8px;font-size:0.82rem;color:#111111;font-weight:600;">{_r["Cliente"]}</td>'
                     f'<td style="padding:6px 8px;font-size:0.82rem;text-align:center;color:#111111;font-weight:800;">{int(_r["Processos"])}</td>'
                     f'<td style="padding:6px 8px;font-size:0.8rem;color:#111111;">{_val_ad}</td>'
@@ -1157,11 +1157,11 @@ with tab_alertas:
                 ("Perdimento", len(alertas["perdimento_proximo"]), COLOR_RED),
                 ("Cnt. Vencendo", len(alertas["container_vencendo"]), "#8b5e3c"),
                 ("Canal Vermelho", len(alertas["canal_vermelho"]), COLOR_RED),
-                ("Canal Amarelo", len(alertas["canal_amarelo"]), COLOR_GOLD),
+                ("Canal Amarelo", len(alertas["canal_amarelo"]), "#8E8E93"),
                 ("Saldo Negativo", len(alertas["saldo_negativo"]), COLOR_RED),
                 ("Proc. Parado", len(alertas.get("processo_parado", [])), "#6E6E73"),
                 ("Follow > 10d", len(alertas["follow_desatualizado"]), "#b58c23"),
-                ("Valor > R$ 1M", len(alertas["valor_alto"]), COLOR_GOLD),
+                ("Valor > R$ 1M", len(alertas["valor_alto"]), "#8E8E93"),
                 ("LI Indeferida", len(alertas["li_indeferida"]), "#6E6E73"),
             ]
             pills_html = "".join(
