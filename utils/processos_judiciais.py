@@ -29,12 +29,14 @@ STATUS = [
     "Intimação Pendente",
     "Intimação Respondida",
     "Judicializado",
+    "Etapa Finalizada",
     "Encerrado",
     "Indeferido",
 ]
 
 # Categorização usada para as abas da UI
-STATUS_ATIVO = [s for s in STATUS if s not in {"Encerrado", "Indeferido"}]
+STATUS_ATIVO = [s for s in STATUS if s not in {"Encerrado", "Indeferido", "Etapa Finalizada"}]
+STATUS_FINALIZADA = {"Etapa Finalizada"}
 STATUS_CONCLUIDO = {"Encerrado"}
 STATUS_INDEFERIDO = {"Indeferido"}
 
