@@ -449,48 +449,50 @@ def renderizar_login():
         }
 
         .login-topbar {
-            background: linear-gradient(135deg, rgba(255,253,248,0.98) 0%, rgba(243,237,226,0.95) 100%);
-            border: 1px solid #e3d8c5;
-            border-radius: 24px;
-            padding: 18px 22px;
-            box-shadow: 0 18px 40px rgba(35, 64, 85, 0.08);
+            background: #FFFFFF;
+            border: 1px solid #E5E5EA;
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
             margin-bottom: 14px;
         }
 
         .login-topbar-title {
-            color: #234055;
+            color: #111111;
             font-size: 28px;
-            font-weight: 800;
+            font-weight: 700;
             letter-spacing: -0.03em;
             margin: 0;
         }
 
         .login-topbar-sub {
-            color: #6f7a84;
+            color: #6E6E73;
             font-size: 14px;
             margin-top: 6px;
+            font-weight: 400;
         }
 
         .login-panel {
-            background: #fffdf8;
-            border: 1px solid #e3d8c5;
-            border-radius: 28px;
-            padding: 20px 22px 22px;
-            box-shadow: 0 18px 40px rgba(35, 64, 85, 0.08);
+            background: #FFFFFF;
+            border: 1px solid #E5E5EA;
+            border-radius: 16px;
+            padding: 22px 24px 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
         }
 
         .login-panel-title {
-            color: #234055;
-            font-size: 24px;
-            font-weight: 800;
+            color: #111111;
+            font-size: 22px;
+            font-weight: 700;
             margin: 0;
         }
 
         .login-panel-sub {
-            color: #6f7a84;
+            color: #6E6E73;
             font-size: 14px;
             margin-top: 6px;
             margin-bottom: 2px;
+            font-weight: 400;
         }
 
         .login-mini {
@@ -499,11 +501,11 @@ def renderizar_login():
             gap: 8px;
             border-radius: 999px;
             padding: 0.36rem 0.7rem;
-            background: #f5ecda;
-            border: 1px solid #e2cfaa;
-            color: #7c5a18;
+            background: #F2F2F7;
+            border: 1px solid #E5E5EA;
+            color: #6E6E73;
             font-size: 11px;
-            font-weight: 800;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             margin-bottom: 10px;
@@ -612,25 +614,25 @@ def renderizar_usuario_sidebar():
 
     dark = st.session_state.get("dark_mode", False)
     if dark:
-        card_bg = "linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(28, 35, 51, 0.95) 100%)"
+        card_bg = "#161b22"
         card_border = "#30363d"
-        card_shadow = "0 14px 35px rgba(0, 0, 0, 0.3)"
+        card_shadow = "0 2px 10px rgba(0, 0, 0, 0.2)"
         label_color = "#8b949e"
         name_color = "#c9d6e0"
         email_color = "#8b949e"
-        badge_bg = "rgba(122, 173, 134, 0.12)"
-        badge_border = "rgba(122, 173, 134, 0.2)"
-        badge_color = "#8faabb"
+        badge_bg = "rgba(255, 255, 255, 0.08)"
+        badge_border = "rgba(255, 255, 255, 0.1)"
+        badge_color = "#e6e6e6"
     else:
-        card_bg = "linear-gradient(135deg, rgba(255,253,248,0.98) 0%, rgba(243,237,226,0.95) 100%)"
-        card_border = "#e3d8c5"
-        card_shadow = "0 14px 35px rgba(35, 64, 85, 0.08)"
-        label_color = "#6f7a84"
-        name_color = "#234055"
-        email_color = "#6f7a84"
-        badge_bg = "#eef5f0"
-        badge_border = "#d9e7de"
-        badge_color = "#36586f"
+        card_bg = "#FFFFFF"
+        card_border = "#E5E5EA"
+        card_shadow = "0 2px 10px rgba(0, 0, 0, 0.04)"
+        label_color = "#6E6E73"
+        name_color = "#111111"
+        email_color = "#6E6E73"
+        badge_bg = "#F2F2F7"
+        badge_border = "#E5E5EA"
+        badge_color = "#6E6E73"
 
     st.sidebar.markdown(
         f"""
