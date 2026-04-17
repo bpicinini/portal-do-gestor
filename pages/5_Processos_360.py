@@ -50,8 +50,8 @@ MODALIDADE_CORES = {
 
 TIPO_OP_CORES = {
     "Importação Própria": "#4a8ab5",
-    "Importação por Conta e Ordem": "#111111",
-    "Encomenda": "#8E8E93",
+    "Importação por Conta e Ordem": "#8E8E93",
+    "Encomenda": "#111111",
 }
 
 # Rótulos e cores para Direto / CO3 / Encomenda (usados em cards e tabelas)
@@ -62,8 +62,8 @@ TIPO_LABELS = {
 }
 TIPO_CORES = {
     "Direto":    "#4a8ab5",
-    "CO3":       "#111111",
-    "Encomenda": "#8E8E93",
+    "CO3":       "#8E8E93",
+    "Encomenda": "#111111",
 }
 TIPOS_ORDEM = ["Direto", "CO3", "Encomenda"]
 
