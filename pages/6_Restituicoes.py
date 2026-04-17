@@ -503,7 +503,7 @@ def _render_popover_view(r: dict) -> None:
 def _render_linha(r: dict, user_nome: str) -> None:
     rid = r.get("id")
     with st.container(key=f"rst-row-{rid}"):
-        c_info, c_tags, c_meta, c_acoes = st.columns([5, 3, 2, 2], gap="small")
+        c_info, c_tags, c_meta, c_acoes = st.columns([5, 3, 2, 1.2], gap="small")
         with c_info:
             st.markdown(_html_cliente(r), unsafe_allow_html=True)
         with c_tags:
@@ -513,10 +513,10 @@ def _render_linha(r: dict, user_nome: str) -> None:
         with c_acoes:
             c_view, c_edit = st.columns(2, gap="small")
             with c_view:
-                with st.popover("👁 Ver", use_container_width=True):
+                with st.popover("👁", use_container_width=True, help="Visualizar histórico"):
                     _render_popover_view(r)
             with c_edit:
-                with st.popover("✎ Editar", use_container_width=True):
+                with st.popover("✎", use_container_width=True, help="Editar status / comentário"):
                     _render_popover(r, user_nome)
 
 

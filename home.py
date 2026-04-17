@@ -237,15 +237,18 @@ st.markdown(
     padding: 18px 24px 16px;
     min-height: 150px;
     box-shadow: 0 4px 14px rgba(35, 64, 85, 0.04);
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
     pointer-events: none; /* cliques passam para o botão overlay atrás */
 }
 [data-testid="stColumn"]:has(.hm-deptc):hover .hm-deptc {
     transform: translateY(-2px);
-    background: #ffffff;
-    border-color: rgba(201, 166, 122, 0.55);
-    border-left-color: #C9A67A;
-    box-shadow: 0 10px 24px rgba(35, 64, 85, 0.08);
+    background: linear-gradient(180deg, #fffaf0 0%, #fff7e8 100%);
+    border-color: #C9A67A;
+    border-left: 4px solid #C9A67A;
+    padding-left: 23px; /* compensa o +1px da borda esquerda */
+    box-shadow:
+        0 0 0 3px rgba(201, 166, 122, 0.18),
+        0 14px 32px rgba(201, 166, 122, 0.22);
 }
 .hm-deptc-top {
     display: flex;
