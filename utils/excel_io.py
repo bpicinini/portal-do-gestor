@@ -19,6 +19,8 @@ SHEET_PERFORMANCE = "Performance"
 SHEET_USUARIOS = "Usuarios"
 SHEET_RESTITUICOES = "Restituicoes"
 SHEET_RESTITUICOES_LOG = "RestituicoesLog"
+SHEET_PROCESSOS_JUDICIAIS = "ProcessosJudiciais"
+SHEET_PROCESSOS_JUDICIAIS_LOG = "ProcessosJudiciaisLog"
 
 # Headers de cada sheet
 HEADERS = {
@@ -53,6 +55,14 @@ HEADERS = {
     ],
     SHEET_RESTITUICOES_LOG: [
         "id", "restituicao_id", "data_hora", "usuario", "tipo", "texto",
+    ],
+    SHEET_PROCESSOS_JUDICIAIS: [
+        "id", "titulo", "tipo_processo", "parte_contraria", "cliente", "numero_processo",
+        "status", "valor", "prazo_fatal", "data_maturacao",
+        "criado_em", "criado_por", "atualizado_em", "atualizado_por",
+    ],
+    SHEET_PROCESSOS_JUDICIAIS_LOG: [
+        "id", "processo_id", "data_hora", "usuario", "tipo", "texto",
     ],
 }
 
