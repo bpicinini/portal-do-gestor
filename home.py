@@ -495,9 +495,9 @@ def _ir_para_dept(nome):
 
 # Grid 2×2 — cada card é inteiramente clicável via overlay invisível
 for i in range(0, len(dept_cards), 2):
-    col_a, col_b = st.columns(2, gap="medium")
     if i > 0:  # Espaço extra antes de cada linha (exceto a primeira)
-        st.markdown('<div style="height: 12px;"></div>', unsafe_allow_html=True)
+        st.markdown('<div style="height: 16px;"></div>', unsafe_allow_html=True)
+    col_a, col_b = st.columns(2, gap="medium")
     linha = dept_cards[i : i + 2]
     for col, card in zip((col_a, col_b), linha):
         with col:
