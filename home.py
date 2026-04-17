@@ -516,9 +516,8 @@ modulos = [
     ("pages/3_Manpower_e_Eficiencia.py", "KPIs", "📊"),
     ("pages/5_Processos_360.py", "Processos 360", "🚢"),
     ("pages/6_Restituicoes.py", "Restituições", "💰"),
+    ("pages/7_Processos_Judiciais.py", "Processos Judiciais", "⚖️"),
 ]
-if usuario_admin():
-    modulos.append(("pages/4_Usuarios.py", "Usuários", "🔐"))
 
 st.markdown(
     '<div class="hm-mods-title">Módulos</div>',

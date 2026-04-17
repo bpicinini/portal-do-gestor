@@ -1,4 +1,4 @@
-"""Módulo de Processos Judiciais — gestão de processos judiciais,
+"""Módulo de Processos Judiciais & Administrativos — gestão de processos judiciais,
 administrativos e extrajudiciais para a 3S Corporate.
 """
 from __future__ import annotations
@@ -14,6 +14,7 @@ from utils.processos_judiciais import (
     TIPOS_PROCESSO,
     STATUS,
     STATUS_ATIVO,
+    STATUS_FINALIZADA,
     STATUS_CONCLUIDO,
     STATUS_INDEFERIDO,
     TIPO_LOG_COMENTARIO,
@@ -52,6 +53,7 @@ STATUS_CORES = {
     "Intimação Pendente":   {"bg": "#fbe1de", "fg": "#a2322a", "bd": "#f2b9b2"},
     "Intimação Respondida": {"bg": "#d9efe9", "fg": "#236b62", "bd": "#b2dfd4"},
     "Judicializado":        {"bg": "#ece3f4", "fg": "#5b3d83", "bd": "#d3c2e5"},
+    "Etapa Finalizada":     {"bg": "#e0ecf6", "fg": "#2d5f82", "bd": "#b9d4e8"},
     "Encerrado":            {"bg": "#dcecd7", "fg": "#3d6e43", "bd": "#bad6b1"},
     "Indeferido":           {"bg": "#e6dcda", "fg": "#6e3a34", "bd": "#cfbbb7"},
 }
@@ -61,7 +63,8 @@ STATUS_EMOJI = {
     "Intimação Pendente":   "🔴",
     "Intimação Respondida": "🟢",
     "Judicializado":        "🟣",
-    "Encerrado":            "💰",
+    "Etapa Finalizada":     "🔵",
+    "Encerrado":            "✅",
     "Indeferido":           "⚫",
 }
 
@@ -70,6 +73,7 @@ ORDEM_STATUS = [
     "Intimação Respondida",
     "Judicializado",
     "Análise/Triagem",
+    "Etapa Finalizada",
     "Encerrado",
     "Indeferido",
 ]
@@ -141,7 +145,13 @@ st.markdown(
         opacity: 0.75;
     }
 
-    .pj-tag-tipo {
+    .pj-tag-tipo-judicial {
+        background: #ece3f4;
+        color: #5b3d83;
+        border-color: #d3c2e5;
+        font-weight: 800;
+    }
+    .pj-tag-tipo-admin {
         background: #f5ecd8;
         color: #a97e2a;
         border-color: #e4d2a0;
@@ -242,6 +252,7 @@ def _soma(registros, campo: str) -> float:
 
 registros = listar_processos()
 ativos = [r for r in registros if r.get("status") in STATUS_ATIVO]
+finalizados = [r for r in registros if r.get("status") in STATUS_FINALIZADA]
 concluidos = [r for r in registros if r.get("status") in STATUS_CONCLUIDO]
 indeferidos = [r for r in registros if r.get("status") in STATUS_INDEFERIDO]
 pendentes = intimacoes_pendentes()
@@ -253,7 +264,7 @@ total_encerrado = _soma(concluidos, "valor")
 # ── Cabeçalho ────────────────────────────────────────────────────────
 
 renderizar_cabecalho_pagina(
-    "Processos Judiciais",
+    "Processos Judiciais & Administrativos",
     "Gestão de processos judiciais, administrativos e extrajudiciais.",
     badge=f"{len(registros)} processos",
 )
@@ -314,7 +325,8 @@ def _tag_tipo(tipo: str) -> str:
     t = str(tipo).strip()
     if not t:
         return ""
-    return f'<span class="pj-tag pj-tag-tipo">{escape(t)}</span>'
+    cls = "pj-tag-tipo-judicial" if t.upper() == "JUDICIAL" else "pj-tag-tipo-admin"
+    return f'<span class="pj-tag {cls}">{escape(t)}</span>'
 
 
 def _html_titulo(r: dict) -> str:
@@ -546,9 +558,10 @@ def _render_grupo(lista: list[dict], status_permitidos, user_nome: str) -> None:
 
 # ── Abas ─────────────────────────────────────────────────────────────
 
-tab_ativos, tab_concluidos, tab_indeferidos, tab_novo = st.tabs(
+tab_ativos, tab_finalizada, tab_concluidos, tab_indeferidos, tab_novo = st.tabs(
     [
         f"Ativos ({len(ativos)})",
+        f"Etapa Finalizada ({len(finalizados)})",
         f"Encerrados ({len(concluidos)})",
         f"Indeferidos ({len(indeferidos)})",
         "➕ Novo",
@@ -557,6 +570,9 @@ tab_ativos, tab_concluidos, tab_indeferidos, tab_novo = st.tabs(
 
 with tab_ativos:
     _render_grupo(_filtros(ativos, "ativos"), STATUS_ATIVO, USER_NOME)
+
+with tab_finalizada:
+    _render_grupo(_filtros(finalizados, "finalizada"), STATUS_FINALIZADA, USER_NOME)
 
 with tab_concluidos:
     _render_grupo(_filtros(concluidos, "concluidos"), STATUS_CONCLUIDO, USER_NOME)
