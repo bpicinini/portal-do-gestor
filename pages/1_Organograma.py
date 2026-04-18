@@ -8,7 +8,7 @@ from utils.auth import garantir_autenticado
 from utils.departamentos import listar_cargos, listar_departamentos
 from utils.organograma import construir_estrutura_reportes
 from utils.pessoas import atualizar_responsavel_direto, contratar, desligar, listar_colaboradores, listar_historico
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
+from utils.ui import aplicar_estilos_globais, is_dark_mode, renderizar_cabecalho_pagina, renderizar_dataframe
 
 
 garantir_autenticado()
@@ -317,6 +317,38 @@ div[data-testid="stExpanderDetails"] {
 """,
     unsafe_allow_html=True,
 )
+
+if is_dark_mode():
+    st.markdown(
+        """
+        <style>
+        div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button[kind="primary"] {
+            background: #1f3b52 !important;
+            border-color: #2b4a63 !important;
+            color: #d4dae2 !important;
+        }
+        div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button[kind="primary"] * {
+            color: #d4dae2 !important;
+        }
+        .report-column,
+        .lider-secao,
+        .report-child,
+        .report-source.fallback {
+            background: #161b22 !important;
+            border-color: #30363d !important;
+        }
+        .report-head {
+            background: linear-gradient(135deg, #1b3245 0%, #213a4f 100%) !important;
+            border-color: #2b4a63 !important;
+        }
+        div[data-testid="stExpander"],
+        div[data-testid="stExpanderDetails"] {
+            background: transparent !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 NIVEL_LABEL = {
     0.5: "Gerencia",

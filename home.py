@@ -424,6 +424,7 @@ if is_dark_mode():
         [data-testid="stMain"] [data-testid="stPageLink"] a p,
         [data-testid="stMain"] [data-testid="stPageLink"] a span {
             background: transparent !important;
+            color: #d4dae2 !important;
         }
         </style>
         """,

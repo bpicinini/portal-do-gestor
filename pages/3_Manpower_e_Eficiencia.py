@@ -238,7 +238,7 @@ def chart_perf_meta(df_chart):
             color=alt.Color(
                 "Indicador:N",
                 legend=alt.Legend(title=""),
-                scale=alt.Scale(range=[COLOR_NAVY_DARK, COLOR_GOLD]),
+                scale=alt.Scale(range=[COLOR_NAVY, COLOR_GOLD]),
             ),
             tooltip=[
                 alt.Tooltip("Mês:N"),
@@ -317,8 +317,8 @@ def chart_mp_historico(df_all):
     return (
         alt.Chart(df)
         .mark_line(
-            point=alt.OverlayMarkDef(filled=True, fill="#FFFFFF", stroke=COLOR_NAVY_DARK, size=62),
-            color=COLOR_NAVY_DARK,
+            point=alt.OverlayMarkDef(filled=True, fill="#FFFFFF", stroke=COLOR_NAVY, size=62),
+            color=COLOR_NAVY,
             strokeWidth=3,
         )
         .encode(

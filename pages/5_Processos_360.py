@@ -25,7 +25,7 @@ from utils.ui import aplicar_estilos_globais, is_dark_mode, renderizar_cabecalho
 _DARK = is_dark_mode()
 _BASE_DARK_TEXT = "#d4dae2" if _DARK else "#111111"
 _MUTED_TEXT = "#8b949e" if _DARK else "#6E6E73"
-_CARD_BG = "transparent" if _DARK else "linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96))"
+_CARD_BG = "linear-gradient(135deg, #1b3245, #213a4f)" if _DARK else "linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96))"
 _CARD_BORDER = "#30363d" if _DARK else "#E5E5EA"
 _CARD_SHADOW = "none" if _DARK else "0 14px 35px rgba(35, 64, 85, 0.08)"
 

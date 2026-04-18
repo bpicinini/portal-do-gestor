@@ -22,6 +22,15 @@ st.set_page_config(
 # Injeta dark mode CSS ANTES de qualquer conteúdo renderizar
 # para evitar flash de tema claro na troca de página
 if is_dark_mode():
+    st.markdown(
+        """
+        <style>
+        .stApp, .stApp * { color: #d4dae2 !important; }
+        .stApp { background: #0d1117 !important; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     _aplicar_dark_mode()
 
 seed_usuarios_iniciais()
