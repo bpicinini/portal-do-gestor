@@ -302,6 +302,17 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button[kind="
     font-weight: 600 !important;
     box-shadow: none !important;
 }
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button[kind="primary"] * {
+    color: #FFFFFF !important;
+}
+
+/* Evita painel branco grande na aba de reportes (mantém comportamento igual ao restante da página) */
+div[data-testid="stExpander"] {
+    background: transparent !important;
+}
+div[data-testid="stExpanderDetails"] {
+    background: transparent !important;
+}
 </style>
 """,
     unsafe_allow_html=True,

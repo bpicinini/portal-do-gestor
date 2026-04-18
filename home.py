@@ -13,7 +13,7 @@ import streamlit as st
 from utils.auth import garantir_autenticado, obter_usuario_atual, usuario_admin
 from utils.departamentos import listar_cargos, listar_departamentos
 from utils.pessoas import listar_colaboradores
-from utils.ui import aplicar_estilos_globais
+from utils.ui import aplicar_estilos_globais, is_dark_mode
 
 
 # ── Bootstrap ──────────────────────────────────────────────────────────────────
@@ -405,6 +405,30 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
+
+if is_dark_mode():
+    st.markdown(
+        """
+        <style>
+        [data-testid="stMain"] [data-testid="stPageLink"] a,
+        [data-testid="stMain"] [data-testid="stPageLink"] a:hover,
+        [data-testid="stMain"] [data-testid="stPageLink"] a:focus,
+        [data-testid="stMain"] [data-testid="stPageLink"] a:focus-visible,
+        [data-testid="stMain"] [data-testid="stPageLink"] a:active {
+            background: transparent !important;
+            border-color: #30363d !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        [data-testid="stMain"] [data-testid="stPageLink"] a *,
+        [data-testid="stMain"] [data-testid="stPageLink"] a p,
+        [data-testid="stMain"] [data-testid="stPageLink"] a span {
+            background: transparent !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ── Banner de boas-vindas ─────────────────────────────────────────────────────
