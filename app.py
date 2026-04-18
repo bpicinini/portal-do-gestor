@@ -19,20 +19,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Injeta dark mode CSS ANTES de qualquer conteúdo renderizar
-# para evitar flash de tema claro na troca de página
-if is_dark_mode():
-    st.markdown(
-        """
-        <style>
-        .stApp, .stApp * { color: #d4dae2 !important; }
-        .stApp { background: #0d1117 !important; }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    _aplicar_dark_mode()
-
 seed_usuarios_iniciais()
 restaurar_sessao()
 
@@ -42,6 +28,16 @@ if not obter_usuario_atual():
 
 # Salva token no localStorage após login (evita race condition com st.rerun)
 processar_pendencias()
+
+# Inicializa toggle antes de renderizar páginas para evitar 1º frame em tema errado
+st.sidebar.toggle(
+    ":material/dark_mode: Dark Mode",
+    key="dark_mode",
+)
+
+# Injeta dark mode já com estado atualizado do toggle nesta execução
+if is_dark_mode():
+    _aplicar_dark_mode()
 
 pages = [
     st.Page("home.py", title="Home", icon=":material/home:", default=True),
@@ -56,11 +52,6 @@ if usuario_admin():
     pages.append(st.Page("pages/4_Usuarios.py", title="Usuários", icon=":material/people:"))
 
 renderizar_usuario_sidebar()
-
-st.sidebar.toggle(
-    ":material/dark_mode: Dark Mode",
-    key="dark_mode",
-)
 
 pg = st.navigation(pages)
 pg.run()

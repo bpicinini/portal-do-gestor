@@ -159,8 +159,9 @@ def _msg_sem_dados():
 def _tag_html(tipo):
     """Gera HTML de tag colorida para tipo de operação (Direto/CO3/Encomenda)."""
     cor = TIPO_CORES.get(tipo, "#6E6E73")
+    txt = "#0d1117" if (_DARK and tipo == "Encomenda") else "#fff"
     return (
-        f'<span style="background:{cor};color:#fff;border-radius:5px;'
+        f'<span style="background:{cor};color:{txt};border-radius:5px;'
         f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
         f'letter-spacing:0.04em;margin-left:4px;">{tipo}</span>'
     )

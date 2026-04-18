@@ -238,7 +238,7 @@ def chart_perf_meta(df_chart):
             color=alt.Color(
                 "Indicador:N",
                 legend=alt.Legend(title=""),
-                scale=alt.Scale(range=[COLOR_NAVY, COLOR_GOLD]),
+                scale=alt.Scale(range=[COLOR_GOLD, COLOR_NAVY]),
             ),
             tooltip=[
                 alt.Tooltip("Mês:N"),
