@@ -916,6 +916,37 @@ def _aplicar_dark_mode():
             border-color: var(--line) !important;
             color: var(--navy) !important;
         }
+
+        /* Homepage cards/links — avoid light blocks and focus halo in dark mode */
+        .hm-lead-card,
+        .hm-deptc,
+        [data-testid="stMain"] [data-testid="stPageLink"] a {
+            background: transparent !important;
+            border-color: var(--line) !important;
+            box-shadow: none !important;
+        }
+        .hm-lead-card:hover,
+        [data-testid="stColumn"]:has(.hm-deptc):hover .hm-deptc,
+        [data-testid="stMain"] [data-testid="stPageLink"] a:hover {
+            background: transparent !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
+            box-shadow: none !important;
+        }
+        [data-testid="stMain"] [data-testid="stPageLink"] a:focus,
+        [data-testid="stMain"] [data-testid="stPageLink"] a:focus-visible,
+        [data-testid="stMain"] [data-testid="stPageLink"] a:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        [data-testid="stMain"] [data-testid="stPageLink"] a [data-testid="stIconMaterial"],
+        [data-testid="stMain"] [data-testid="stPageLink"] a [data-testid="stIconMaterial"] *,
+        [data-testid="stMain"] [data-testid="stPageLink"] a [data-testid="stIconEmoji"],
+        [data-testid="stMain"] [data-testid="stPageLink"] a [data-testid="stIconEmoji"] * {
+            background: transparent !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
         .hm-kpi {
             background: #161b22 !important;
             backdrop-filter: none !important;
