@@ -167,6 +167,10 @@ def _tag_html(tipo):
     )
 
 
+def _tag_text_color(tipo: str) -> str:
+    return "#0d1117" if (_DARK and tipo == "Encomenda") else "#fff"
+
+
 def _filtro_multiselect(df, coluna, label, key):
     """Cria multiselect e retorna valores selecionados."""
     opcoes = sorted(df[coluna].dropna().unique().tolist())
@@ -589,7 +593,7 @@ with tab_analista:
                             rows_html = ""
                             for _, cl_row in df_cl_agg.iterrows():
                                 tags_cl = " ".join(
-                                    f'<span style="background:{TIPO_CORES[t]};color:#fff;'
+                                    f'<span style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};'
                                     f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
                                     f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                                     for t in cl_row["tipos"]
@@ -901,7 +905,7 @@ with tab_clientes:
 
                     st.markdown(
                         f'<div style="margin:0.6rem 0 0.2rem;">'
-                        f'<span style="background:{_tipo_cor};color:#fff;border-radius:6px;'
+                        f'<span style="background:{_tipo_cor};color:{_tag_text_color(_tipo_label)};border-radius:6px;'
                         f'padding:3px 14px;font-size:0.78rem;font-weight:800;">{_tipo_label}</span>'
                         f' <span style="color:#6E6E73;font-size:0.78rem;font-weight:600;">'
                         f'{len(df_cli[df_cli["_Tipo"] == _tipo_label])} processos</span></div>',
@@ -1110,7 +1114,7 @@ with tab_clientes:
             _rows_html_cli = ""
             for _, _r in df_tabela_cli.iterrows():
                 _tags_cli = " ".join(
-                    f'<span style="background:{TIPO_CORES[t]};color:#fff;'
+                    f'<span style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};'
                     f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
                     f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                     for t in _tipos_por_cliente.get(_r["Cliente"], [])
