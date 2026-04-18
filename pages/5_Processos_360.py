@@ -24,6 +24,10 @@ from utils.ui import aplicar_estilos_globais, is_dark_mode, renderizar_cabecalho
 
 _DARK = is_dark_mode()
 _BASE_DARK_TEXT = "#d4dae2" if _DARK else "#111111"
+_MUTED_TEXT = "#8b949e" if _DARK else "#6E6E73"
+_CARD_BG = "transparent" if _DARK else "linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96))"
+_CARD_BORDER = "#30363d" if _DARK else "#E5E5EA"
+_CARD_SHADOW = "none" if _DARK else "0 14px 35px rgba(35, 64, 85, 0.08)"
 
 COLOR_NAVY = _BASE_DARK_TEXT
 COLOR_NAVY_SOFT = "#36586f"
@@ -187,25 +191,25 @@ with tab_geral:
             st.markdown(
                 f"""
                 <div style="
-                    background: linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96));
-                    border: 1px solid #E5E5EA; border-radius: 20px;
+                    background: {_CARD_BG};
+                    border: 1px solid {_CARD_BORDER}; border-radius: 20px;
                     padding: 1rem 1.4rem; margin-bottom: 1rem;
-                    box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+                    box-shadow: {_CARD_SHADOW};
                     display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
                 ">
                     <div style="flex: 0 0 auto; margin-right: 0.8rem;">
                         <span style="color: #6E6E73; font-size: 0.7rem; text-transform: uppercase; font-weight: 800;">Total</span><br/>
-                        <span style="color: #111111; font-size: 1.8rem; font-weight: 800;">{total:,}</span>
+                        <span style="color: {_BASE_DARK_TEXT}; font-size: 1.8rem; font-weight: 800;">{total:,}</span>
                     </div>
                     {"".join(f'''
                     <div style="
                         flex: 1 1 0; min-width: 120px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid {STATUS_CORES.get(s, '#ccc')};
                     ">
                         <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{s}</div>
-                        <div style="color: #111111; font-size: 1.25rem; font-weight: 800;">{len(df[df["Status"] == s])}</div>
+                        <div style="color: {_BASE_DARK_TEXT}; font-size: 1.25rem; font-weight: 800;">{len(df[df["Status"] == s])}</div>
                         <div style="color: {STATUS_CORES.get(s, "#6E6E73")}; font-size: 0.78rem; font-weight: 700;">{len(df[df["Status"] == s]) / total * 100:.1f}%</div>
                     </div>
                     ''' for s in STATUS_ORDEM)}
@@ -517,36 +521,36 @@ with tab_analista:
                         st.markdown(
                             f"""
                             <div style="
-                                background: linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96));
-                                border: 1px solid #E5E5EA;
+                                background: {_CARD_BG};
+                                border: 1px solid {_CARD_BORDER};
                                 border-radius: 18px;
                                 padding: 1rem 1.2rem;
                                 margin-bottom: 0.2rem;
-                                box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+                                box-shadow: {_CARD_SHADOW};
                             ">
-                                <div style="font-weight: 800; color: #111111; font-size: 1.05rem;
+                                <div style="font-weight: 800; color: {_BASE_DARK_TEXT}; font-size: 1.05rem;
                                             margin-bottom: 0.4rem; display:flex; align-items:center; flex-wrap:wrap; gap:2px;">
                                     {row['Account']}{tags_html}
                                 </div>
                                 <div style="display: flex; gap: 1.2rem; margin-bottom: 0.5rem;">
                                     <div>
-                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Processos</span><br/>
-                                        <span style="color: #111111; font-size: 1.3rem; font-weight: 800;">{int(row['processos'])}</span>
+                                        <span style="color: {_MUTED_TEXT}; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Processos</span><br/>
+                                        <span style="color: {_BASE_DARK_TEXT}; font-size: 1.3rem; font-weight: 800;">{int(row['processos'])}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ativos</span><br/>
-                                        <span style="color: #111111; font-size: 1.3rem; font-weight: 800;">{n_ativos}</span>
+                                        <span style="color: {_MUTED_TEXT}; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ativos</span><br/>
+                                        <span style="color: {_BASE_DARK_TEXT}; font-size: 1.3rem; font-weight: 800;">{n_ativos}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Clientes</span><br/>
+                                        <span style="color: {_MUTED_TEXT}; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Clientes</span><br/>
                                         <span style="color: #5e8668; font-size: 1.3rem; font-weight: 800;">{int(row['clientes'])}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</span><br/>
-                                        <span style="color: #111111; font-size: 1rem; font-weight: 700;">{_br_moeda(row['valor_aduaneiro'], 0)}</span>
+                                        <span style="color: {_MUTED_TEXT}; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</span><br/>
+                                        <span style="color: {_BASE_DARK_TEXT}; font-size: 1rem; font-weight: 700;">{_br_moeda(row['valor_aduaneiro'], 0)}</span>
                                     </div>
                                 </div>
-                                <div style="font-size: 0.75rem; color: #6E6E73;">{status_pills}</div>
+                                <div style="font-size: 0.75rem; color: {_MUTED_TEXT};">{status_pills}</div>
                             </div>
                             """,
                             unsafe_allow_html=True,
@@ -731,10 +735,10 @@ with tab_clientes:
             st.markdown(
                 f"""
                 <div style="
-                    background: linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96));
-                    border: 1px solid #E5E5EA; border-radius: 20px;
+                    background: {_CARD_BG};
+                    border: 1px solid {_CARD_BORDER}; border-radius: 20px;
                     padding: 1rem 1.4rem; margin-bottom: 1rem;
-                    box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+                    box-shadow: {_CARD_SHADOW};
                     display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
                 ">
                     <div style="flex: 0 0 auto; margin-right: 0.8rem;">
@@ -743,7 +747,7 @@ with tab_clientes:
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 110px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #4a8ab5;
                     ">
@@ -752,16 +756,16 @@ with tab_clientes:
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 110px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #111111;
                     ">
                         <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">CO3</div>
-                        <div style="color: #111111; font-size: 1.25rem; font-weight: 800;">{_cli_co3}</div>
+                        <div style="color: {_BASE_DARK_TEXT}; font-size: 1.25rem; font-weight: 800;">{_cli_co3}</div>
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 110px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #C9A67A;
                     ">
@@ -770,12 +774,12 @@ with tab_clientes:
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 150px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #111111;
                     ">
                         <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</div>
-                        <div style="color: #111111; font-size: 1.05rem; font-weight: 800;">{_br_moeda(_val_total, 0)}</div>
+                        <div style="color: {_BASE_DARK_TEXT}; font-size: 1.05rem; font-weight: 800;">{_br_moeda(_val_total, 0)}</div>
                     </div>
                 </div>
                 """,

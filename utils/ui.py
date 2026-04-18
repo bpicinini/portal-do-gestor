@@ -648,8 +648,15 @@ def _aplicar_dark_mode():
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"]:hover *,
         [data-testid="stSidebar"] li a:hover,
         [data-testid="stSidebar"] li a:hover * {
-            background: rgba(255, 255, 255, 0.06) !important;
             color: #fff !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        [data-testid="stSidebarNav"] a:hover,
+        [data-testid="stSidebarNavItems"] a:hover,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"]:hover,
+        [data-testid="stSidebar"] li a:hover {
+            background: rgba(255, 255, 255, 0.06) !important;
             box-shadow: none !important;
             outline: none !important;
         }
@@ -662,7 +669,6 @@ def _aplicar_dark_mode():
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"] *,
         [data-testid="stSidebar"] li a[aria-current="page"],
         [data-testid="stSidebar"] li a[aria-current="page"] * {
-            background: rgba(255, 255, 255, 0.08) !important;
             color: #fff !important;
             border-color: transparent !important;
         }
@@ -670,6 +676,7 @@ def _aplicar_dark_mode():
         [data-testid="stSidebarNavItems"] a[aria-current="page"],
         [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"],
         [data-testid="stSidebar"] li a[aria-current="page"] {
+            background: rgba(255, 255, 255, 0.08) !important;
             border: 1px solid transparent !important;
             box-shadow: none !important;
         }
@@ -983,6 +990,13 @@ def _aplicar_dark_mode():
         [data-testid="stMain"] [data-testid="stPageLink"] *,
         [data-testid="stMain"] [data-testid="stPageLink"] p {
             background-color: transparent !important;
+        }
+        [data-testid="stPageLink"],
+        [data-testid="stPageLink"] *,
+        [data-testid="stPageLink"] a,
+        [data-testid="stPageLink"] a * {
+            background-color: transparent !important;
+            box-shadow: none !important;
         }
         [data-testid="stForm"] {
             background: var(--surface) !important;
