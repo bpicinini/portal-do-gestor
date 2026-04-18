@@ -38,9 +38,9 @@ pages = [
     st.Page("home.py", title="Home", icon=":material/home:", default=True),
     st.Page("pages/1_Organograma.py", title="Organograma", icon=":material/account_tree:"),
     st.Page("pages/3_Manpower_e_Eficiencia.py", title="KPIs", icon=":material/bar_chart:"),
-    st.Page("pages/5_Processos_360.py", title="Processos 360", icon=":material/local_shipping:"),
+    st.Page("pages/5_Processos_360.py", title="Visão Geral 360", icon=":material/local_shipping:"),
     st.Page("pages/6_Restituicoes.py", title="Restituições", icon=":material/currency_exchange:"),
-    st.Page("pages/7_Processos_Judiciais.py", title="Processos Judiciais", icon=":material/gavel:"),
+    st.Page("pages/7_Processos_Judiciais.py", title="Intimações & Jurídico", icon=":material/gavel:"),
 ]
 
 if usuario_admin():

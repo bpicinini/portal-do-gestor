@@ -14,7 +14,7 @@ from utils.manpower import (
     salvar_performance,
 )
 from utils.pessoas import listar_colaboradores
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
+from utils.ui import aplicar_estilos_globais, is_dark_mode, renderizar_cabecalho_pagina, renderizar_dataframe
 from utils.excel_io import github_persist
 from utils import agenciamento as ag
 
@@ -22,7 +22,7 @@ DEPARTAMENTO_COM_DADOS = "Importação"
 MESES_PT = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
 MESES_ORDEM = MESES_PT[1:]
 COLOR_NAVY = "#31586c"
-COLOR_NAVY_DARK = "#111111"
+COLOR_NAVY_DARK = "#d4dae2" if is_dark_mode() else "#111111"
 COLOR_GOLD = "#d6b36a"
 COLOR_GREEN = "#6d8e65"
 

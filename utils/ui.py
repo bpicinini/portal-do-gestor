@@ -630,6 +630,14 @@ def _aplicar_dark_mode():
         [data-testid="stSidebar"] li a * {
             color: #e0e6ed !important;
             text-decoration: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        [data-testid="stSidebarNav"] a span,
+        [data-testid="stSidebarNavItems"] a span,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"] span,
+        [data-testid="stSidebar"] li a span {
+            background: transparent !important;
         }
 
         [data-testid="stSidebarNav"] a:hover,
@@ -642,6 +650,8 @@ def _aplicar_dark_mode():
         [data-testid="stSidebar"] li a:hover * {
             background: rgba(255, 255, 255, 0.06) !important;
             color: #fff !important;
+            box-shadow: none !important;
+            outline: none !important;
         }
 
         [data-testid="stSidebarNav"] a[aria-current="page"],
@@ -662,6 +672,14 @@ def _aplicar_dark_mode():
         [data-testid="stSidebar"] li a[aria-current="page"] {
             border: 1px solid transparent !important;
             box-shadow: none !important;
+        }
+        [data-testid="stSidebarNav"] a[aria-current="page"] span,
+        [data-testid="stSidebarNavItems"] a[aria-current="page"] span,
+        [data-testid="stSidebar"] a[data-testid="stSidebarNavLink"][aria-current="page"] span,
+        [data-testid="stSidebar"] li a[aria-current="page"] span {
+            background: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
         }
 
         /* Sidebar collapse button */
@@ -833,10 +851,20 @@ def _aplicar_dark_mode():
         [data-testid="stDataFrame"] .dvn-scroller {
             background: var(--surface) !important;
         }
+        [data-testid="stDataFrame"] [contenteditable="true"],
+        [data-testid="stDataFrame"] input,
+        [data-testid="stDataFrame"] textarea,
+        [data-testid="stDataFrame"] select {
+            background: var(--surface-soft) !important;
+            color: var(--text) !important;
+            border-color: var(--line) !important;
+        }
         /* Override glide-data-grid canvas theme */
         .stApp {
             --gdg-bg-cell: #161b22 !important;
             --gdg-bg-cell-medium: #1c2333 !important;
+            --gdg-bg-cell-selected: #242d3d !important;
+            --gdg-bg-cell-selected-faded: #202938 !important;
             --gdg-bg-header: #1c2333 !important;
             --gdg-bg-header-has-focus: #242d3d !important;
             --gdg-bg-header-hovered: #242d3d !important;
@@ -925,6 +953,11 @@ def _aplicar_dark_mode():
             border-color: var(--line) !important;
             box-shadow: none !important;
         }
+        .hm-deptc-count {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: var(--text) !important;
+            border: 1px solid var(--line) !important;
+        }
         .hm-lead-card:hover,
         [data-testid="stColumn"]:has(.hm-deptc):hover .hm-deptc,
         [data-testid="stMain"] [data-testid="stPageLink"] a:hover {
@@ -945,6 +978,17 @@ def _aplicar_dark_mode():
             background: transparent !important;
             outline: none !important;
             box-shadow: none !important;
+        }
+        [data-testid="stMain"] [data-testid="stPageLink"],
+        [data-testid="stMain"] [data-testid="stPageLink"] *,
+        [data-testid="stMain"] [data-testid="stPageLink"] p {
+            background-color: transparent !important;
+        }
+        [data-testid="stForm"] {
+            background: var(--surface) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 12px !important;
+            padding: 0.75rem !important;
         }
 
         .hm-kpi {
@@ -1071,6 +1115,10 @@ def _aplicar_dark_mode():
             background: var(--surface) !important;
             border-color: var(--line) !important;
         }
+        .card-analista {
+            background: #1c2333 !important;
+            border-color: var(--line) !important;
+        }
         .card-op .nome  { color: var(--navy) !important; }
         .card-op .cargo { color: var(--muted) !important; }
         .card-op .info  { color: #6e7a86 !important; }
@@ -1161,6 +1209,17 @@ def _aplicar_dark_mode():
             background: var(--surface-soft) !important;
             border-color: var(--line) !important;
         }
+        [style*="rgba(245,245,247,0.96)"],
+        [style*="rgba(250,250,252,0.96)"],
+        [style*="background:rgba(245,245,247,0.5)"],
+        [style*="background: rgba(245,245,247,0.5)"] {
+            background: var(--surface) !important;
+            border-color: var(--line) !important;
+            box-shadow: none !important;
+        }
+        [style*="background:#FAFAFA"], [style*="background: #FAFAFA"] {
+            background: var(--surface-soft) !important;
+        }
 
         /* ══ Gráficos Altair/Vega — fundo transparente ══ */
         [data-testid="stVegaLiteChart"],
@@ -1188,6 +1247,38 @@ def _aplicar_dark_mode():
         [style*="background:rgba(35, 64, 85, 0.07)"] {
             background: rgba(255, 255, 255, 0.08) !important;
             color: var(--navy) !important;
+        }
+
+        /* Restituições / Jurídico — tags legíveis e ações sem fundo branco */
+        .rst-tag,
+        .pj-tag {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: var(--text) !important;
+            border-color: var(--line) !important;
+        }
+        .rst-tag-status,
+        .pj-tag-status {
+            background: #1c2333 !important;
+            color: var(--navy) !important;
+            border-color: var(--line) !important;
+        }
+        div[class*="st-key-rst-row-"] button,
+        div[class*="st-key-pj-row-"] button,
+        div[class*="st-key-rst-row-"] [data-testid="stPopover"] button,
+        div[class*="st-key-pj-row-"] [data-testid="stPopover"] button {
+            background: var(--surface-soft) !important;
+            color: var(--text) !important;
+            border-color: var(--line) !important;
+        }
+        div[class*="st-key-rst-row-"] button:hover,
+        div[class*="st-key-pj-row-"] button:hover {
+            background: #242d3d !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
+        }
+        div[data-testid="stExpander"] summary,
+        div[data-testid="stExpander"] summary * {
+            background: transparent !important;
+            box-shadow: none !important;
         }
 
         /* Inline color overrides for common light-mode colors */

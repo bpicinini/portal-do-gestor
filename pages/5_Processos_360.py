@@ -20,9 +20,12 @@ from utils.processos360 import (
     salvar_upload,
     validar_csv,
 )
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.ui import aplicar_estilos_globais, is_dark_mode, renderizar_cabecalho_pagina
 
-COLOR_NAVY = "#111111"
+_DARK = is_dark_mode()
+_BASE_DARK_TEXT = "#d4dae2" if _DARK else "#111111"
+
+COLOR_NAVY = _BASE_DARK_TEXT
 COLOR_NAVY_SOFT = "#36586f"
 COLOR_GOLD = "#C9A67A"
 COLOR_GREEN = "#5e8668"
@@ -34,11 +37,11 @@ STATUS_CORES = {
     "Chegada": "#8E8E93",
     "Registrado/Ag.Desembaraço": "#8E8E93",
     "Carregamento": "#5e8668",
-    "Encerramento": "#111111",
+    "Encerramento": _BASE_DARK_TEXT,
 }
 
 MODALIDADE_CORES = {
-    "OCEANFREIGHT / FCL": "#111111",
+    "OCEANFREIGHT / FCL": _BASE_DARK_TEXT,
     "OCEANFREIGHT / LCL": "#4a8ab5",
     "AIRFREIGHT": "#8E8E93",
     "RODOVIÁRIO": "#5e8668",
@@ -51,7 +54,7 @@ MODALIDADE_CORES = {
 TIPO_OP_CORES = {
     "Importação Própria": "#4a8ab5",
     "Importação por Conta e Ordem": "#8E8E93",
-    "Encomenda": "#111111",
+    "Encomenda": _BASE_DARK_TEXT,
 }
 
 # Rótulos e cores para Direto / CO3 / Encomenda (usados em cards e tabelas)
@@ -63,7 +66,7 @@ TIPO_LABELS = {
 TIPO_CORES = {
     "Direto":    "#4a8ab5",
     "CO3":       "#8E8E93",
-    "Encomenda": "#111111",
+    "Encomenda": _BASE_DARK_TEXT,
 }
 TIPOS_ORDEM = ["Direto", "CO3", "Encomenda"]
 
@@ -115,7 +118,7 @@ else:
     badge_text = "Sem dados"
 
 renderizar_cabecalho_pagina(
-    "Processos 360",
+    "Visão Geral 360",
     "Visão consolidada dos processos de importação em andamento.",
     badge=badge_text,
 )
@@ -300,7 +303,7 @@ with tab_geral:
                 df_acc = df["Account"].value_counts().reset_index()
                 df_acc.columns = ["Account", "Quantidade"]
                 # Gerar cores alternando entre palette
-                acc_palette = ["#111111", "#4a8ab5", "#C9A67A", "#5e8668", "#8E8E93", "#7ea6c7", "#8b5e3c", "#b5423a", "#6E6E73", "#36586f"]
+                acc_palette = [_BASE_DARK_TEXT, "#4a8ab5", "#C9A67A", "#5e8668", "#8E8E93", "#7ea6c7", "#8b5e3c", "#b5423a", "#6E6E73", "#36586f"]
                 acc_domain = df_acc["Account"].tolist()
                 acc_range = [acc_palette[i % len(acc_palette)] for i in range(len(acc_domain))]
                 chart_acc = (
