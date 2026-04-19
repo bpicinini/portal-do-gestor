@@ -646,7 +646,7 @@ def renderizar_usuario_sidebar():
         ">
             <div style="font-size:12px; color:{label_color}; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Sessão ativa</div>
             <div style="margin-top:6px; font-size:16px; color:{name_color}; font-weight:800;">{usuario.get("nome", "Usuário")}</div>
-            <div style="margin-top:2px; font-size:12px; color:{email_color};">{usuario.get("email", "")}</div>
+            <div style="margin-top:2px; font-size:10px; color:{email_color}; line-height:1.2;">{usuario.get("email", "")}</div>
             <div style="margin-top:10px; display:inline-flex; border-radius:999px; padding:6px 10px; background:{badge_bg}; border:1px solid {badge_border}; color:{badge_color}; font-size:11px; font-weight:800;">
                 {usuario.get("perfil", "Usuário")}
             </div>
