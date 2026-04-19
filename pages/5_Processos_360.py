@@ -169,7 +169,9 @@ def _tag_html(tipo):
 
 def _tag_text_color(tipo: str) -> str:
     tipo_norm = str(tipo or "").strip().lower()
-    return "#0d1117" if (_DARK and tipo_norm == "encomenda") else "#fff"
+    if _DARK and tipo_norm == "encomenda":
+        return "#000000 !important"
+    return "#ffffff !important"
 
 
 def _filtro_multiselect(df, coluna, label, key):
