@@ -159,7 +159,7 @@ def _msg_sem_dados():
 def _tag_html(tipo):
     """Gera HTML de tag colorida para tipo de operação (Direto/CO3/Encomenda)."""
     cor = TIPO_CORES.get(tipo, "#6E6E73")
-    txt = "#0d1117" if (_DARK and tipo == "Encomenda") else "#fff"
+    txt = _tag_text_color(tipo)
     return (
         f'<span style="background:{cor};color:{txt};border-radius:5px;'
         f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
@@ -168,7 +168,8 @@ def _tag_html(tipo):
 
 
 def _tag_text_color(tipo: str) -> str:
-    return "#0d1117" if (_DARK and tipo == "Encomenda") else "#fff"
+    tipo_norm = str(tipo or "").strip().lower()
+    return "#0d1117" if (_DARK and tipo_norm == "encomenda") else "#fff"
 
 
 def _filtro_multiselect(df, coluna, label, key):
