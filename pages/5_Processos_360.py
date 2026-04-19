@@ -171,24 +171,27 @@ st.markdown(
 
 def _tag_html(tipo):
     """Gera HTML de tag colorida para tipo de operação (Direto/CO3/Encomenda)."""
-    style = _tag_pill_style(tipo, font_size="0.62rem", padding="2px 7px", radius="5px")
-    return f'<span style="{style}margin-left:4px;">{tipo}</span>'
-
-
-def _tag_pill_style(tipo: str, font_size="0.62rem", padding="2px 7px", radius="5px") -> str:
-    tipo_norm = str(tipo or "").strip().lower()
-    bg = "#111111" if tipo_norm == "encomenda" else TIPO_CORES.get(tipo, "#6E6E73")
+    cor = TIPO_CORES.get(tipo, "#6E6E73")
+    txt = _tag_text_color(tipo)
     return (
-        f"background:{bg} !important;"
-        "color:#ffffff !important;"
-        f"border:1px solid {bg} !important;"
-        f"border-radius:{radius};"
-        f"padding:{padding};"
-        f"font-size:{font_size};"
-        "font-weight:800;"
-        "letter-spacing:0.03em;"
-        "display:inline-block;"
+        f'<span class="{_tag_force_class(tipo)}" style="background:{cor};color:{txt};{_tag_force_style(tipo)}border-radius:5px;'
+        f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
+        f'letter-spacing:0.04em;margin-left:4px;">{tipo}</span>'
     )
+
+
+def _tag_text_color(tipo: str) -> str:
+    return "#ffffff !important"
+
+
+def _tag_force_style(tipo: str) -> str:
+    if str(tipo or "").strip().lower() == "encomenda":
+        return "background:#111111 !important;color:#ffffff !important;"
+    return ""
+
+
+def _tag_force_class(tipo: str) -> str:
+    return "tag-encomenda-fix" if str(tipo or "").strip().lower() == "encomenda" else ""
 
 
 def _filtro_multiselect(df, coluna, label, key):
@@ -613,7 +616,9 @@ with tab_analista:
                             rows_html = ""
                             for _, cl_row in df_cl_agg.iterrows():
                                 tags_cl = " ".join(
-                                    f'<span style="{_tag_pill_style(t, font_size="0.6rem", padding="1px 6px", radius="4px")}">{t}</span>'
+                                    f'<span class="{_tag_force_class(t)}" style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
+                                    f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
+                                    f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                                     for t in cl_row["tipos"]
                                 )
                                 rows_html += (
@@ -924,7 +929,8 @@ with tab_clientes:
 
                     st.markdown(
                         f'<div style="margin:0.6rem 0 0.2rem;">'
-                        f'<span style="{_tag_pill_style(_tipo_label, font_size="0.78rem", padding="3px 14px", radius="6px")}">{_tipo_label}</span>'
+                        f'<span class="{_tag_force_class(_tipo_label)}" style="background:{_tipo_cor};color:{_tag_text_color(_tipo_label)};{_tag_force_style(_tipo_label)}border-radius:6px;'
+                        f'padding:3px 14px;font-size:0.78rem;font-weight:800;">{_tipo_label}</span>'
                         f' <span style="color:#6E6E73;font-size:0.78rem;font-weight:600;">'
                         f'{len(df_cli[df_cli["_Tipo"] == _tipo_label])} processos</span></div>',
                         unsafe_allow_html=True,
@@ -1132,7 +1138,9 @@ with tab_clientes:
             _rows_html_cli = ""
             for _, _r in df_tabela_cli.iterrows():
                 _tags_cli = " ".join(
-                    f'<span style="{_tag_pill_style(t, font_size="0.6rem", padding="1px 6px", radius="4px")}">{t}</span>'
+                    f'<span class="{_tag_force_class(t)}" style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
+                    f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
+                    f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                     for t in _tipos_por_cliente.get(_r["Cliente"], [])
                 )
                 _val_ad = _br_moeda(_r["Valor Aduaneiro"], 0) if "Valor Aduaneiro" in _r.index and pd.notna(_r.get("Valor Aduaneiro")) else "—"
