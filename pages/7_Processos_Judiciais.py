@@ -265,7 +265,7 @@ total_encerrado = _soma(concluidos, "valor")
 # ── Cabeçalho ────────────────────────────────────────────────────────
 
 renderizar_cabecalho_pagina(
-    "Processos Judiciais & Administrativos",
+    "Intimações & Jurídico",
     "Gestão de processos judiciais, administrativos e extrajudiciais.",
     badge=f"{len(registros)} processos",
 )

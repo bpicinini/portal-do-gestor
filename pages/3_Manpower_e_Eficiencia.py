@@ -14,7 +14,7 @@ from utils.manpower import (
     salvar_performance,
 )
 from utils.pessoas import listar_colaboradores
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina, renderizar_dataframe
+from utils.ui import aplicar_estilos_globais, is_dark_mode, renderizar_cabecalho_pagina, renderizar_dataframe
 from utils.excel_io import github_persist
 from utils import agenciamento as ag
 
@@ -22,7 +22,7 @@ DEPARTAMENTO_COM_DADOS = "Importação"
 MESES_PT = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
 MESES_ORDEM = MESES_PT[1:]
 COLOR_NAVY = "#31586c"
-COLOR_NAVY_DARK = "#111111"
+COLOR_NAVY_DARK = "#d4dae2" if is_dark_mode() else COLOR_NAVY
 COLOR_GOLD = "#d6b36a"
 COLOR_GREEN = "#6d8e65"
 
@@ -108,6 +108,17 @@ def _yscale(series, pad=0.08):
     hi = serie.max()
     margin = (hi - lo) * pad if hi != lo else max(abs(hi) * pad, 0.5)
     return alt.Scale(domain=[lo - margin, hi + margin])
+
+
+def _escala_ano_yoy(ano: int):
+    """Mapeia cores por ano fixando o ano corrente em dourado.
+
+    Ex.: em comparação 2026 vs 2025, 2026 fica dourado.
+    """
+    return alt.Scale(
+        domain=[str(int(ano)), str(int(ano) - 1)],
+        range=[COLOR_GOLD, COLOR_NAVY],
+    )
 
 
 def _render_metricas_vazias(metricas):
@@ -227,7 +238,7 @@ def chart_perf_meta(df_chart):
             color=alt.Color(
                 "Indicador:N",
                 legend=alt.Legend(title=""),
-                scale=alt.Scale(range=[COLOR_NAVY_DARK, COLOR_GOLD]),
+                scale=alt.Scale(range=[COLOR_GOLD, COLOR_NAVY]),
             ),
             tooltip=[
                 alt.Tooltip("Mês:N"),
@@ -261,7 +272,7 @@ def chart_volume_yoy(df_ano, df_prev, ano):
             color=alt.Color(
                 "Ano:N",
                 legend=alt.Legend(title="Ano"),
-                scale=alt.Scale(range=[COLOR_GOLD, COLOR_NAVY]),
+                scale=_escala_ano_yoy(ano),
             ),
             xOffset=alt.XOffset("Ano:N"),
             tooltip=[
@@ -306,8 +317,8 @@ def chart_mp_historico(df_all):
     return (
         alt.Chart(df)
         .mark_line(
-            point=alt.OverlayMarkDef(filled=True, fill="#FFFFFF", stroke=COLOR_NAVY_DARK, size=62),
-            color=COLOR_NAVY_DARK,
+            point=alt.OverlayMarkDef(filled=True, fill="#FFFFFF", stroke=COLOR_NAVY, size=62),
+            color=COLOR_NAVY,
             strokeWidth=3,
         )
         .encode(
@@ -345,7 +356,7 @@ def chart_yoy_line(df_ano, df_prev, ano, col, titulo, fmt=",.1f"):
             color=alt.Color(
                 "Ano:N",
                 legend=alt.Legend(title="Ano"),
-                scale=alt.Scale(range=[COLOR_GOLD, COLOR_NAVY_DARK]),
+                scale=_escala_ano_yoy(ano),
             ),
             tooltip=[
                 alt.Tooltip("Mês:N"),
@@ -552,11 +563,11 @@ def _ag_chart_chegadas_mes(resumo, resumo_prev=None, ano=2026):
         .encode(
             x=alt.X("Mês:N", sort=MESES_ORDEM, title=None),
             y=alt.Y("Chegadas:Q", title="Chegadas"),
-            color=alt.Color(
-                "Ano:N",
-                legend=alt.Legend(title="") if has_yoy else None,
-                scale=alt.Scale(range=[COLOR_NAVY_DARK, COLOR_GOLD] if has_yoy else [COLOR_NAVY_DARK]),
-            ),
+                color=alt.Color(
+                    "Ano:N",
+                    legend=alt.Legend(title="") if has_yoy else None,
+                    scale=_escala_ano_yoy(ano) if has_yoy else alt.Scale(range=[COLOR_NAVY_DARK]),
+                ),
             xOffset=alt.XOffset("Ano:N") if has_yoy else alt.value(0),
             tooltip=[
                 alt.Tooltip("Mês:N"),

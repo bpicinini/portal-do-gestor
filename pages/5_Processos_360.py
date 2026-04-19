@@ -20,9 +20,16 @@ from utils.processos360 import (
     salvar_upload,
     validar_csv,
 )
-from utils.ui import aplicar_estilos_globais, renderizar_cabecalho_pagina
+from utils.ui import aplicar_estilos_globais, is_dark_mode, renderizar_cabecalho_pagina
 
-COLOR_NAVY = "#111111"
+_DARK = is_dark_mode()
+_BASE_DARK_TEXT = "#d4dae2" if _DARK else "#111111"
+_MUTED_TEXT = "#8b949e" if _DARK else "#6E6E73"
+_CARD_BG = "linear-gradient(135deg, #1b3245, #213a4f)" if _DARK else "linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96))"
+_CARD_BORDER = "#30363d" if _DARK else "#E5E5EA"
+_CARD_SHADOW = "none" if _DARK else "0 14px 35px rgba(35, 64, 85, 0.08)"
+
+COLOR_NAVY = _BASE_DARK_TEXT
 COLOR_NAVY_SOFT = "#36586f"
 COLOR_GOLD = "#C9A67A"
 COLOR_GREEN = "#5e8668"
@@ -34,11 +41,11 @@ STATUS_CORES = {
     "Chegada": "#8E8E93",
     "Registrado/Ag.Desembaraço": "#8E8E93",
     "Carregamento": "#5e8668",
-    "Encerramento": "#111111",
+    "Encerramento": _BASE_DARK_TEXT,
 }
 
 MODALIDADE_CORES = {
-    "OCEANFREIGHT / FCL": "#111111",
+    "OCEANFREIGHT / FCL": _BASE_DARK_TEXT,
     "OCEANFREIGHT / LCL": "#4a8ab5",
     "AIRFREIGHT": "#8E8E93",
     "RODOVIÁRIO": "#5e8668",
@@ -115,7 +122,7 @@ else:
     badge_text = "Sem dados"
 
 renderizar_cabecalho_pagina(
-    "Processos 360",
+    "Visão Geral 360",
     "Visão consolidada dos processos de importação em andamento.",
     badge=badge_text,
 )
@@ -149,14 +156,42 @@ def _msg_sem_dados():
     st.info("Nenhum dado carregado. Acesse a aba **Upload** para importar a planilha.")
 
 
+st.markdown(
+    """
+    <style>
+    .tag-encomenda-fix {
+        background: #111111 !important;
+        color: #ffffff !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 def _tag_html(tipo):
     """Gera HTML de tag colorida para tipo de operação (Direto/CO3/Encomenda)."""
     cor = TIPO_CORES.get(tipo, "#6E6E73")
+    txt = _tag_text_color(tipo)
     return (
-        f'<span style="background:{cor};color:#fff;border-radius:5px;'
+        f'<span class="{_tag_force_class(tipo)}" style="background:{cor};color:{txt};{_tag_force_style(tipo)}border-radius:5px;'
         f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
         f'letter-spacing:0.04em;margin-left:4px;">{tipo}</span>'
     )
+
+
+def _tag_text_color(tipo: str) -> str:
+    return "#ffffff !important"
+
+
+def _tag_force_style(tipo: str) -> str:
+    if str(tipo or "").strip().lower() == "encomenda":
+        return "background:#111111 !important;color:#ffffff !important;"
+    return ""
+
+
+def _tag_force_class(tipo: str) -> str:
+    return "tag-encomenda-fix" if str(tipo or "").strip().lower() == "encomenda" else ""
 
 
 def _filtro_multiselect(df, coluna, label, key):
@@ -184,25 +219,25 @@ with tab_geral:
             st.markdown(
                 f"""
                 <div style="
-                    background: linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96));
-                    border: 1px solid #E5E5EA; border-radius: 20px;
+                    background: {_CARD_BG};
+                    border: 1px solid {_CARD_BORDER}; border-radius: 20px;
                     padding: 1rem 1.4rem; margin-bottom: 1rem;
-                    box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+                    box-shadow: {_CARD_SHADOW};
                     display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
                 ">
                     <div style="flex: 0 0 auto; margin-right: 0.8rem;">
                         <span style="color: #6E6E73; font-size: 0.7rem; text-transform: uppercase; font-weight: 800;">Total</span><br/>
-                        <span style="color: #111111; font-size: 1.8rem; font-weight: 800;">{total:,}</span>
+                        <span style="color: {_BASE_DARK_TEXT}; font-size: 1.8rem; font-weight: 800;">{total:,}</span>
                     </div>
                     {"".join(f'''
                     <div style="
                         flex: 1 1 0; min-width: 120px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid {STATUS_CORES.get(s, '#ccc')};
                     ">
                         <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{s}</div>
-                        <div style="color: #111111; font-size: 1.25rem; font-weight: 800;">{len(df[df["Status"] == s])}</div>
+                        <div style="color: {_BASE_DARK_TEXT}; font-size: 1.25rem; font-weight: 800;">{len(df[df["Status"] == s])}</div>
                         <div style="color: {STATUS_CORES.get(s, "#6E6E73")}; font-size: 0.78rem; font-weight: 700;">{len(df[df["Status"] == s]) / total * 100:.1f}%</div>
                     </div>
                     ''' for s in STATUS_ORDEM)}
@@ -300,7 +335,7 @@ with tab_geral:
                 df_acc = df["Account"].value_counts().reset_index()
                 df_acc.columns = ["Account", "Quantidade"]
                 # Gerar cores alternando entre palette
-                acc_palette = ["#111111", "#4a8ab5", "#C9A67A", "#5e8668", "#8E8E93", "#7ea6c7", "#8b5e3c", "#b5423a", "#6E6E73", "#36586f"]
+                acc_palette = [_BASE_DARK_TEXT, "#4a8ab5", "#C9A67A", "#5e8668", "#8E8E93", "#7ea6c7", "#8b5e3c", "#b5423a", "#6E6E73", "#36586f"]
                 acc_domain = df_acc["Account"].tolist()
                 acc_range = [acc_palette[i % len(acc_palette)] for i in range(len(acc_domain))]
                 chart_acc = (
@@ -514,36 +549,36 @@ with tab_analista:
                         st.markdown(
                             f"""
                             <div style="
-                                background: linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96));
-                                border: 1px solid #E5E5EA;
+                                background: {_CARD_BG};
+                                border: 1px solid {_CARD_BORDER};
                                 border-radius: 18px;
                                 padding: 1rem 1.2rem;
                                 margin-bottom: 0.2rem;
-                                box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+                                box-shadow: {_CARD_SHADOW};
                             ">
-                                <div style="font-weight: 800; color: #111111; font-size: 1.05rem;
+                                <div style="font-weight: 800; color: {_BASE_DARK_TEXT}; font-size: 1.05rem;
                                             margin-bottom: 0.4rem; display:flex; align-items:center; flex-wrap:wrap; gap:2px;">
                                     {row['Account']}{tags_html}
                                 </div>
                                 <div style="display: flex; gap: 1.2rem; margin-bottom: 0.5rem;">
                                     <div>
-                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Processos</span><br/>
-                                        <span style="color: #111111; font-size: 1.3rem; font-weight: 800;">{int(row['processos'])}</span>
+                                        <span style="color: {_MUTED_TEXT}; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Processos</span><br/>
+                                        <span style="color: {_BASE_DARK_TEXT}; font-size: 1.3rem; font-weight: 800;">{int(row['processos'])}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ativos</span><br/>
-                                        <span style="color: #111111; font-size: 1.3rem; font-weight: 800;">{n_ativos}</span>
+                                        <span style="color: {_MUTED_TEXT}; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ativos</span><br/>
+                                        <span style="color: {_BASE_DARK_TEXT}; font-size: 1.3rem; font-weight: 800;">{n_ativos}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Clientes</span><br/>
+                                        <span style="color: {_MUTED_TEXT}; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Clientes</span><br/>
                                         <span style="color: #5e8668; font-size: 1.3rem; font-weight: 800;">{int(row['clientes'])}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6E6E73; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</span><br/>
-                                        <span style="color: #111111; font-size: 1rem; font-weight: 700;">{_br_moeda(row['valor_aduaneiro'], 0)}</span>
+                                        <span style="color: {_MUTED_TEXT}; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</span><br/>
+                                        <span style="color: {_BASE_DARK_TEXT}; font-size: 1rem; font-weight: 700;">{_br_moeda(row['valor_aduaneiro'], 0)}</span>
                                     </div>
                                 </div>
-                                <div style="font-size: 0.75rem; color: #6E6E73;">{status_pills}</div>
+                                <div style="font-size: 0.75rem; color: {_MUTED_TEXT};">{status_pills}</div>
                             </div>
                             """,
                             unsafe_allow_html=True,
@@ -581,7 +616,7 @@ with tab_analista:
                             rows_html = ""
                             for _, cl_row in df_cl_agg.iterrows():
                                 tags_cl = " ".join(
-                                    f'<span style="background:{TIPO_CORES[t]};color:#fff;'
+                                    f'<span class="{_tag_force_class(t)}" style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
                                     f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
                                     f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                                     for t in cl_row["tipos"]
@@ -728,10 +763,10 @@ with tab_clientes:
             st.markdown(
                 f"""
                 <div style="
-                    background: linear-gradient(135deg, rgba(245,245,247,0.96), rgba(250,250,252,0.96));
-                    border: 1px solid #E5E5EA; border-radius: 20px;
+                    background: {_CARD_BG};
+                    border: 1px solid {_CARD_BORDER}; border-radius: 20px;
                     padding: 1rem 1.4rem; margin-bottom: 1rem;
-                    box-shadow: 0 14px 35px rgba(35, 64, 85, 0.08);
+                    box-shadow: {_CARD_SHADOW};
                     display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
                 ">
                     <div style="flex: 0 0 auto; margin-right: 0.8rem;">
@@ -740,7 +775,7 @@ with tab_clientes:
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 110px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #4a8ab5;
                     ">
@@ -749,16 +784,16 @@ with tab_clientes:
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 110px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #111111;
                     ">
                         <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">CO3</div>
-                        <div style="color: #111111; font-size: 1.25rem; font-weight: 800;">{_cli_co3}</div>
+                        <div style="color: {_BASE_DARK_TEXT}; font-size: 1.25rem; font-weight: 800;">{_cli_co3}</div>
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 110px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #C9A67A;
                     ">
@@ -767,12 +802,12 @@ with tab_clientes:
                     </div>
                     <div style="
                         flex: 1 1 0; min-width: 150px;
-                        background: rgba(255,255,255,0.6); border: 1px solid #E5E5EA; border-radius: 14px;
+                        background: rgba(255,255,255,0.06); border: 1px solid {_CARD_BORDER}; border-radius: 14px;
                         padding: 0.55rem 0.75rem; text-align: center;
                         border-left: 4px solid #111111;
                     ">
                         <div style="color: #6E6E73; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Valor Aduaneiro</div>
-                        <div style="color: #111111; font-size: 1.05rem; font-weight: 800;">{_br_moeda(_val_total, 0)}</div>
+                        <div style="color: {_BASE_DARK_TEXT}; font-size: 1.05rem; font-weight: 800;">{_br_moeda(_val_total, 0)}</div>
                     </div>
                 </div>
                 """,
@@ -797,6 +832,7 @@ with tab_clientes:
                 _repr_html = '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem;">'
                 for _, _rr in df_repr.sort_values("Processos", ascending=False).iterrows():
                     _cor = TIPO_CORES.get(_rr["Tipo"], "#6E6E73")
+                    _num_color = "#ffffff" if str(_rr["Tipo"]).strip().lower() == "encomenda" else _cor
                     _pct = _rr["Percentual"]
                     _n = int(_rr["Processos"])
                     _repr_html += (
@@ -807,7 +843,7 @@ with tab_clientes:
                         f'<div style="font-size:0.72rem;color:#6E6E73;text-transform:uppercase;'
                         f'font-weight:700;margin-bottom:0.3rem;">{_rr["Tipo"]}</div>'
                         f'<div style="display:flex;align-items:baseline;gap:0.5rem;">'
-                        f'<span style="font-size:1.6rem;font-weight:800;color:{_cor};">{_n}</span>'
+                        f'<span style="font-size:1.6rem;font-weight:800;color:{_num_color};">{_n}</span>'
                         f'<span style="font-size:0.85rem;font-weight:700;color:#6E6E73;">'
                         f'{_pct:.1f}%</span>'
                         f'</div>'
@@ -893,7 +929,7 @@ with tab_clientes:
 
                     st.markdown(
                         f'<div style="margin:0.6rem 0 0.2rem;">'
-                        f'<span style="background:{_tipo_cor};color:#fff;border-radius:6px;'
+                        f'<span class="{_tag_force_class(_tipo_label)}" style="background:{_tipo_cor};color:{_tag_text_color(_tipo_label)};{_tag_force_style(_tipo_label)}border-radius:6px;'
                         f'padding:3px 14px;font-size:0.78rem;font-weight:800;">{_tipo_label}</span>'
                         f' <span style="color:#6E6E73;font-size:0.78rem;font-weight:600;">'
                         f'{len(df_cli[df_cli["_Tipo"] == _tipo_label])} processos</span></div>',
@@ -1102,7 +1138,7 @@ with tab_clientes:
             _rows_html_cli = ""
             for _, _r in df_tabela_cli.iterrows():
                 _tags_cli = " ".join(
-                    f'<span style="background:{TIPO_CORES[t]};color:#fff;'
+                    f'<span class="{_tag_force_class(t)}" style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
                     f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
                     f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                     for t in _tipos_por_cliente.get(_r["Cliente"], [])
