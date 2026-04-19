@@ -290,6 +290,14 @@ def aplicar_estilos_globais():
             background: var(--surface);
         }
 
+        /* Garantia de contraste para tags/pills de fundo preto */
+        span[style*="background:#111111"],
+        span[style*="background: #111111"],
+        span[style*="background:#000000"],
+        span[style*="background: #000000"] {
+            color: #ffffff !important;
+        }
+
         .dashboard-shell {
             background: var(--surface);
             border: 1px solid var(--line);
