@@ -1276,6 +1276,10 @@ def _aplicar_dark_mode():
             color: var(--navy) !important;
             border-color: var(--line) !important;
         }
+        .tipo-encomenda,
+        .tipo-encomenda * {
+            color: #000000 !important;
+        }
         div[class*="st-key-rst-row-"] button,
         div[class*="st-key-pj-row-"] button,
         div[class*="st-key-rst-row-"] [data-testid="stPopover"] button,

@@ -29,16 +29,13 @@ if not obter_usuario_atual():
 # Salva token no localStorage após login (evita race condition com st.rerun)
 processar_pendencias()
 
-
-def _on_dark_mode_change():
-    st.rerun()
-
-
 # Inicializa toggle antes de renderizar páginas para evitar 1º frame em tema errado
+if "dark_mode" not in st.session_state:
+    st.session_state["dark_mode"] = False
+
 st.sidebar.toggle(
     ":material/dark_mode: Dark Mode",
     key="dark_mode",
-    on_change=_on_dark_mode_change,
 )
 
 # Injeta dark mode já com estado atualizado do toggle nesta execução
