@@ -58,7 +58,7 @@ MODALIDADE_CORES = {
 TIPO_OP_CORES = {
     "Importação Própria": "#4a8ab5",
     "Importação por Conta e Ordem": "#8E8E93",
-    "Encomenda": _BASE_DARK_TEXT,
+    "Encomenda": "#111111",
 }
 
 # Rótulos e cores para Direto / CO3 / Encomenda (usados em cards e tabelas)
@@ -70,7 +70,7 @@ TIPO_LABELS = {
 TIPO_CORES = {
     "Direto":    "#4a8ab5",
     "CO3":       "#8E8E93",
-    "Encomenda": _BASE_DARK_TEXT,
+    "Encomenda": "#111111",
 }
 TIPOS_ORDEM = ["Direto", "CO3", "Encomenda"]
 
@@ -168,9 +168,6 @@ def _tag_html(tipo):
 
 
 def _tag_text_color(tipo: str) -> str:
-    tipo_norm = str(tipo or "").strip().lower()
-    if _DARK and tipo_norm == "encomenda":
-        return "#000000 !important"
     return "#ffffff !important"
 
 
