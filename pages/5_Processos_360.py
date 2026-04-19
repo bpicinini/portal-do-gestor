@@ -161,7 +161,7 @@ def _tag_html(tipo):
     cor = TIPO_CORES.get(tipo, "#6E6E73")
     txt = _tag_text_color(tipo)
     return (
-        f'<span style="background:{cor};color:{txt};border-radius:5px;'
+        f'<span style="background:{cor};color:{txt};{_tag_force_style(tipo)}border-radius:5px;'
         f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
         f'letter-spacing:0.04em;margin-left:4px;">{tipo}</span>'
     )
@@ -169,6 +169,12 @@ def _tag_html(tipo):
 
 def _tag_text_color(tipo: str) -> str:
     return "#ffffff !important"
+
+
+def _tag_force_style(tipo: str) -> str:
+    if str(tipo or "").strip().lower() == "encomenda":
+        return "background:#111111 !important;color:#ffffff !important;"
+    return ""
 
 
 def _filtro_multiselect(df, coluna, label, key):
@@ -593,7 +599,7 @@ with tab_analista:
                             rows_html = ""
                             for _, cl_row in df_cl_agg.iterrows():
                                 tags_cl = " ".join(
-                                    f'<span style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};'
+                                    f'<span style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
                                     f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
                                     f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                                     for t in cl_row["tipos"]
@@ -809,6 +815,7 @@ with tab_clientes:
                 _repr_html = '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem;">'
                 for _, _rr in df_repr.sort_values("Processos", ascending=False).iterrows():
                     _cor = TIPO_CORES.get(_rr["Tipo"], "#6E6E73")
+                    _num_color = "#ffffff" if str(_rr["Tipo"]).strip().lower() == "encomenda" else _cor
                     _pct = _rr["Percentual"]
                     _n = int(_rr["Processos"])
                     _repr_html += (
@@ -819,7 +826,7 @@ with tab_clientes:
                         f'<div style="font-size:0.72rem;color:#6E6E73;text-transform:uppercase;'
                         f'font-weight:700;margin-bottom:0.3rem;">{_rr["Tipo"]}</div>'
                         f'<div style="display:flex;align-items:baseline;gap:0.5rem;">'
-                        f'<span style="font-size:1.6rem;font-weight:800;color:{_cor};">{_n}</span>'
+                        f'<span style="font-size:1.6rem;font-weight:800;color:{_num_color};">{_n}</span>'
                         f'<span style="font-size:0.85rem;font-weight:700;color:#6E6E73;">'
                         f'{_pct:.1f}%</span>'
                         f'</div>'
@@ -905,7 +912,7 @@ with tab_clientes:
 
                     st.markdown(
                         f'<div style="margin:0.6rem 0 0.2rem;">'
-                        f'<span style="background:{_tipo_cor};color:{_tag_text_color(_tipo_label)};border-radius:6px;'
+                        f'<span style="background:{_tipo_cor};color:{_tag_text_color(_tipo_label)};{_tag_force_style(_tipo_label)}border-radius:6px;'
                         f'padding:3px 14px;font-size:0.78rem;font-weight:800;">{_tipo_label}</span>'
                         f' <span style="color:#6E6E73;font-size:0.78rem;font-weight:600;">'
                         f'{len(df_cli[df_cli["_Tipo"] == _tipo_label])} processos</span></div>',
@@ -1114,7 +1121,7 @@ with tab_clientes:
             _rows_html_cli = ""
             for _, _r in df_tabela_cli.iterrows():
                 _tags_cli = " ".join(
-                    f'<span style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};'
+                    f'<span style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
                     f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
                     f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                     for t in _tipos_por_cliente.get(_r["Cliente"], [])
