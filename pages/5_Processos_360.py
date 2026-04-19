@@ -156,12 +156,25 @@ def _msg_sem_dados():
     st.info("Nenhum dado carregado. Acesse a aba **Upload** para importar a planilha.")
 
 
+st.markdown(
+    """
+    <style>
+    .tag-encomenda-fix {
+        background: #111111 !important;
+        color: #ffffff !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 def _tag_html(tipo):
     """Gera HTML de tag colorida para tipo de operação (Direto/CO3/Encomenda)."""
     cor = TIPO_CORES.get(tipo, "#6E6E73")
     txt = _tag_text_color(tipo)
     return (
-        f'<span style="background:{cor};color:{txt};{_tag_force_style(tipo)}border-radius:5px;'
+        f'<span class="{_tag_force_class(tipo)}" style="background:{cor};color:{txt};{_tag_force_style(tipo)}border-radius:5px;'
         f'padding:2px 7px;font-size:0.62rem;font-weight:800;'
         f'letter-spacing:0.04em;margin-left:4px;">{tipo}</span>'
     )
@@ -175,6 +188,10 @@ def _tag_force_style(tipo: str) -> str:
     if str(tipo or "").strip().lower() == "encomenda":
         return "background:#111111 !important;color:#ffffff !important;"
     return ""
+
+
+def _tag_force_class(tipo: str) -> str:
+    return "tag-encomenda-fix" if str(tipo or "").strip().lower() == "encomenda" else ""
 
 
 def _filtro_multiselect(df, coluna, label, key):
@@ -599,7 +616,7 @@ with tab_analista:
                             rows_html = ""
                             for _, cl_row in df_cl_agg.iterrows():
                                 tags_cl = " ".join(
-                                    f'<span style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
+                                    f'<span class="{_tag_force_class(t)}" style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
                                     f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
                                     f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                                     for t in cl_row["tipos"]
@@ -912,7 +929,7 @@ with tab_clientes:
 
                     st.markdown(
                         f'<div style="margin:0.6rem 0 0.2rem;">'
-                        f'<span style="background:{_tipo_cor};color:{_tag_text_color(_tipo_label)};{_tag_force_style(_tipo_label)}border-radius:6px;'
+                        f'<span class="{_tag_force_class(_tipo_label)}" style="background:{_tipo_cor};color:{_tag_text_color(_tipo_label)};{_tag_force_style(_tipo_label)}border-radius:6px;'
                         f'padding:3px 14px;font-size:0.78rem;font-weight:800;">{_tipo_label}</span>'
                         f' <span style="color:#6E6E73;font-size:0.78rem;font-weight:600;">'
                         f'{len(df_cli[df_cli["_Tipo"] == _tipo_label])} processos</span></div>',
@@ -1121,7 +1138,7 @@ with tab_clientes:
             _rows_html_cli = ""
             for _, _r in df_tabela_cli.iterrows():
                 _tags_cli = " ".join(
-                    f'<span style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
+                    f'<span class="{_tag_force_class(t)}" style="background:{TIPO_CORES[t]};color:{_tag_text_color(t)};{_tag_force_style(t)}'
                     f'border-radius:4px;padding:1px 6px;font-size:0.6rem;'
                     f'font-weight:800;letter-spacing:0.03em;">{t}</span>'
                     for t in _tipos_por_cliente.get(_r["Cliente"], [])
