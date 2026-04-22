@@ -295,26 +295,41 @@ def calcular_alertas(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     else:
         alertas["follow_desatualizado"] = pd.DataFrame()
 
-    # 4a. Container VENCIDO (data limite já passou, sem devolução registrada)
-    if "Limite Dev. Container" in df.columns:
-        dias_restantes = (df["Limite Dev. Container"] - hoje).dt.days
-        # Vencido: data limite passou E sem devolução registrada
-        mask_vencido = dias_restantes.notna() & (dias_restantes < 0)
+    # 4. Container - data limite calculada: Conf. Chegada Final (ou Prev.) + Free-time
+    chegada_final = pd.Series(pd.NaT, index=df.index, dtype="datetime64[ns]")
+    if "Conf. Chegada Final" in df.columns:
+        chegada_final = df["Conf. Chegada Final"]
+    if "Prev. Chegada Final" in df.columns:
+        chegada_final = chegada_final.fillna(df["Prev. Chegada Final"])
+
+    if "Free-time" in df.columns:
+        free_time = df["Free-time"]
+        data_limite_cont = (
+            chegada_final + pd.to_timedelta(free_time.fillna(0).astype(int), unit="D")
+        ).where(free_time.notna())
+        dias_restantes_cont = (data_limite_cont - hoje).dt.days
+
+        # 4a. Container VENCIDO (data limite já passou, sem devolução registrada)
+        mask_vencido = dias_restantes_cont.notna() & (dias_restantes_cont < 0)
         if "Devolução do container" in df.columns:
             mask_vencido = mask_vencido & df["Devolução do container"].isna()
         resultado_vencido = df[mask_vencido].copy()
-        resultado_vencido["Dias Vencido"] = (-dias_restantes[mask_vencido]).astype(int)
+        resultado_vencido["Dias Vencido"] = (-dias_restantes_cont[mask_vencido]).astype(int)
+        resultado_vencido["Limite Dev. Container"] = data_limite_cont[mask_vencido]
         alertas["container_vencido"] = resultado_vencido
+
+        # 4b. Container vencendo (<= 5 dias)
+        mask_vencendo = (
+            dias_restantes_cont.notna()
+            & (dias_restantes_cont >= 0)
+            & (dias_restantes_cont <= 5)
+        )
+        resultado_vencendo = df[mask_vencendo].copy()
+        resultado_vencendo["Dias Restantes"] = dias_restantes_cont[mask_vencendo].astype(int)
+        resultado_vencendo["Limite Dev. Container"] = data_limite_cont[mask_vencendo]
+        alertas["container_vencendo"] = resultado_vencendo
     else:
         alertas["container_vencido"] = pd.DataFrame()
-
-    # 4b. Container vencendo (<= 5 dias)
-    if "Limite Dev. Container" in df.columns:
-        mask = dias_restantes.notna() & (dias_restantes >= 0) & (dias_restantes <= 5)
-        resultado = df[mask].copy()
-        resultado["Dias Restantes"] = dias_restantes[mask].astype(int)
-        alertas["container_vencendo"] = resultado
-    else:
         alertas["container_vencendo"] = pd.DataFrame()
 
     # 5. Perdimento próximo (<= 10 dias)
@@ -327,11 +342,16 @@ def calcular_alertas(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     else:
         alertas["perdimento_proximo"] = pd.DataFrame()
 
-    # 6. Canal vermelho e Canal amarelo
+    # 6. Canal vermelho e Canal amarelo (excluir processos já desembaraçados)
     if "Canal" in df.columns:
         canal_lower = df["Canal"].str.strip().str.lower()
-        alertas["canal_vermelho"] = df[canal_lower == "vermelho"].copy()
-        alertas["canal_amarelo"]  = df[canal_lower == "amarelo"].copy()
+        mask_desembaracado = (
+            df["Desembaraço"].notna()
+            if "Desembaraço" in df.columns
+            else pd.Series(False, index=df.index)
+        )
+        alertas["canal_vermelho"] = df[(canal_lower == "vermelho") & ~mask_desembaracado].copy()
+        alertas["canal_amarelo"]  = df[(canal_lower == "amarelo") & ~mask_desembaracado].copy()
     else:
         alertas["canal_vermelho"] = pd.DataFrame()
         alertas["canal_amarelo"]  = pd.DataFrame()
