@@ -1031,7 +1031,7 @@ def _render_agenciamento():
             st.caption(
                 f"MP padrão: **{_br(ag.MP_PADRAO, 2)}** "
                 f"(7,00 analistas + 2,75 performance). "
-                f"O MP varia conforme contratações e desligamentos."
+                f"O MP varia conforme entradas e saídas da equipe."
             )
 
     # ── Analistas ────────────────────────────────────────────────────

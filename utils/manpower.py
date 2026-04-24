@@ -77,7 +77,7 @@ def calcular_manpower_por_departamento():
 
 def recalcular_manpower_mensal(ano, mes):
     """Recalcula e salva o snapshot de manpower do mês para cada departamento.
-    Chamado automaticamente pelo efeito cascata de contratar/desligar."""
+    Chamado automaticamente pelo efeito cascata de entradas/saídas."""
     wb = carregar_workbook()
     ws = wb[SHEET_MANPOWER_MENSAL]
     ws_perf = wb[SHEET_PERFORMANCE]

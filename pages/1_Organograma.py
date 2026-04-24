@@ -772,10 +772,10 @@ with tab_quadro:
 # ── Tab: Gestão de Equipe ─────────────────────────────────────────────────────
 with tab_gestao:
     st.subheader("Gestao de equipe")
-    st.caption("Registre entradas, desligamentos e consulte o histórico consolidado da equipe.")
+    st.caption("Registre entradas, saídas e consulte o histórico consolidado da equipe.")
 
     subtab_contrat, subtab_desl, subtab_hist = st.tabs(
-        ["Contratacoes", "Desligamentos", "Historico"]
+        ["Contratacoes", "Saídas", "Historico"]
     )
 
     # ── Sub-aba: Contratações ──────────────────────────────────────────
@@ -822,9 +822,9 @@ with tab_gestao:
                 else:
                     st.warning("Preencha nome e cargo.")
 
-    # ── Sub-aba: Desligamentos ─────────────────────────────────────────
+    # ── Sub-aba: Saídas ────────────────────────────────────────────────
     with subtab_desl:
-        st.subheader("Registrar Desligamento")
+        st.subheader("Registrar Saída")
         st.caption("Ao registrar, o sistema atualiza automaticamente: Organograma + Log + Manpower + Performance")
 
         ativos_desl = listar_colaboradores(status="Ativo")
@@ -833,14 +833,14 @@ with tab_gestao:
                 f"{c['nome']} ({c['cargo_nome']} — {c['departamento_nome']})": c["id"]
                 for c in ativos_desl
             }
-            with st.form("form_desligamento"):
+            with st.form("form_saida"):
                 pessoa_sel = st.selectbox("Colaborador", options=list(nomes_ativos.keys()))
                 data_saida = st.date_input("Data de saida", value=date.today())
-                obs_saida = st.text_area("Motivo / Observacao (opcional)", height=68)
+                obs_saida = st.text_area("Observacao (opcional)", height=68)
                 col1_desl, col2_desl = st.columns([1, 3])
                 with col1_desl:
-                    confirmar = st.checkbox("Confirmo o desligamento")
-                submitted_desl = st.form_submit_button("Registrar desligamento", type="primary")
+                    confirmar = st.checkbox("Confirmo a saída")
+                submitted_desl = st.form_submit_button("Registrar saída", type="primary")
 
                 if submitted_desl:
                     if confirmar:
@@ -850,7 +850,7 @@ with tab_gestao:
                             observacao=obs_saida,
                         )
                         nome_simples = pessoa_sel.split(" (")[0]
-                        st.success(f"**{nome_simples}** desligado(a) com sucesso.")
+                        st.success(f"Saída de **{nome_simples}** registrada com sucesso.")
                         st.rerun()
                     else:
                         st.warning("Marque a confirmacao para prosseguir.")
@@ -873,9 +873,7 @@ with tab_gestao:
             def _estilo_evento(val):
                 if val == "Entrada":
                     return "color: green; font-weight: bold"
-                if val == "Saída":
-                    return "color: red; font-weight: bold"
-                return ""
+                return "color: red; font-weight: bold"
 
             styled_hist = df_hist.style.map(_estilo_evento, subset=["Evento"])
             renderizar_dataframe(styled_hist, use_container_width=True, hide_index=True)
