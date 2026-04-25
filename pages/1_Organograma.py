@@ -351,8 +351,8 @@ if is_dark_mode():
     )
 
 NIVEL_LABEL = {
-    0.5: "Gerencia",
-    1: "Gerencia",
+    0.5: "Gerência",
+    1: "Gerência",
     2: "Coordenacao",
     2.5: "Supervisao",
     3: "Especialistas",
@@ -445,17 +445,18 @@ def _card_reporte_subordinado(pessoa):
     )
 
 
-# ── Navegação por departamento (estilo 360) ───────────────────────────────────
-
-MESES_PT_ORG = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+# ── Departamento como abas ────────────────────────────────────────────────────
 
 gerencia_geral = [c for c in todos_ativos if _nivel(c) <= 1]
 
+MESES_PT_ORG = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
 
-def _render_organograma_conteudo(filtro_dept: str, prefix: str):
-    key_uni = f"filtro_unidade_{prefix}"
-    if key_uni not in st.session_state:
-        st.session_state[key_uni] = "Todas"
+
+def _render_views(fd):
+    """Renderiza as 4 abas de conteudo filtradas pelo departamento `fd`."""
+    _uni_key = f"filtro_uni_{fd.lower().replace(' ', '').replace('/', '')}"
+    if _uni_key not in st.session_state:
+        st.session_state[_uni_key] = "Todas"
 
     st.markdown('<div class="filtro-label">Unidade</div>', unsafe_allow_html=True)
     _opcoes_uni = ["Todas", "Novo Hamburgo", "Itajaí"]
@@ -464,24 +465,24 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
         with _ucols[_i]:
             if st.button(
                 _opt,
-                key=f"_{prefix}_utag_{_i}",
-                type="primary" if st.session_state[key_uni] == _opt else "secondary",
+                key=f"_utag_{fd.lower().replace(' ', '')}_{_i}",
+                type="primary" if st.session_state[_uni_key] == _opt else "secondary",
                 use_container_width=True,
             ):
-                st.session_state[key_uni] = _opt
+                st.session_state[_uni_key] = _opt
                 st.rerun()
-    filtro_unidade = st.session_state[key_uni]
+    fu = st.session_state[_uni_key]
+    _ks = fd.lower().replace(" ", "").replace("/", "")
 
     tab_niveis, tab_reportes, tab_quadro, tab_gestao = st.tabs(
         ["Visao por niveis", "Visao por reportes", "Quadro completo", "Gestao de equipe"]
     )
 
-    # ── Sub-aba: Visão por níveis ─────────────────────────────────────────────
     with tab_niveis:
         st.subheader("Visao por niveis")
 
         for depto in departamentos:
-            if filtro_dept != "Todos" and depto["nome"] != filtro_dept:
+            if fd != "Todos" and depto["nome"] != fd:
                 continue
 
             dept_colabs = listar_colaboradores(status="Ativo", departamento_id=int(depto["id"]))
@@ -489,9 +490,9 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
             gerencia_extra = [g for g in gerencia_geral if g.get("id") not in ids_dept]
             dept_todos = gerencia_extra + dept_colabs
 
-            if filtro_unidade != "Todas":
+            if fu != "Todas":
                 dept_filtrado = gerencia_extra + [
-                    p for p in dept_colabs if str(p.get("unidade") or "") == filtro_unidade
+                    p for p in dept_colabs if str(p.get("unidade") or "") == fu
                 ]
             else:
                 dept_filtrado = dept_todos
@@ -501,7 +502,7 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
 
             with st.expander(
                 f"**{depto['nome']}** | {len(dept_filtrado)} pessoas",
-                expanded=(filtro_dept != "Todos"),
+                expanded=(fd != "Todos"),
             ):
                 niveis = {}
                 for pessoa in dept_filtrado:
@@ -523,7 +524,6 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
                             st.markdown(card_para_nivel(pessoa), unsafe_allow_html=True)
                     nivel_anterior = nivel
 
-    # ── Sub-aba: Visão por reportes ───────────────────────────────────────────
     with tab_reportes:
         st.subheader("Visao por reportes imediatos")
         st.caption("Reportes definidos no Quadro completo.")
@@ -542,7 +542,7 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
             return html
 
         for bloco in estrutura_reportes:
-            if filtro_dept != "Todos" and bloco["departamento"] != filtro_dept:
+            if fd != "Todos" and bloco["departamento"] != fd:
                 continue
 
             ids_bloco = {p.get("id") for p in bloco["lideres"]}
@@ -559,22 +559,22 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
             sem_aloc = bloco.get("sem_alocacao", [])
             grupos_sem_lider = bloco.get("grupos_sem_lider", [])
 
-            if filtro_unidade != "Todas":
+            if fu != "Todas":
                 def _filtra_secao(secao):
-                    lider_ok = str(secao["lider"].get("unidade") or "") == filtro_unidade
+                    lider_ok = str(secao["lider"].get("unidade") or "") == fu
                     grupos_f = [
                         {
                             "analista": g["analista"],
                             "reportes": [
                                 p for p in g["reportes"]
-                                if str(p.get("unidade") or "") == filtro_unidade
+                                if str(p.get("unidade") or "") == fu
                             ],
                         }
                         for g in secao["grupos_analistas"]
-                        if str(g["analista"].get("unidade") or "") == filtro_unidade
-                        or any(str(p.get("unidade") or "") == filtro_unidade for p in g["reportes"])
+                        if str(g["analista"].get("unidade") or "") == fu
+                        or any(str(p.get("unidade") or "") == fu for p in g["reportes"])
                     ]
-                    rd_f = [p for p in secao["reportes_diretos"] if str(p.get("unidade") or "") == filtro_unidade]
+                    rd_f = [p for p in secao["reportes_diretos"] if str(p.get("unidade") or "") == fu]
                     if lider_ok or grupos_f or rd_f:
                         return {**secao, "grupos_analistas": grupos_f, "reportes_diretos": rd_f}
                     return None
@@ -585,14 +585,14 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
                         "analista": g["analista"],
                         "reportes": [
                             p for p in g["reportes"]
-                            if str(p.get("unidade") or "") == filtro_unidade
+                            if str(p.get("unidade") or "") == fu
                         ],
                     }
                     for g in grupos_sem_lider
-                    if str(g["analista"].get("unidade") or "") == filtro_unidade
-                    or any(str(p.get("unidade") or "") == filtro_unidade for p in g["reportes"])
+                    if str(g["analista"].get("unidade") or "") == fu
+                    or any(str(p.get("unidade") or "") == fu for p in g["reportes"])
                 ]
-                sem_aloc = [p for p in sem_aloc if str(p.get("unidade") or "") == filtro_unidade]
+                sem_aloc = [p for p in sem_aloc if str(p.get("unidade") or "") == fu]
 
             dept_total = (
                 len(gerencia_extra_rep)
@@ -603,10 +603,10 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
 
             with st.expander(
                 f"**{bloco['departamento']}** | {dept_total} pessoas",
-                expanded=(filtro_dept != "Todos"),
+                expanded=(fd != "Todos"),
             ):
                 if gerencia_extra_rep:
-                    st.markdown('<div class="nivel-label">Gerência</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="nivel-label">Gerencia</div>', unsafe_allow_html=True)
                     h = '<div class="report-leaders">'
                     for p in gerencia_extra_rep:
                         h += card_para_nivel(p)
@@ -639,7 +639,7 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
                     st.markdown(html, unsafe_allow_html=True)
 
                 if grupos_sem_lider:
-                    st.markdown('<div class="nivel-label">Analistas (sem liderança definida)</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="nivel-label">Analistas (sem lideranca definida)</div>', unsafe_allow_html=True)
                     html = '<div class="report-grid">'
                     for grupo in grupos_sem_lider:
                         html += _html_grupo_analista(grupo)
@@ -647,14 +647,13 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
                     st.markdown(html, unsafe_allow_html=True)
 
                 if sem_aloc:
-                    st.markdown('<div class="nivel-label">Sem alocação definida</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="nivel-label">Sem alocacao definida</div>', unsafe_allow_html=True)
                     html = '<div class="report-leaders">'
                     for p in sem_aloc:
                         html += card_para_nivel(p)
                     html += "</div>"
                     st.markdown(html, unsafe_allow_html=True)
 
-    # ── Sub-aba: Quadro completo ──────────────────────────────────────────────
     with tab_quadro:
         st.subheader("Quadro completo")
         st.caption(
@@ -682,12 +681,12 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
 
             df_quad.insert(6, "U", df_quad["Und."].map(
                 {"Novo Hamburgo": "🔵 NH", "Itajaí": "🟢 ITJ"}
-            ).fillna("—"))
+            ).fillna("--"))
 
-            if filtro_dept != "Todos":
-                df_quad = df_quad[df_quad["Departamento"] == filtro_dept]
-            if filtro_unidade != "Todas":
-                df_quad = df_quad[df_quad["Und."] == filtro_unidade]
+            if fd != "Todos":
+                df_quad = df_quad[df_quad["Departamento"] == fd]
+            if fu != "Todas":
+                df_quad = df_quad[df_quad["Und."] == fu]
             df_quad = df_quad.sort_values(["Departamento", "Nivel", "Nome"]).reset_index(drop=True)
             df_quad["Responsável Direto"] = df_quad["Responsável Direto"].fillna("").astype(str).str.strip()
 
@@ -707,13 +706,13 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
                     "Gestor": st.column_config.TextColumn(disabled=True),
                     "Responsável Direto": st.column_config.SelectboxColumn(
                         options=_opcoes_resp,
-                        help="Analista ou coordenador responsável direto no organograma de reportes.",
+                        help="Analista ou coordenador responsavel direto no organograma de reportes.",
                     ),
                 },
-                key=f"editor_quadro_{prefix}",
+                key=f"editor_quadro_{_ks}",
             )
 
-            if st.button("Salvar reportes", type="primary", key=f"btn_salvar_resp_{prefix}"):
+            if st.button("Salvar reportes", type="primary", key=f"btn_salvar_resp_{_ks}"):
                 _alteracoes = []
                 for idx in df_quad.index:
                     old_val = str(df_quad.at[idx, "Responsável Direto"] or "").strip()
@@ -732,55 +731,48 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
         else:
             st.info("Nenhum colaborador cadastrado.")
 
-    # ── Sub-aba: Gestão de Equipe ─────────────────────────────────────────────
     with tab_gestao:
         st.subheader("Gestao de equipe")
-        st.caption("Registre entradas, saídas e consulte o histórico consolidado da equipe.")
+        st.caption("Registre entradas, saidas e consulte o histórico consolidado da equipe.")
 
         subtab_contrat, subtab_desl, subtab_hist = st.tabs(
-            ["Contratacoes", "Saídas", "Historico"]
+            ["Contratações", "Saídas", "Histórico"]
         )
 
         with subtab_contrat:
-            st.subheader("Nova Contratacao")
+            st.subheader("Nova Contratação")
             st.caption("Ao registrar, o sistema atualiza automaticamente: Organograma + Log + Manpower + Performance")
 
-            with st.form(f"form_contratacao_{prefix}", clear_on_submit=True):
+            with st.form(f"form_contratacao_{_ks}", clear_on_submit=True):
                 col1, col2 = st.columns(2)
                 with col1:
-                    nome_novo = st.text_input("Nome completo", key=f"nome_novo_{prefix}")
-                    dept_options = [d["nome"] for d in departamentos]
-                    dept_default_idx = dept_options.index(filtro_dept) if filtro_dept in dept_options else 0
+                    nome_novo = st.text_input("Nome completo", key=f"cont_nome_{_ks}")
                     dept_sel = st.selectbox(
                         "Departamento",
-                        options=dept_options,
-                        index=dept_default_idx,
-                        key=f"gest_dept_contrat_{prefix}",
+                        options=[d["nome"] for d in departamentos],
+                        key=f"gest_dept_contrat_{_ks}",
                     )
                     dept_id_sel = next((d["id"] for d in departamentos if d["nome"] == dept_sel), None)
                     cargos_dept = listar_cargos(dept_id_sel)
                     cargo_options = {c["nome"]: c["id"] for c in cargos_dept}
                     cargo_nomes = list(cargo_options.keys())
-                    cargo_sel = st.selectbox(
-                        "Cargo", options=cargo_nomes, disabled=not cargo_nomes,
-                        key=f"cargo_sel_{prefix}",
-                    )
+                    cargo_sel = st.selectbox("Cargo", options=cargo_nomes, disabled=not cargo_nomes, key=f"cont_cargo_{_ks}")
                     if not cargo_nomes:
                         st.info("Cadastre ao menos um cargo nesse departamento antes de registrar.")
                 with col2:
-                    unidade = st.selectbox("Unidade", ["Novo Hamburgo", "Itajaí"], key=f"unidade_contrat_{prefix}")
-                    gestor = st.text_input("Gestor direto", key=f"gestor_{prefix}")
-                    data_entrada = st.date_input("Data de entrada", value=date.today(), key=f"data_entrada_{prefix}")
-                    obs = st.text_area("Observacao (opcional)", height=68, key=f"obs_contrat_{prefix}")
+                    unidade_c = st.selectbox("Unidade", ["Novo Hamburgo", "Itajaí"], key=f"cont_unidade_{_ks}")
+                    gestor = st.text_input("Gestor direto", key=f"cont_gestor_{_ks}")
+                    data_entrada = st.date_input("Data de entrada", value=date.today(), key=f"cont_data_{_ks}")
+                    obs = st.text_area("Observacao (opcional)", height=68, key=f"cont_obs_{_ks}")
 
-                if st.form_submit_button("Registrar contratacao", type="primary", disabled=not cargo_options):
+                if st.form_submit_button("Registrar contratação", type="primary", disabled=not cargo_options):
                     if nome_novo.strip() and cargo_sel:
                         novo_id = contratar(
                             nome=nome_novo.strip(),
                             cargo_id=cargo_options[cargo_sel],
                             departamento_id=dept_id_sel,
-                            empresa=unidade,
-                            cidade=unidade,
+                            empresa=unidade_c,
+                            cidade=unidade_c,
                             gestor_direto=gestor,
                             data_entrada=data_entrada,
                             observacao=obs,
@@ -797,19 +789,16 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
             ativos_desl = listar_colaboradores(status="Ativo")
             if ativos_desl:
                 nomes_ativos = {
-                    f"{c['nome']} ({c['cargo_nome']} — {c['departamento_nome']})": c["id"]
+                    f"{c['nome']} ({c['cargo_nome']} -- {c['departamento_nome']})": c["id"]
                     for c in ativos_desl
                 }
-                with st.form(f"form_saida_{prefix}"):
-                    pessoa_sel = st.selectbox(
-                        "Colaborador", options=list(nomes_ativos.keys()),
-                        key=f"pessoa_sel_{prefix}",
-                    )
-                    data_saida = st.date_input("Data de saida", value=date.today(), key=f"data_saida_{prefix}")
-                    obs_saida = st.text_area("Observacao (opcional)", height=68, key=f"obs_saida_{prefix}")
+                with st.form(f"form_saida_{_ks}"):
+                    pessoa_sel = st.selectbox("Colaborador", options=list(nomes_ativos.keys()), key=f"desl_pessoa_{_ks}")
+                    data_saida = st.date_input("Data de saida", value=date.today(), key=f"desl_data_{_ks}")
+                    obs_saida = st.text_area("Observacao (opcional)", height=68, key=f"desl_obs_{_ks}")
                     col1_desl, col2_desl = st.columns([1, 3])
                     with col1_desl:
-                        confirmar = st.checkbox("Confirmo a saída", key=f"confirmar_{prefix}")
+                        confirmar = st.checkbox("Confirmo a saída", key=f"desl_confirm_{_ks}")
                     submitted_desl = st.form_submit_button("Registrar saída", type="primary")
 
                     if submitted_desl:
@@ -828,7 +817,7 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
                 st.info("Nenhum colaborador ativo encontrado.")
 
         with subtab_hist:
-            st.subheader("Log de Movimentacoes")
+            st.subheader("Log de Movimentações")
             historico = listar_historico()
             if historico:
                 df_hist = pd.DataFrame(historico)
@@ -851,20 +840,10 @@ def _render_organograma_conteudo(filtro_dept: str, prefix: str):
                 st.info("Nenhum registro no historico.")
 
 
-# ── Abas externas por departamento (igual à Visão 360) ────────────────────────
+# ── Abas por departamento ─────────────────────────────────────────────────────
 
-tab_dept_geral, tab_dept_imp, tab_dept_exp, tab_dept_ag = st.tabs([
-    "🌐 Visão Geral", "⬇️ Importação", "⬆️ Exportação", "🚢 Agenciamento"
-])
-
-with tab_dept_geral:
-    _render_organograma_conteudo("Todos", "geral")
-
-with tab_dept_imp:
-    _render_organograma_conteudo("Importação", "imp")
-
-with tab_dept_exp:
-    _render_organograma_conteudo("Exportação", "exp")
-
-with tab_dept_ag:
-    _render_organograma_conteudo("Agenciamento", "ag")
+_opcoes_dept = ["Todos"] + [d["nome"] for d in departamentos]
+_tabs_dept = st.tabs(_opcoes_dept)
+for _tab_dept_widget, _dept_opt in zip(_tabs_dept, _opcoes_dept):
+    with _tab_dept_widget:
+        _render_views(_dept_opt)

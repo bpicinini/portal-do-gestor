@@ -131,7 +131,7 @@ renderizar_cabecalho_pagina(
 # ── Abas de departamento ──────────────────────────────────────────────
 
 tab_importacao, tab_exportacao, tab_agenciamento = st.tabs(
-    ["⬇️ Importação", "⬆️ Exportação", "🚢 Agenciamento"]
+    ["Importação", "Exportação", "Agenciamento"]
 )
 
 with tab_importacao:
