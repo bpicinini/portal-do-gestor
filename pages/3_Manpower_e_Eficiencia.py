@@ -38,7 +38,7 @@ departamentos = listar_departamentos()
 departamentos_por_nome = {departamento["nome"]: departamento for departamento in departamentos}
 
 _tab_kpi_imp, _tab_kpi_exp, _tab_kpi_ag = st.tabs(
-    ["📥 Importação", "📤 Exportação", "🚢 Agenciamento"]
+    ["Importação", "Exportação", "Agenciamento"]
 )
 
 alt.renderers.set_embed_options(
