@@ -608,6 +608,7 @@ def _render_views(fd):
             }
 
             _seen2: set = set()
+            _seen2_names: set = set()
 
             def _oc_card(p, depth):
                 nome  = p.get("nome", "")
@@ -621,20 +622,31 @@ def _render_views(fd):
                 else:
                     nm_s, rl_s, mw = "11px", "9.5px",  "82px"
                 border_top = f"3px solid {dc}" if depth == 2 else f"1px solid {_card_bdr}"
+                dept_short = {
+                    "Importação": "Import.", "Agenciamento": "Agenc.",
+                    "Exportação": "Export.", "Seguro Internacional": "Seguro",
+                }.get(dept, dept)
+                dept_badge = (
+                    f'<div style="font-size:8px;color:#fff;background:{dc};'
+                    f'border-radius:2px;padding:1px 5px;margin-top:3px;'
+                    f'display:inline-block;">{dept_short}</div>'
+                ) if depth == 2 else ""
                 return (
                     f'<div class="oc-card" style="min-width:{mw};border-top:{border_top};">'
                     f'<div style="font-size:{nm_s};font-weight:600;color:{_text_main};'
                     f'line-height:1.3;">{nome}</div>'
                     f'<div style="font-size:{rl_s};color:{_text_sub};margin-top:2px;'
                     f'line-height:1.2;">{cargo}</div>'
+                    f'{dept_badge}'
                     f'</div>'
                 )
 
             def _oc_li(p, depth):
-                if p["id"] in _seen2:
+                if p["id"] in _seen2 or p.get("nome", "") in _seen2_names:
                     return ""
                 _seen2.add(p["id"])
-                children = [c for c in _fp.get(p["nome"], []) if c["id"] not in _seen2]
+                _seen2_names.add(p.get("nome", ""))
+                children = [c for c in _fp.get(p["nome"], []) if c["id"] not in _seen2 and c.get("nome", "") not in _seen2_names]
                 card = _oc_card(p, depth)
                 if not children:
                     return f"<li>{card}</li>"
@@ -705,7 +717,7 @@ def _render_views(fd):
             if bruno:
                 _depth(bruno["nome"], 1)
             _est_h = max(500, (_max_d[0] + 2) * 100 + 60)
-            components.html(html_doc, height=_est_h, scrolling=False)
+            components.html(html_doc, height=_est_h, scrolling=True)
 
         with tab_quadro:
             _render_quadro(fd, fu, _ks)
@@ -985,6 +997,9 @@ def _render_views(fd):
             with subtab_hist:
                 st.subheader("Log de Movimentações")
                 historico = listar_historico()
+                if historico and fd != "Todos":
+                    _id_to_dept = {p["id"]: p.get("departamento_nome", "") for p in todos_ativos}
+                    historico = [h for h in historico if _id_to_dept.get(h.get("colaborador_id")) == fd]
                 if historico:
                     df_hist = pd.DataFrame(historico)
                     datas = pd.to_datetime(df_hist["data"], errors="coerce")
