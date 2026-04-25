@@ -590,7 +590,7 @@ def _render_views(fd):
                 _fp[k].sort(key=lambda x: (_nivel(x), x.get("nome", "")))
 
             _c_abbr = {
-                "Gerente de Operações":       "Gte. Operações",
+                "Gerente de Operações":       "Gerente de Operações",
                 "Coordenador de Importação":  "Coord. Import.",
                 "Coordenadora de Importação": "Coord. Import.",
                 "Coordenador de Exportação":  "Coord. Export.",
@@ -641,12 +641,21 @@ def _render_views(fd):
                     f'</div>'
                 )
 
+            def _fp_get(nome):
+                """Lookup children by full name, fallback to first+last name."""
+                ch = _fp.get(nome, [])
+                if not ch:
+                    parts = nome.split()
+                    if len(parts) > 2:
+                        ch = _fp.get(parts[0] + " " + parts[-1], [])
+                return ch
+
             def _oc_li(p, depth):
                 if p["id"] in _seen2 or p.get("nome", "") in _seen2_names:
                     return ""
                 _seen2.add(p["id"])
                 _seen2_names.add(p.get("nome", ""))
-                children = [c for c in _fp.get(p["nome"], []) if c["id"] not in _seen2 and c.get("nome", "") not in _seen2_names]
+                children = [c for c in _fp_get(p["nome"]) if c["id"] not in _seen2 and c.get("nome", "") not in _seen2_names]
                 card = _oc_card(p, depth)
                 if not children:
                     return f"<li>{card}</li>"
@@ -683,7 +692,7 @@ def _render_views(fd):
                 f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>"
                 f"*{{box-sizing:border-box;margin:0;padding:0;}}"
                 f"body{{background:{_bg_body};font-family:system-ui,-apple-system,sans-serif;"
-                f"padding:16px 24px 28px;overflow-x:auto;overflow-y:hidden;}}"
+                f"padding:16px 24px 28px;overflow:auto;}}"
                 f".oc-root{{display:flex;justify-content:center;list-style:none;padding:0;margin:0;}}"
                 f"ul{{display:flex;justify-content:center;list-style:none;"
                 f"padding:22px 0 0;position:relative;margin:0;}}"
@@ -712,7 +721,7 @@ def _render_views(fd):
             _max_d = [0]
             def _depth(name, d=0):
                 _max_d[0] = max(_max_d[0], d)
-                for c in _fp.get(name, []):
+                for c in _fp_get(name):
                     _depth(c["nome"], d + 1)
             if bruno:
                 _depth(bruno["nome"], 1)
