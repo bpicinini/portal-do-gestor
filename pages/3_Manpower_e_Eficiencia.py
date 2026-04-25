@@ -36,33 +36,10 @@ renderizar_cabecalho_pagina(
 
 departamentos = listar_departamentos()
 departamentos_por_nome = {departamento["nome"]: departamento for departamento in departamentos}
-nomes_departamentos = [departamento["nome"] for departamento in departamentos]
-# Adicionar Agenciamento se dados existem e não está na lista
-if ag.dados_existem() and "Agenciamento" not in nomes_departamentos:
-    nomes_departamentos.append("Agenciamento")
-indice_padrao = nomes_departamentos.index(DEPARTAMENTO_COM_DADOS) if DEPARTAMENTO_COM_DADOS in nomes_departamentos else 0
 
-st.markdown("#### Departamento")
-departamento_selecionado = st.radio(
-    "Departamento",
-    nomes_departamentos,
-    index=indice_padrao,
-    horizontal=True,
-    label_visibility="collapsed",
-    key="kpi_departamento",
+_tab_kpi_imp, _tab_kpi_exp, _tab_kpi_ag = st.tabs(
+    ["📥 Importação", "📤 Exportação", "🚢 Agenciamento"]
 )
-
-departamento_atual = departamentos_por_nome.get(departamento_selecionado, {})
-departamento_id = departamento_atual.get("id")
-_eh_importacao = departamento_selecionado == DEPARTAMENTO_COM_DADOS
-_eh_agenciamento = departamento_selecionado == "Agenciamento" and ag.dados_existem()
-tem_dados_departamento = _eh_importacao or _eh_agenciamento
-
-if not tem_dados_departamento:
-    st.caption(
-        f"{departamento_selecionado} ja esta preparado no filtro superior, "
-        "mas os dados de KPIs ainda nao foram carregados para esse departamento."
-    )
 
 alt.renderers.set_embed_options(
     formatLocale={
@@ -1262,9 +1239,12 @@ def _render_agenciamento():
 
 # ── Renderização condicional ─────────────────────────────────────────
 
-if _eh_agenciamento:
-    _render_agenciamento()
-else:
+with _tab_kpi_imp:
+    _dep_imp = departamentos_por_nome.get(DEPARTAMENTO_COM_DADOS, {})
+    departamento_selecionado = DEPARTAMENTO_COM_DADOS
+    departamento_id = _dep_imp.get("id")
+    tem_dados_departamento = True
+
     tab_overview, tab_perf, tab_mw, tab_score = st.tabs(["Overview", "Eficiência", "Manpower", "Volume (Score)"])
 
     with tab_overview:
@@ -1584,3 +1564,43 @@ else:
                         st.rerun()
                     else:
                         st.error(msg)
+
+with _tab_kpi_exp:
+    _dep_exp = departamentos_por_nome.get("Exportação", {})
+    _dep_exp_id = _dep_exp.get("id")
+    if _dep_exp_id:
+        tab_overview_exp, tab_mw_exp = st.tabs(["Overview", "Manpower"])
+        with tab_overview_exp:
+            st.subheader("Overview - Exportação")
+            st.info("Dados de KPI para Exportação em construção.")
+        with tab_mw_exp:
+            st.subheader("Manpower - Exportação")
+            mp_dept_exp = calcular_manpower_por_departamento()
+            ativos_exp = listar_colaboradores(status="Ativo", departamento_id=_dep_exp_id)
+            total_mp_exp = mp_dept_exp.get(_dep_exp_id, 0)
+            ativos_com_peso_exp = [c for c in ativos_exp if c.get("peso_manpower") is not None]
+            peso_medio_exp = total_mp_exp / len(ativos_com_peso_exp) if ativos_com_peso_exp else 0
+            c1, c2, c3, c4 = st.columns(4)
+            with c1:
+                st.metric("Manpower atual", _br(total_mp_exp, 2))
+            with c2:
+                st.metric("Ativos", len(ativos_exp))
+            with c3:
+                st.metric("Com peso MP", len(ativos_com_peso_exp))
+            with c4:
+                st.metric("Peso médio", _br(peso_medio_exp, 2))
+            if ativos_exp:
+                st.divider()
+                df_exp = pd.DataFrame(ativos_exp)[["nome", "cargo_nome", "cargo_nivel", "peso_manpower", "unidade", "gestor_direto"]]
+                df_exp.columns = ["Nome", "Cargo", "Nível", "Peso MP", "Unidade", "Gestor"]
+                df_exp = df_exp.sort_values(["Nível", "Nome"])
+                df_exp["Peso MP"] = df_exp["Peso MP"].apply(lambda val: _br(val, 2) if pd.notna(val) else "")
+                renderizar_dataframe(df_exp, use_container_width=True, hide_index=True)
+    else:
+        st.info("Departamento de Exportação não encontrado.")
+
+with _tab_kpi_ag:
+    if ag.dados_existem():
+        _render_agenciamento()
+    else:
+        st.info("Nenhum dado de agenciamento carregado. Acesse a aba **Upload** dentro desta seção para importar a planilha.")
