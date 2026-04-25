@@ -480,110 +480,140 @@ def _render_views(fd):
 
     with tab_niveis:
         if fd == "Todos":
-            # ── Organograma unificado e compacto ────────────────────────
+            # ── Organograma em árvore com linhas de conexão ─────────────
+            _dark = is_dark_mode()
+            _card_bg    = "rgba(255,255,255,0.06)" if _dark else "rgba(0,0,0,0.04)"
+            _card_bdr   = "#364f63"  if _dark else "#bdd0e0"
+            _text_main  = "#ddeaf2"  if _dark else "#1a2a38"
+            _text_sub   = "#789ab0"  if _dark else "#4a6a80"
+            _line_col   = "#36506a"  if _dark else "#a0bcd0"
+            _dept_oc = {
+                "Importação":          "#1a5a9e",
+                "Agenciamento":        "#1a7a3a",
+                "Exportação":          "#4a8a1a",
+                "Seguro Internacional":"#8a6a0a",
+            }
+
             visible_ids = {
                 p["id"] for p in todos_ativos
                 if fu == "Todas" or str(p.get("unidade") or "") == fu
             }
-
-            filhos_por_gestor: dict = {}
+            _fp: dict = {}
             for p in todos_ativos:
                 if p["id"] not in visible_ids:
                     continue
-                gestor = str(p.get("gestor_direto") or "").strip()
-                if gestor:
-                    filhos_por_gestor.setdefault(gestor, []).append(p)
-            for k in filhos_por_gestor:
-                filhos_por_gestor[k].sort(key=lambda p: (_nivel(p), p.get("nome", "")))
+                g = str(p.get("gestor_direto") or "").strip()
+                if g:
+                    _fp.setdefault(g, []).append(p)
+            for k in _fp:
+                _fp[k].sort(key=lambda x: (_nivel(x), x.get("nome", "")))
 
-            _cargo_short = {
-                "Gerente de Operações": "Gerente de Operações",
-                "Coordenador": "Coordenador",
-                "Supervisor": "Supervisor",
-                "Especialista": "Especialista",
-                "Analista Sênior": "An. Sênior",
+            def _ini2(nome):
+                parts = nome.split()
+                a = parts[0][0] if parts else ""
+                b = parts[-1][0] if len(parts) > 1 else ""
+                return (a + b).upper()
+
+            _c_abbr = {
+                "Gerente de Operações":       "Gte. Operações",
+                "Coordenador de Importação":  "Coord. Import.",
+                "Coordenadora de Importação": "Coord. Import.",
+                "Coordenador de Exportação":  "Coord. Export.",
+                "Coordenadora de Exportação": "Coord. Export.",
+                "Coordenador":    "Coord.",
+                "Coordenadora":   "Coord.",
+                "Supervisor":     "Supervisor",
+                "Especialista":   "Especialista",
+                "Analista Sênior":"An. Sênior",
                 "Analista Pleno": "An. Pleno",
-                "Analista Júnior": "An. Júnior",
-                "Assistente": "Assistente",
-                "Estagiário": "Estagiário",
+                "Analista Júnior":"An. Júnior",
+                "Assistente":     "Assist.",
+                "Estagiário":     "Estag.",
                 "Jovem Aprendiz": "J. Aprendiz",
             }
-            _dept_colors = {
-                "Importação": "#1a4a6e",
-                "Agenciamento": "#1a4a3a",
-                "Exportação": "#2d5a1a",
-                "Seguro Internacional": "#5a3a0a",
-            }
 
-            _rendered_ids: set = set()
-            _dark = is_dark_mode()
-            _color_hi = "#8ab4c8" if _dark else "#4a6a7a"
-            _color_lo = "#888" if _dark else "#666"
-            _color_root = "#aaa" if _dark else "#666"
+            _seen2: set = set()
 
-            def _row_html(p, depth, dept_badge=""):
-                if p["id"] in _rendered_ids:
-                    return ""
-                _rendered_ids.add(p["id"])
-                cargo = _cargo_short.get(p.get("cargo_nome", ""), p.get("cargo_nome", ""))
-                weight = "600" if depth <= 2 else "400"
-                color = _color_hi if depth <= 2 else _color_lo
-                margin = depth * 18
+            def _oc_card(p, depth):
+                nome  = p.get("nome", "")
+                cargo = _c_abbr.get(p.get("cargo_nome", ""), p.get("cargo_nome", ""))
+                dept  = p.get("departamento_nome", "")
+                av_col = _dept_oc.get(dept, "#556070")
+                ini   = _ini2(nome)
+                if depth <= 1:
+                    av_s, nm_s, rl_s, w = "38px", "0.76rem", "0.63rem", "112px"
+                elif depth == 2:
+                    av_s, nm_s, rl_s, w = "30px", "0.70rem", "0.60rem", "100px"
+                else:
+                    av_s, nm_s, rl_s, w = "24px", "0.65rem", "0.57rem", "90px"
                 return (
-                    f'<div style="margin-left:{margin}px;padding:1px 0;line-height:1.75;">'
-                    f'<span style="font-size:0.82rem;font-weight:{weight};">{p["nome"]}</span>'
-                    f'<span style="font-size:0.71rem;color:{color};margin-left:6px;">{cargo}</span>'
-                    f'{dept_badge}'
+                    f'<div class="oc-card" style="width:{w};">'
+                    f'<div style="width:{av_s};height:{av_s};border-radius:50%;background:{av_col};'
+                    f'display:flex;align-items:center;justify-content:center;font-weight:700;'
+                    f'font-size:0.58rem;color:#fff;margin:0 auto 3px;">{ini}</div>'
+                    f'<div style="font-size:{nm_s};font-weight:600;color:{_text_main};line-height:1.25;">{nome}</div>'
+                    f'<div style="font-size:{rl_s};color:{_text_sub};margin-top:1px;line-height:1.2;">{cargo}</div>'
                     f'</div>'
                 )
 
-            def _subtree(nome_gestor, depth):
-                rows = []
-                for c in filhos_por_gestor.get(nome_gestor, []):
-                    r = _row_html(c, depth)
-                    if r:
-                        rows.append(r)
-                        rows.extend(_subtree(c["nome"], depth + 1))
-                return rows
-
-            html_rows = [
-                '<div style="font-family:system-ui,sans-serif;padding:6px 2px;">',
-                f'<div style="padding:2px 0;line-height:1.75;">'
-                f'<span style="font-size:0.9rem;font-weight:700;">Gabriel Spohr</span>'
-                f'<span style="font-size:0.74rem;color:{_color_root};margin-left:8px;">Diretor de Operações</span>'
-                f'</div>',
-            ]
+            def _oc_li(p, depth):
+                if p["id"] in _seen2:
+                    return ""
+                _seen2.add(p["id"])
+                children = [c for c in _fp.get(p["nome"], []) if c["id"] not in _seen2]
+                card = _oc_card(p, depth)
+                if not children:
+                    return f"<li>{card}</li>"
+                ch = "".join(_oc_li(c, depth + 1) for c in children)
+                return f"<li>{card}<ul>{ch}</ul></li>"
 
             bruno = next(
                 (p for p in todos_ativos if "Bruno" in p.get("nome", "") and "Picinini" in p.get("nome", "")),
                 next((p for p in todos_ativos if str(p.get("gestor_direto", "")).strip() == "Gabriel Spohr"), None),
             )
 
-            if bruno and bruno["id"] in visible_ids:
-                html_rows.append(_row_html(bruno, 1))
-                diretos = filhos_por_gestor.get(bruno["nome"], [])
-                for dept in ["Importação", "Exportação", "Agenciamento", "Seguro Internacional"]:
-                    gestores_dept = [
-                        p for p in diretos
-                        if p.get("departamento_nome") == dept and p["id"] not in _rendered_ids
-                    ]
-                    if not gestores_dept:
-                        continue
-                    bg = _dept_colors.get(dept, "#333")
-                    badge = (
-                        f'<span style="background:{bg};color:#fff;padding:1px 7px;'
-                        f'border-radius:3px;font-size:0.6rem;margin-left:8px;'
-                        f'text-transform:uppercase;letter-spacing:0.04em;">{dept}</span>'
-                    )
-                    html_rows.append('<div style="height:4px;"></div>')
-                    for g in gestores_dept:
-                        r = _row_html(g, 2, dept_badge=badge)
-                        if r:
-                            html_rows.append(r)
-                            html_rows.extend(_subtree(g["nome"], 3))
+            gabriel_card = (
+                f'<div class="oc-card oc-top">'
+                f'<div style="font-size:0.82rem;font-weight:700;color:{_text_main};">Gabriel Spohr</div>'
+                f'<div style="font-size:0.65rem;color:{_text_sub};margin-top:2px;">Diretor de Operações</div>'
+                f'</div>'
+            )
 
-            html_rows.append("</div>")
-            st.markdown("\n".join(html_rows), unsafe_allow_html=True)
+            if bruno and bruno["id"] in visible_ids:
+                _seen2.add(bruno["id"])
+                bruno_card = _oc_card(bruno, 1)
+                diretos = [c for c in _fp.get(bruno["nome"], []) if c["id"] in visible_ids]
+                ch_html = "".join(_oc_li(d, 2) for d in diretos)
+                inner = (
+                    f"<li>{gabriel_card}"
+                    f"<ul><li>{bruno_card}<ul>{ch_html}</ul></li></ul>"
+                    f"</li>"
+                )
+            else:
+                inner = f"<li>{gabriel_card}</li>"
+
+            _lc = _line_col
+            oc_css = (
+                f"<style>"
+                f".oc-wrap{{overflow-x:auto;font-family:system-ui,-apple-system,sans-serif;padding:12px 0 24px;}}"
+                f".oc-wrap ul{{display:flex;justify-content:center;list-style:none;margin:0;padding:22px 0 0;position:relative;}}"
+                f".oc-wrap>ul{{padding-top:0;}}"
+                f".oc-wrap ul ul::before{{content:'';position:absolute;top:0;left:50%;border-left:1px solid {_lc};height:22px;}}"
+                f".oc-wrap li{{list-style-type:none;text-align:center;position:relative;padding:22px 5px 0;display:flex;flex-direction:column;align-items:center;}}"
+                f".oc-wrap>ul>li{{padding-top:0;}}"
+                f".oc-wrap li::before,.oc-wrap li::after{{content:'';position:absolute;top:0;right:50%;border-top:1px solid {_lc};width:50%;height:22px;}}"
+                f".oc-wrap li::after{{right:auto;left:50%;border-left:1px solid {_lc};}}"
+                f".oc-wrap>ul>li::before,.oc-wrap>ul>li::after{{display:none;}}"
+                f".oc-wrap li:only-child::before,.oc-wrap li:only-child::after{{display:none;}}"
+                f".oc-wrap li:only-child{{padding-top:0;}}"
+                f".oc-wrap li:first-child::before,.oc-wrap li:last-child::after{{border:0 none;}}"
+                f".oc-wrap li:last-child::before{{border-right:1px solid {_lc};border-radius:0 4px 0 0;}}"
+                f".oc-wrap li:first-child::after{{border-radius:4px 0 0 0;}}"
+                f".oc-card{{background:{_card_bg};border:1px solid {_card_bdr};border-radius:8px;padding:6px 8px;text-align:center;box-sizing:border-box;}}"
+                f".oc-top{{padding:8px 16px;min-width:170px;}}"
+                f"</style>"
+            )
+            st.markdown(oc_css + f'<div class="oc-wrap"><ul>{inner}</ul></div>', unsafe_allow_html=True)
 
         else:
             st.subheader("Visao por niveis")
