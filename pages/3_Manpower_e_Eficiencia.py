@@ -56,12 +56,19 @@ departamento_atual = departamentos_por_nome.get(departamento_selecionado, {})
 departamento_id = departamento_atual.get("id")
 _eh_importacao = departamento_selecionado == DEPARTAMENTO_COM_DADOS
 _eh_agenciamento = departamento_selecionado == "Agenciamento" and ag.dados_existem()
+_eh_exportacao = departamento_selecionado == "Exportação"
 tem_dados_departamento = _eh_importacao or _eh_agenciamento
+tem_manpower_departamento = tem_dados_departamento or _eh_exportacao
 
-if not tem_dados_departamento:
+if not tem_dados_departamento and not _eh_exportacao:
     st.caption(
         f"{departamento_selecionado} ja esta preparado no filtro superior, "
         "mas os dados de KPIs ainda nao foram carregados para esse departamento."
+    )
+elif _eh_exportacao and not tem_dados_departamento:
+    st.caption(
+        "Exportação: dados de Eficiência e Volume em desenvolvimento. "
+        "O Manpower já está disponível abaixo."
     )
 
 alt.renderers.set_embed_options(
@@ -1425,7 +1432,7 @@ else:
     with tab_mw:
         st.subheader(f"Manpower - {departamento_selecionado}")
 
-        if not tem_dados_departamento:
+        if not tem_manpower_departamento:
             _render_metricas_vazias(
                 [
                     ("Manpower atual", "0,00"),
