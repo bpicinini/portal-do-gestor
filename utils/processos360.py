@@ -327,11 +327,16 @@ def calcular_alertas(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     else:
         alertas["perdimento_proximo"] = pd.DataFrame()
 
-    # 6. Canal vermelho e Canal amarelo
+    # 6. Canal vermelho e Canal amarelo (excluir processos já desembaraçados)
     if "Canal" in df.columns:
         canal_lower = df["Canal"].str.strip().str.lower()
-        alertas["canal_vermelho"] = df[canal_lower == "vermelho"].copy()
-        alertas["canal_amarelo"]  = df[canal_lower == "amarelo"].copy()
+        mask_desembaracado = (
+            df["Desembaraço"].notna()
+            if "Desembaraço" in df.columns
+            else pd.Series(False, index=df.index)
+        )
+        alertas["canal_vermelho"] = df[(canal_lower == "vermelho") & ~mask_desembaracado].copy()
+        alertas["canal_amarelo"]  = df[(canal_lower == "amarelo") & ~mask_desembaracado].copy()
     else:
         alertas["canal_vermelho"] = pd.DataFrame()
         alertas["canal_amarelo"]  = pd.DataFrame()

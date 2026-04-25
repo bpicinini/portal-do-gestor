@@ -520,12 +520,26 @@ def _filtros(lista: list[dict], key_prefix: str) -> list[dict]:
     clientes_opts = sorted({str(r.get("cliente")).upper() for r in lista if r.get("cliente")})
     tipos_opts = sorted({str(r.get("tipo_processo")) for r in lista if r.get("tipo_processo")})
 
-    with st.expander("🔍 Filtros", expanded=False):
+    with st.expander("🔍 Filtros e Pesquisa", expanded=False):
+        pesquisa = st.text_input(
+            "Pesquisar",
+            key=f"{key_prefix}_busca",
+            placeholder="Buscar por título, cliente ou nº processo…",
+        )
         col1, col2 = st.columns(2)
         sel_cli = col1.multiselect("Cliente", clientes_opts, key=f"{key_prefix}_cli")
         sel_tipo = col2.multiselect("Tipo de Processo", tipos_opts, key=f"{key_prefix}_tipo")
 
     filtrados = lista
+    if pesquisa:
+        termo = pesquisa.strip().lower()
+        filtrados = [
+            r for r in filtrados
+            if termo in str(r.get("titulo") or "").lower()
+            or termo in str(r.get("cliente") or "").lower()
+            or termo in str(r.get("numero_processo") or "").lower()
+            or termo in str(r.get("parte_contraria") or "").lower()
+        ]
     if sel_cli:
         sel_up = {c.upper() for c in sel_cli}
         filtrados = [r for r in filtrados if str(r.get("cliente") or "").upper() in sel_up]

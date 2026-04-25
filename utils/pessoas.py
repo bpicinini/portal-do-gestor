@@ -97,7 +97,7 @@ def contratar(nome, cargo_id, departamento_id, empresa, cidade,
 
 
 def desligar(colab_id, data_saida, observacao=""):
-    """Registra desligamento: atualiza colaborador + histórico + recalcula manpower."""
+    """Registra saída: atualiza colaborador + histórico + recalcula manpower."""
     wb = carregar_workbook()
     ws_colab = wb[SHEET_COLABORADORES]
     ws_hist = wb[SHEET_HISTORICO]

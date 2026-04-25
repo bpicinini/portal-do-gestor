@@ -122,34 +122,41 @@ else:
     badge_text = "Sem dados"
 
 renderizar_cabecalho_pagina(
-    "Visão Geral 360",
-    "Visão consolidada dos processos de importação em andamento.",
+    "Visão 360",
+    "Visão consolidada dos processos em andamento por departamento.",
     badge=badge_text,
 )
 
 
-# ── Sub-abas ─────────────────────────────────────────────────────────
+# ── Abas de departamento ──────────────────────────────────────────────
 
-_TAB_NAMES = ["Visão Geral", "Analistas", "Clientes", "Alertas e Prazos", "Tabela", "Upload"]
-_qp_aba = st.query_params.get("aba", "")
-_qp_alerta = st.query_params.get("alerta", "")
-
-tab_geral, tab_analista, tab_clientes, tab_alertas, tab_tabela, tab_upload = st.tabs(
-    _TAB_NAMES
+tab_importacao, tab_exportacao, tab_agenciamento = st.tabs(
+    ["⬇️ Importação", "⬆️ Exportação", "🚢 Agenciamento"]
 )
 
-# Deep-link: se veio da home com ?aba=alertas, auto-selecionar a aba via JS
-if _qp_aba == "alertas":
-    _tab_idx = _TAB_NAMES.index("Alertas e Prazos")
-    st.markdown(
-        f"""<script>
-        setTimeout(function() {{
-            var tabs = window.parent.document.querySelectorAll('[data-baseweb="tab"]');
-            if (tabs && tabs[{_tab_idx}]) tabs[{_tab_idx}].click();
-        }}, 300);
-        </script>""",
-        unsafe_allow_html=True,
+with tab_importacao:
+    # ── Sub-abas de Importação ────────────────────────────────────────
+
+    _TAB_NAMES = ["Visão Geral", "Analistas", "Clientes", "Alertas e Prazos", "Tabela", "Upload"]
+    _qp_aba = st.query_params.get("aba", "")
+    _qp_alerta = st.query_params.get("alerta", "")
+
+    tab_geral, tab_analista, tab_clientes, tab_alertas, tab_tabela, tab_upload = st.tabs(
+        _TAB_NAMES
     )
+
+    # Deep-link: se veio da home com ?aba=alertas, auto-selecionar a aba via JS
+    if _qp_aba == "alertas":
+        _tab_idx = _TAB_NAMES.index("Alertas e Prazos")
+        st.markdown(
+            f"""<script>
+            setTimeout(function() {{
+                var tabs = window.parent.document.querySelectorAll('[data-baseweb="tab"]');
+                if (tabs && tabs[{_tab_idx}]) tabs[{_tab_idx}].click();
+            }}, 300);
+            </script>""",
+            unsafe_allow_html=True,
+        )
 
 
 def _msg_sem_dados():
@@ -1572,3 +1579,89 @@ with tab_upload:
                         "text/csv",
                         key=f"bk_{bk['nome']}",
                     )
+
+
+# ══════════════════════════════════════════════════════════════════════
+# DEPARTAMENTO: EXPORTAÇÃO
+# ══════════════════════════════════════════════════════════════════════
+
+with tab_exportacao:
+    st.markdown(
+        """
+        <div style="padding: 2rem 0 1rem; text-align: center; color: #6E6E73;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📦</div>
+            <div style="font-size: 1.2rem; font-weight: 700; color: #111111;">Exportação — Em breve</div>
+            <div style="margin-top: 0.5rem; font-size: 0.9rem;">
+                Esta seção receberá o acompanhamento de processos, analistas, clientes e alertas
+                do departamento de Exportação.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.divider()
+
+    tab_exp_geral, tab_exp_analist, tab_exp_clientes, tab_exp_alertas, tab_exp_tabela, tab_exp_upload = st.tabs(
+        ["Visão Geral", "Analistas", "Clientes", "Alertas e Prazos", "Tabela", "Upload"]
+    )
+
+    with tab_exp_geral:
+        st.info("Em construção — dados de volume e status de Exportação serão exibidos aqui.")
+
+    with tab_exp_analist:
+        st.info("Em construção — distribuição de carteira por analista de Exportação.")
+
+    with tab_exp_clientes:
+        st.info("Em construção — concentração e análise de clientes de Exportação.")
+
+    with tab_exp_alertas:
+        st.info("Em construção — alertas e prazos críticos de Exportação.")
+
+    with tab_exp_tabela:
+        st.info("Em construção — tabela completa de processos de Exportação.")
+
+    with tab_exp_upload:
+        st.info("Em construção — upload da planilha de processos de Exportação.")
+
+
+# ══════════════════════════════════════════════════════════════════════
+# DEPARTAMENTO: AGENCIAMENTO
+# ══════════════════════════════════════════════════════════════════════
+
+with tab_agenciamento:
+    st.markdown(
+        """
+        <div style="padding: 2rem 0 1rem; text-align: center; color: #6E6E73;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🤝</div>
+            <div style="font-size: 1.2rem; font-weight: 700; color: #111111;">Agenciamento — Em breve</div>
+            <div style="margin-top: 0.5rem; font-size: 0.9rem;">
+                Esta seção receberá o acompanhamento de processos, analistas, clientes e alertas
+                do departamento de Agenciamento.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.divider()
+
+    tab_ag_geral, tab_ag_analist, tab_ag_clientes, tab_ag_alertas, tab_ag_tabela, tab_ag_upload = st.tabs(
+        ["Visão Geral", "Analistas", "Clientes", "Alertas e Prazos", "Tabela", "Upload"]
+    )
+
+    with tab_ag_geral:
+        st.info("Em construção — dados de volume e status de Agenciamento serão exibidos aqui.")
+
+    with tab_ag_analist:
+        st.info("Em construção — distribuição de carteira por analista de Agenciamento.")
+
+    with tab_ag_clientes:
+        st.info("Em construção — concentração e análise de clientes de Agenciamento.")
+
+    with tab_ag_alertas:
+        st.info("Em construção — alertas e prazos críticos de Agenciamento.")
+
+    with tab_ag_tabela:
+        st.info("Em construção — tabela completa de processos de Agenciamento.")
+
+    with tab_ag_upload:
+        st.info("Em construção — upload da planilha de processos de Agenciamento.")

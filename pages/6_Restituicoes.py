@@ -67,9 +67,9 @@ STATUS_EMOJI = {
 
 # Ordem de exibição — Deferido no topo (quase ganhos), Com Pendências no fim
 ORDEM_STATUS = [
+    "Intimação Pendente",
     "Deferido",
     "Intimação Respondida",
-    "Intimação Pendente",
     "Judicializado",
     "Protocolado",
     "Em análise",
@@ -568,7 +568,7 @@ def _ordenar(registros_status: list[dict], status: str) -> list[dict]:
 
 
 def _filtros(lista: list[dict], key_prefix: str) -> list[dict]:
-    """Renderiza bloco de filtros (cliente / divisão / desencaixe) e
+    """Renderiza bloco de filtros (pesquisa / cliente / divisão / desencaixe) e
     devolve a lista filtrada."""
     if not lista:
         return lista
@@ -577,13 +577,27 @@ def _filtros(lista: list[dict], key_prefix: str) -> list[dict]:
     divisoes_opts = sorted({str(r.get("divisao")) for r in lista if r.get("divisao")})
     desencaixes_opts = sorted({str(r.get("desencaixe")) for r in lista if r.get("desencaixe")})
 
-    with st.expander("🔍 Filtros", expanded=False):
+    with st.expander("🔍 Filtros e Pesquisa", expanded=False):
+        pesquisa = st.text_input(
+            "Pesquisar",
+            key=f"{key_prefix}_busca",
+            placeholder="Buscar por cliente, nº processo, e-CAC ou CNPJ…",
+        )
         col1, col2, col3 = st.columns(3)
         sel_cli = col1.multiselect("Cliente", clientes_opts, key=f"{key_prefix}_cli")
         sel_div = col2.multiselect("Divisão", divisoes_opts, key=f"{key_prefix}_div")
         sel_des = col3.multiselect("Desencaixe", desencaixes_opts, key=f"{key_prefix}_des")
 
     filtrados = lista
+    if pesquisa:
+        termo = pesquisa.strip().lower()
+        filtrados = [
+            r for r in filtrados
+            if termo in str(r.get("cliente") or "").lower()
+            or termo in str(r.get("numero_processo") or "").lower()
+            or termo in str(r.get("processo_ecac") or "").lower()
+            or termo in str(r.get("cnpj") or "").lower()
+        ]
     if sel_cli:
         sel_up = {c.upper() for c in sel_cli}
         filtrados = [r for r in filtrados if str(r.get("cliente") or "").upper() in sel_up]
