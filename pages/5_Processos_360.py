@@ -21,6 +21,7 @@ from utils.processos360 import (
     validar_csv,
 )
 from utils.ui import aplicar_estilos_globais, is_dark_mode, renderizar_cabecalho_pagina
+from utils import exportacao as exp
 
 _DARK = is_dark_mode()
 _BASE_DARK_TEXT = "#d4dae2" if _DARK else "#111111"
