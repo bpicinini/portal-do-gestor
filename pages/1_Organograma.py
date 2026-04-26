@@ -692,8 +692,9 @@ def _render_views(fd):
                 f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>"
                 f"*{{box-sizing:border-box;margin:0;padding:0;}}"
                 f"body{{background:{_bg_body};font-family:system-ui,-apple-system,sans-serif;"
-                f"padding:16px 24px 28px;overflow:auto;}}"
-                f".oc-root{{display:flex;justify-content:center;list-style:none;padding:0;margin:0;}}"
+                f"padding:16px 24px 28px;overflow-x:auto;overflow-y:auto;text-align:center;}}"
+                f".oc-wrap-inner{{display:inline-block;text-align:left;}}"
+                f".oc-root{{display:flex;list-style:none;padding:0;margin:0;}}"
                 f"ul{{display:flex;justify-content:center;list-style:none;"
                 f"padding:22px 0 0;position:relative;margin:0;}}"
                 f"li>ul::before{{content:'';position:absolute;top:0;left:50%;"
@@ -714,7 +715,7 @@ def _render_views(fd):
                 f"border-radius:6px;padding:5px 8px;text-align:center;max-width:130px;flex-shrink:0;}}"
                 f".oc-top{{padding:8px 14px;min-width:160px;border-width:1px;}}"
                 f"</style></head><body>"
-                f"<ul class='oc-root'>{inner}</ul>"
+                f"<div class='oc-wrap-inner'><ul class='oc-root'>{inner}</ul></div>"
                 f"</body></html>"
             )
 
