@@ -611,9 +611,21 @@ def _render_views(fd):
             _seen2_names: set = set()
 
             def _oc_card(p, depth):
-                nome  = p.get("nome", "")
-                cargo = _c_abbr.get(p.get("cargo_nome", ""), p.get("cargo_nome", ""))
-                dept  = p.get("departamento_nome", "")
+                nome      = p.get("nome", "")
+                cargo_raw = p.get("cargo_nome", "")
+                dept      = p.get("departamento_nome", "")
+                dept_label = {
+                    "Importação": "Importação", "Agenciamento": "Agenciamento",
+                    "Exportação": "Exportação", "Seguro Internacional": "Seg. Internacional",
+                }.get(dept, dept)
+                if "coordenad" in cargo_raw.lower():
+                    suffix = "a" if cargo_raw.lower().endswith("a") else "or"
+                    cargo = f"Coordenad{suffix} de {dept_label}"
+                elif "supervisor" in cargo_raw.lower():
+                    suffix = "a" if cargo_raw.lower().endswith("a") else ""
+                    cargo = f"Supervisor{suffix} de {dept_label}"
+                else:
+                    cargo = _c_abbr.get(cargo_raw, cargo_raw)
                 dc    = _dept_oc.get(dept, "#556070")
                 if depth <= 1:
                     nm_s, rl_s, mw = "13px", "10.5px", "108px"
