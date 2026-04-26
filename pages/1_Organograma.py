@@ -538,20 +538,22 @@ def _render_views(fd):
     if _uni_key not in st.session_state:
         st.session_state[_uni_key] = "Todas"
 
-    st.markdown('<div class="filtro-label">Unidade</div>', unsafe_allow_html=True)
-    _opcoes_uni = ["Todas", "Novo Hamburgo", "Itajaí"]
-    _ucols = st.columns(len(_opcoes_uni))
-    for _i, _opt in enumerate(_opcoes_uni):
-        with _ucols[_i]:
-            if st.button(
-                _opt,
-                key=f"_utag_{fd.lower().replace(' ', '')}_{_i}",
-                type="primary" if st.session_state[_uni_key] == _opt else "secondary",
-                use_container_width=True,
-            ):
-                st.session_state[_uni_key] = _opt
-                st.rerun()
-    fu = st.session_state[_uni_key]
+    if fd == "Todos":
+        fu = "Todas"
+    else:
+        _opcoes_uni = ["Todas", "Novo Hamburgo", "Itajaí"]
+        _ucols = st.columns([1, 1.6, 1, 5])
+        for _i, _opt in enumerate(_opcoes_uni):
+            with _ucols[_i]:
+                if st.button(
+                    _opt,
+                    key=f"_utag_{fd.lower().replace(' ', '')}_{_i}",
+                    type="primary" if st.session_state[_uni_key] == _opt else "secondary",
+                    use_container_width=True,
+                ):
+                    st.session_state[_uni_key] = _opt
+                    st.rerun()
+        fu = st.session_state[_uni_key]
     _ks = fd.lower().replace(" ", "").replace("/", "")
 
     # ─────────────────────────────────────────────────────────────────────
@@ -581,6 +583,19 @@ def _render_views(fd):
                     if key in c:
                         return col
                 return _card_bdr
+
+            def _nivel_oc(cargo_raw):
+                c = cargo_raw.lower()
+                if "diretor"    in c: return 0
+                if "gerente"    in c: return 1
+                if "coordenad"  in c: return 2
+                if "supervisor" in c or "especialista" in c: return 3
+                if "sênior"     in c or "senior"       in c: return 4
+                if "pleno"      in c: return 5
+                if "júnior"     in c or "junior"       in c: return 6
+                if "assistente" in c: return 7
+                if "estagiár"   in c or "jovem"        in c: return 8
+                return 5
 
             visible_ids = {
                 p["id"] for p in todos_ativos
@@ -661,17 +676,26 @@ def _render_views(fd):
                         ch = _fp.get(parts[0] + " " + parts[-1], [])
                 return ch
 
+            _STEP = 24  # px por nível extra de hierarquia
+
             def _oc_li(p, depth):
                 if p["id"] in _seen2 or p.get("nome", "") in _seen2_names:
                     return ""
                 _seen2.add(p["id"])
                 _seen2_names.add(p.get("nome", ""))
+                cargo_level = _nivel_oc(p.get("cargo_nome", ""))
+                extra = max(0, cargo_level - depth) * _STEP
+                conn_h = 22 + extra
+                li_style = (
+                    f' style="padding-top:{conn_h}px;--li-conn-h:{conn_h}px;"'
+                    if extra > 0 else ""
+                )
                 children = [c for c in _fp_get(p["nome"]) if c["id"] not in _seen2 and c.get("nome", "") not in _seen2_names]
                 card = _oc_card(p, depth)
                 if not children:
-                    return f"<li>{card}</li>"
+                    return f"<li{li_style}>{card}</li>"
                 ch = "".join(_oc_li(c, depth + 1) for c in children)
-                return f"<li>{card}<ul>{ch}</ul></li>"
+                return f"<li{li_style}>{card}<ul>{ch}</ul></li>"
 
             bruno = next(
                 (p for p in todos_ativos if "Bruno" in p.get("nome", "") and "Picinini" in p.get("nome", "")),
@@ -713,9 +737,11 @@ def _render_views(fd):
                 f"li{{list-style-type:none;text-align:center;position:relative;"
                 f"padding:22px 5px 0;display:flex;flex-direction:column;align-items:center;}}"
                 f".oc-root>li{{padding-top:0;}}"
-                f"li::before,li::after{{content:'';position:absolute;top:0;right:50%;"
+                f"li::before{{content:'';position:absolute;top:0;right:50%;"
                 f"border-top:1px solid {_lc};width:50%;height:22px;}}"
-                f"li::after{{right:auto;left:50%;border-left:1px solid {_lc};}}"
+                f"li::after{{content:'';position:absolute;top:0;right:auto;left:50%;"
+                f"border-top:1px solid {_lc};border-left:1px solid {_lc};width:50%;"
+                f"height:var(--li-conn-h,22px);}}"
                 f".oc-root>li::before,.oc-root>li::after{{display:none;}}"
                 f"li:only-child::before,li:only-child::after{{display:none;}}"
                 f"li:only-child{{padding-top:0;}}"
@@ -779,7 +805,7 @@ def _render_views(fd):
                     _depth(c["nome"], d + 1)
             if bruno:
                 _depth(bruno["nome"], 1)
-            _est_h = max(500, (_max_d[0] + 2) * 100 + 60)
+            _est_h = max(600, (_max_d[0] + 2) * 100 + 60 + 8 * _STEP)
             components.html(html_doc, height=_est_h, scrolling=True)
 
         with tab_quadro:
