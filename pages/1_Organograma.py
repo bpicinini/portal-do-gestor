@@ -568,12 +568,19 @@ def _render_views(fd):
             _text_main  = "#ddeaf2" if _dark else "#1a2a38"
             _text_sub   = "#789ab0" if _dark else "#4a6a80"
             _line_col   = "#2e4a60" if _dark else "#a8bece"
-            _dept_oc = {
-                "Importação":          "#1a5a9e",
-                "Agenciamento":        "#1a7a3a",
-                "Exportação":          "#4a8a1a",
-                "Seguro Internacional":"#8a6a0a",
+            _hier_col = {
+                "diretor":    "#4A90D9",
+                "gerente":    "#3DB08B",
+                "coordenad":  "#E8954A",
+                "supervisor": "#9B7EC8",
             }
+
+            def _cargo_color(cargo_raw):
+                c = cargo_raw.lower()
+                for key, col in _hier_col.items():
+                    if key in c:
+                        return col
+                return _card_bdr
 
             visible_ids = {
                 p["id"] for p in todos_ativos
@@ -626,23 +633,15 @@ def _render_views(fd):
                     cargo = f"Supervisor{suffix} de {dept_label}"
                 else:
                     cargo = _c_abbr.get(cargo_raw, cargo_raw)
-                dc    = _dept_oc.get(dept, "#556070")
+                dc    = _cargo_color(cargo_raw)
                 if depth <= 1:
                     nm_s, rl_s, mw = "13px", "10.5px", "108px"
                 elif depth == 2:
                     nm_s, rl_s, mw = "12px", "10px",   "96px"
                 else:
                     nm_s, rl_s, mw = "11px", "9.5px",  "82px"
-                border_top = f"3px solid {dc}" if depth == 2 else f"1px solid {_card_bdr}"
-                dept_short = {
-                    "Importação": "Import.", "Agenciamento": "Agenc.",
-                    "Exportação": "Export.", "Seguro Internacional": "Seguro",
-                }.get(dept, dept)
-                dept_badge = (
-                    f'<div style="font-size:8px;color:#fff;background:{dc};'
-                    f'border-radius:2px;padding:1px 5px;margin-top:3px;'
-                    f'display:inline-block;">{dept_short}</div>'
-                ) if depth == 2 else ""
+                border_top = f"3px solid {dc}"
+                dept_badge = ""
                 return (
                     f'<div class="oc-card" style="min-width:{mw};border-top:{border_top};">'
                     f'<div style="font-size:{nm_s};font-weight:600;color:{_text_main};'
@@ -680,7 +679,7 @@ def _render_views(fd):
             )
 
             gabriel_card = (
-                f'<div class="oc-card oc-top">'
+                f'<div class="oc-card oc-top" style="border-top:3px solid {_hier_col["diretor"]};">'
                 f'<div style="font-size:14px;font-weight:700;color:{_text_main};">Gabriel Spohr</div>'
                 f'<div style="font-size:11px;color:{_text_sub};margin-top:2px;">Diretor de Operações</div>'
                 f'</div>'
