@@ -1566,14 +1566,140 @@ with _tab_kpi_imp:
                         st.error(msg)
 
 with _tab_kpi_exp:
+    from utils import exportacao as _exp_kpi
     _dep_exp = departamentos_por_nome.get("Exportação", {})
     _dep_exp_id = _dep_exp.get("id")
-    if _dep_exp_id:
-        tab_overview_exp, tab_mw_exp = st.tabs(["Overview", "Manpower"])
-        with tab_overview_exp:
+    if not _dep_exp_id:
+        st.info("Departamento de Exportação não encontrado.")
+    else:
+        _tab_exp_ov, _tab_exp_perf, _tab_exp_rank, _tab_exp_mw, _tab_exp_up = st.tabs(
+            ["Overview", "Volume e Performance", "Ranking", "Manpower", "Upload"]
+        )
+
+        with _tab_exp_ov:
             st.subheader("Overview - Exportação")
-            st.info("Dados de KPI para Exportação em construção.")
-        with tab_mw_exp:
+            _df_emb = _exp_kpi.obter_processos_embarcados() if _exp_kpi.dados_embarcados_existem() else pd.DataFrame()
+            if _df_emb.empty:
+                st.info("Nenhum dado de embarcados carregado. Use a aba **Upload** para importar.")
+            else:
+                _anos_exp = _exp_kpi.obter_anos_embarcados(_df_emb)
+                _ano_ov_exp = st.selectbox("Ano", _anos_exp, format_func=lambda v: str(int(v)), key="exp_ov_ano")
+                _km = _exp_kpi.kpis_mensais(_df_emb, int(_ano_ov_exp))
+                _score_total = _km["score"].sum() if not _km.empty else 0
+                _proc_total = int(_km["processos"].sum()) if not _km.empty else 0
+                _n_meses = len(_km) if not _km.empty else 0
+                _score_medio = round(_score_total / _n_meses, 1) if _n_meses else 0
+                _mp_exp = calcular_manpower_por_departamento().get(_dep_exp_id, 0)
+                _perf_medio = round(_score_medio / _mp_exp, 2) if _mp_exp else 0
+                _c1, _c2, _c3, _c4 = st.columns(4)
+                _c1.metric("Meses", _n_meses)
+                _c2.metric("Processos", _br(_proc_total, 0))
+                _c3.metric("Score total", _br(_score_total, 1))
+                _c4.metric("Efic. média (Score/MP)", _br(_perf_medio, 2))
+                st.divider()
+                if not _km.empty:
+                    _km["Mês"] = _km["mes"].apply(lambda m: MESES_PT[int(m)])
+                    _c_vol, _c_sc = st.columns(2)
+                    with _c_vol:
+                        st.caption("**Processos por mês**")
+                        _ch = (alt.Chart(_km).mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6, color=COLOR_NAVY)
+                               .encode(x=alt.X("Mês:N", sort=MESES_ORDEM, title=None),
+                                       y=alt.Y("processos:Q", title="Processos"),
+                                       tooltip=[alt.Tooltip("Mês:N"), alt.Tooltip("processos:Q", format=",d")])
+                               .properties(height=220))
+                        st.altair_chart(_ch, use_container_width=True)
+                    with _c_sc:
+                        st.caption("**Score por mês**")
+                        _ch2 = (alt.Chart(_km).mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6, color=COLOR_GOLD)
+                                .encode(x=alt.X("Mês:N", sort=MESES_ORDEM, title=None),
+                                        y=alt.Y("score:Q", title="Score"),
+                                        tooltip=[alt.Tooltip("Mês:N"), alt.Tooltip("score:Q", format=",.1f")])
+                                .properties(height=220))
+                        st.altair_chart(_ch2, use_container_width=True)
+
+        with _tab_exp_perf:
+            st.subheader("Volume e Performance - Exportação")
+            _df_emb2 = _exp_kpi.obter_processos_embarcados() if _exp_kpi.dados_embarcados_existem() else pd.DataFrame()
+            if _df_emb2.empty:
+                st.info("Nenhum dado de embarcados carregado. Use a aba **Upload** para importar.")
+            else:
+                _anos_p = _exp_kpi.obter_anos_embarcados(_df_emb2)
+                _tabs_anos = st.tabs([str(int(a)) for a in _anos_p])
+                for _tw, _ano_p in zip(_tabs_anos, _anos_p):
+                    _km_p = _exp_kpi.kpis_mensais(_df_emb2, int(_ano_p))
+                    with _tw:
+                        if _km_p.empty:
+                            st.info("Sem dados para este ano.")
+                        else:
+                            _km_p = _km_p.copy()
+                            _km_p["Mês"] = _km_p["mes"].apply(lambda m: MESES_PT[int(m)])
+                            _mp_col = calcular_manpower_por_departamento().get(_dep_exp_id, 0)
+                            _km_p["manpower"] = _mp_col
+                            _km_p["performance"] = (_km_p["score"] / _mp_col).round(2) if _mp_col else None
+                            _df_show_p = _km_p[["Mês", "processos", "score", "manpower", "performance"]].copy()
+                            _df_show_p.columns = ["Mês", "Processos", "Score", "Manpower", "Eficiência"]
+                            _styled_p = _df_show_p.style.format({
+                                "Score": lambda v: _br(v, 1) if pd.notna(v) else "—",
+                                "Manpower": lambda v: _br(v, 2) if pd.notna(v) else "—",
+                                "Eficiência": lambda v: _br(v, 2) if pd.notna(v) else "—",
+                            })
+                            renderizar_dataframe(_styled_p, use_container_width=True, hide_index=True)
+                            st.divider()
+                            _c_v2, _c_e2 = st.columns(2)
+                            with _c_v2:
+                                st.caption("**Volume (Score) mensal**")
+                                _ch_v = (alt.Chart(_km_p).mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6, color=COLOR_GOLD)
+                                         .encode(x=alt.X("Mês:N", sort=MESES_ORDEM, title=None),
+                                                 y=alt.Y("score:Q", title="Score"),
+                                                 tooltip=[alt.Tooltip("Mês:N"), alt.Tooltip("score:Q", format=",.1f")])
+                                         .properties(height=220))
+                                st.altair_chart(_ch_v, use_container_width=True)
+                            with _c_e2:
+                                st.caption("**Eficiência mensal (Score / MP)**")
+                                if _km_p["performance"].notna().any():
+                                    _ch_e = (alt.Chart(_km_p).mark_line(
+                                                 point=alt.OverlayMarkDef(filled=True, size=70),
+                                                 color=COLOR_NAVY, strokeWidth=3)
+                                             .encode(x=alt.X("Mês:N", sort=MESES_ORDEM, title=None),
+                                                     y=alt.Y("performance:Q", title="Eficiência"),
+                                                     tooltip=[alt.Tooltip("Mês:N"), alt.Tooltip("performance:Q", format=",.2f")])
+                                             .properties(height=220))
+                                    st.altair_chart(_ch_e, use_container_width=True)
+
+        with _tab_exp_rank:
+            st.subheader("Ranking por Account - Exportação")
+            _df_emb3 = _exp_kpi.obter_processos_embarcados() if _exp_kpi.dados_embarcados_existem() else pd.DataFrame()
+            if _df_emb3.empty:
+                st.info("Nenhum dado de embarcados carregado.")
+            else:
+                _anos_r = _exp_kpi.obter_anos_embarcados(_df_emb3)
+                _ano_r = st.selectbox("Ano", _anos_r, format_func=lambda v: str(int(v)), key="exp_rank_ano")
+                _df_rank = _exp_kpi.kpis_por_account(_df_emb3, int(_ano_r))
+                if _df_rank.empty:
+                    st.info("Sem dados para este ano.")
+                else:
+                    _c_rank, _c_hl = st.columns([2, 1])
+                    with _c_rank:
+                        st.caption("**Score por Analista**")
+                        _ch_r = (alt.Chart(_df_rank).mark_bar(cornerRadiusEnd=8, color=COLOR_NAVY)
+                                 .encode(x=alt.X("score:Q", title="Score"),
+                                         y=alt.Y("Account:N", sort="-x", title=None, axis=alt.Axis(labelLimit=250)),
+                                         tooltip=[alt.Tooltip("Account:N"), alt.Tooltip("score:Q", format=",.1f"),
+                                                   alt.Tooltip("processos:Q", format=",d")])
+                                 .properties(height=max(280, len(_df_rank) * 28)))
+                        st.altair_chart(_ch_r, use_container_width=True)
+                    with _c_hl:
+                        _dest = _df_rank.iloc[0]
+                        st.metric("Maior score", _br(_dest["score"], 1), _dest["Account"])
+                        st.metric("Total processos", _br(int(_df_rank["processos"].sum()), 0))
+                        st.metric("Score total", _br(_df_rank["score"].sum(), 1))
+                    st.divider()
+                    _styled_r = _df_rank.rename(columns={"processos": "Processos", "score": "Score"}).style.format({
+                        "Score": lambda v: _br(v, 1), "Processos": lambda v: _br(v, 0)
+                    })
+                    renderizar_dataframe(_styled_r, use_container_width=True, hide_index=True)
+
+        with _tab_exp_mw:
             st.subheader("Manpower - Exportação")
             mp_dept_exp = calcular_manpower_por_departamento()
             ativos_exp = listar_colaboradores(status="Ativo", departamento_id=_dep_exp_id)
@@ -1596,8 +1722,24 @@ with _tab_kpi_exp:
                 df_exp = df_exp.sort_values(["Nível", "Nome"])
                 df_exp["Peso MP"] = df_exp["Peso MP"].apply(lambda val: _br(val, 2) if pd.notna(val) else "")
                 renderizar_dataframe(df_exp, use_container_width=True, hide_index=True)
-    else:
-        st.info("Departamento de Exportação não encontrado.")
+
+        with _tab_exp_up:
+            st.subheader("Upload - Embarcados Exportação")
+            st.caption("Planilha XLSX com histórico de processos embarcados. Colunas obrigatórias: **Processo, Account, Classificação, Modal, DT Abertura**.")
+            _meta_emb = _exp_kpi.carregar_meta_emb()
+            if _meta_emb:
+                _dt_emb = pd.Timestamp(_meta_emb["ultimo_upload"]).strftime("%d/%m/%Y %H:%M")
+                st.info(f"Último upload: **{_dt_emb}** — {_meta_emb['total_registros']} registros — Arquivo: {_meta_emb['arquivo_original']}")
+            _up_emb = st.file_uploader("Planilha de Embarcados (.xlsx)", type=["xlsx"], key="up_exp_emb")
+            if _up_emb:
+                if st.button("Processar upload", type="primary", key="btn_exp_emb"):
+                    with st.spinner("Processando..."):
+                        _ok_emb, _msg_emb = _exp_kpi.salvar_upload_embarcados(_up_emb)
+                    if _ok_emb:
+                        st.success(_msg_emb)
+                        st.rerun()
+                    else:
+                        st.error(_msg_emb)
 
 with _tab_kpi_ag:
     if ag.dados_existem():
