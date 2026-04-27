@@ -586,14 +586,15 @@ def _render_views(fd):
 
             def _nivel_oc(cargo_raw):
                 c = cargo_raw.lower()
-                if "diretor"    in c: return 0
-                if "gerente"    in c: return 1
-                if "coordenad"  in c: return 2
-                if "supervisor" in c or "especialista" in c: return 3
-                if "analista"   in c: return 4
-                if "assistente" in c: return 5
-                if "estagiár"   in c or "jovem"        in c: return 6
-                return 4
+                if "diretor"      in c: return 0
+                if "gerente"      in c: return 1
+                if "coordenad"    in c: return 2
+                if "supervisor"   in c: return 3
+                if "especialista" in c: return 4
+                if "analista"     in c: return 5
+                if "assistente"   in c: return 6
+                if "estagiár"     in c or "jovem" in c: return 7
+                return 5
 
             visible_ids = {
                 p["id"] for p in todos_ativos
@@ -603,8 +604,9 @@ def _render_views(fd):
             for p in todos_ativos:
                 if p["id"] not in visible_ids:
                     continue
+                nome_p = (p.get("nome") or "").strip()
                 g = str(p.get("gestor_direto") or "").strip()
-                if g:
+                if g and nome_p:
                     _fp.setdefault(g, []).append(p)
             for k in _fp:
                 _fp[k].sort(key=lambda x: (_nivel(x), x.get("nome", "")))
@@ -634,6 +636,11 @@ def _render_views(fd):
                 nome      = p.get("nome", "")
                 cargo_raw = p.get("cargo_nome", "")
                 dept      = p.get("departamento_nome", "")
+                # primeiro + último nome para todos abaixo dos gestores
+                if depth >= 2:
+                    parts = nome.split()
+                    if len(parts) > 2:
+                        nome = parts[0] + " " + parts[-1]
                 dept_label = {
                     "Importação": "Importação", "Agenciamento": "Agenciamento",
                     "Exportação": "Exportação", "Seguro Internacional": "Seg. Internacional",
@@ -646,22 +653,19 @@ def _render_views(fd):
                     cargo = f"Supervisor{suffix} de {dept_label}"
                 else:
                     cargo = _c_abbr.get(cargo_raw, cargo_raw)
-                dc    = _cargo_color(cargo_raw)
+                dc = _cargo_color(cargo_raw)
                 if depth <= 1:
-                    nm_s, rl_s, mw = "13px", "10.5px", "108px"
+                    nm_s, rl_s, size_style = "13px", "10.5px", "min-width:108px"
                 elif depth == 2:
-                    nm_s, rl_s, mw = "12px", "10px",   "96px"
+                    nm_s, rl_s, size_style = "12px", "10px",   "min-width:96px"
                 else:
-                    nm_s, rl_s, mw = "11px", "9.5px",  "82px"
-                border_top = f"3px solid {dc}"
-                dept_badge = ""
+                    nm_s, rl_s, size_style = "10.5px", "9px",  "width:88px;max-width:88px"
                 return (
-                    f'<div class="oc-card" style="min-width:{mw};border-top:{border_top};">'
+                    f'<div class="oc-card" style="{size_style};border-top:3px solid {dc};">'
                     f'<div style="font-size:{nm_s};font-weight:600;color:{_text_main};'
                     f'line-height:1.3;">{nome}</div>'
                     f'<div style="font-size:{rl_s};color:{_text_sub};margin-top:2px;'
                     f'line-height:1.2;">{cargo}</div>'
-                    f'{dept_badge}'
                     f'</div>'
                 )
 
@@ -748,7 +752,7 @@ def _render_views(fd):
                 f"li:only-child::before,li:only-child::after{{display:none;}}"
                 f"li:only-child{{padding-top:0;}}"
                 f"li:first-child::before,li:last-child::after{{border:0 none;}}"
-                f"li:last-child::before{{border-right:1px solid {_lc};border-radius:0 4px 0 0;}}"
+                f"li:last-child::before{{border-right:1px solid {_lc};border-radius:0 4px 0 0;height:var(--li-conn-h,22px);}}"
                 f"li:first-child::after{{border-radius:4px 0 0 0;}}"
                 f".oc-card{{background:{_card_bg};border:1px solid {_card_bdr};"
                 f"border-radius:6px;padding:5px 8px;text-align:center;max-width:130px;flex-shrink:0;}}"
@@ -808,7 +812,7 @@ def _render_views(fd):
                     _depth(c["nome"], d + 1)
             if bruno:
                 _depth(bruno["nome"], 1)
-            _est_h = max(600, 6 * _K + (_max_d[0] + 2) * 22 + 120)
+            _est_h = max(700, 7 * _K + (_max_d[0] + 2) * 22 + 120)
             components.html(html_doc, height=_est_h, scrolling=True)
 
         with tab_quadro:
