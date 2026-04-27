@@ -636,11 +636,7 @@ def _render_views(fd):
                 nome      = p.get("nome", "")
                 cargo_raw = p.get("cargo_nome", "")
                 dept      = p.get("departamento_nome", "")
-                # primeiro + último nome para todos abaixo dos gestores
-                if depth >= 2:
-                    parts = nome.split()
-                    if len(parts) > 2:
-                        nome = parts[0] + " " + parts[-1]
+                parts = nome.split()
                 dept_label = {
                     "Importação": "Importação", "Agenciamento": "Agenciamento",
                     "Exportação": "Exportação", "Seguro Internacional": "Seg. Internacional",
@@ -656,16 +652,24 @@ def _render_views(fd):
                 dc = _cargo_color(cargo_raw)
                 if depth <= 1:
                     nm_s, rl_s, size_style = "13px", "10.5px", "min-width:108px"
+                    nome_html = f'<div style="font-size:{nm_s};font-weight:600;color:{_text_main};line-height:1.3;">{nome}</div>'
                 elif depth == 2:
-                    nm_s, rl_s, size_style = "12px", "10px",   "min-width:96px"
+                    nm_s, rl_s, size_style = "12px", "10px", "min-width:96px"
+                    if len(parts) > 2:
+                        nome = parts[0] + " " + parts[-1]
+                    nome_html = f'<div style="font-size:{nm_s};font-weight:600;color:{_text_main};line-height:1.3;">{nome}</div>'
                 else:
-                    nm_s, rl_s, size_style = "10.5px", "9px",  "width:88px;max-width:88px"
+                    nm_s, rl_s, size_style = "10.5px", "9px", "width:88px;max-width:88px"
+                    primeiro  = parts[0] if parts else nome
+                    sobrenome = parts[-1] if len(parts) > 1 else ""
+                    nome_html = (
+                        f'<div style="font-size:{nm_s};font-weight:600;color:{_text_main};line-height:1.3;">{primeiro}</div>'
+                        f'<div style="font-size:{nm_s};font-weight:600;color:{_text_main};line-height:1.3;">{sobrenome}</div>'
+                    )
                 return (
                     f'<div class="oc-card" style="{size_style};border-top:3px solid {dc};">'
-                    f'<div style="font-size:{nm_s};font-weight:600;color:{_text_main};'
-                    f'line-height:1.3;">{nome}</div>'
-                    f'<div style="font-size:{rl_s};color:{_text_sub};margin-top:2px;'
-                    f'line-height:1.2;">{cargo}</div>'
+                    f'{nome_html}'
+                    f'<div style="font-size:{rl_s};color:{_text_sub};margin-top:2px;line-height:1.2;">{cargo}</div>'
                     f'</div>'
                 )
 
