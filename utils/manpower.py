@@ -129,6 +129,32 @@ def listar_manpower_mensal(departamento_id=None):
     return dados
 
 
+def calcular_manpower_mensal_depto(dep_id, ano: int) -> dict:
+    """Retorna {mes: manpower_total} para cada mês do ano para o departamento.
+
+    Usa fim_do_mes como data de referência para saber quem estava ativo em cada mês.
+    Útil para calcular eficiência histórica correta quando o quadro variou ao longo do ano.
+    """
+    wb = carregar_workbook()
+    colaboradores = sheet_to_list(wb[SHEET_COLABORADORES])
+    cargos = {c["id"]: c for c in sheet_to_list(wb[SHEET_CARGOS])}
+    result = {}
+    for mes in range(1, 13):
+        ref = fim_do_mes(ano, mes)
+        total = 0.0
+        for c in colaboradores:
+            if str(c.get("departamento_id")) != str(dep_id):
+                continue
+            if not colaborador_ativo_em(c, referencia=ref):
+                continue
+            cargo = cargos.get(c.get("cargo_id"))
+            peso = cargo.get("peso_manpower") if cargo else None
+            if peso is not None:
+                total += float(peso)
+        result[mes] = round(total, 2)
+    return result
+
+
 # === PERFORMANCE ===
 
 def listar_performance():

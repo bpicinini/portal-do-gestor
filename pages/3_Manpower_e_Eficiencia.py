@@ -9,6 +9,7 @@ from utils.auth import garantir_autenticado
 from utils.departamentos import listar_departamentos
 from utils.manpower import (
     calcular_manpower_por_departamento,
+    calcular_manpower_mensal_depto,
     listar_performance,
     obter_manpower_para_performance,
     salvar_performance,
@@ -1606,11 +1607,21 @@ with _tab_kpi_exp:
                     _km = _km_full[_km_full["mes"] < _mes_corte].copy() if not _km_full.empty else _km_full
                     _km_prev_full = _exp_kpi.kpis_mensais(_df_emb, int(_ano_ov_exp) - 1)
                     _km_prev = _km_prev_full[_km_prev_full["mes"] < _mes_corte].copy() if not _km_prev_full.empty else pd.DataFrame()
-                    _mp_exp = calcular_manpower_por_departamento().get(_dep_exp_id, 0)
+
+                    # Per-month manpower based on actual entry/exit dates
+                    _mp_mensal = calcular_manpower_mensal_depto(_dep_exp_id, int(_ano_ov_exp))
+                    _mp_mensal_prev = calcular_manpower_mensal_depto(_dep_exp_id, int(_ano_ov_exp) - 1) if not _km_prev.empty else {}
+
+                    def _merge_mp(df, mp_dict):
+                        df = df.copy()
+                        df["manpower"] = df["mes"].apply(lambda m: mp_dict.get(int(m), 0))
+                        df["performance"] = df.apply(
+                            lambda r: round(r["score"] / r["manpower"], 2) if r["manpower"] else None, axis=1
+                        )
+                        return df
 
                     _n_meses = len(_km)
                     _score_medio = round(_km["score"].mean(), 1) if _n_meses else 0
-                    _perf_medio = round(_score_medio / _mp_exp, 2) if _mp_exp and _score_medio else 0
 
                     def _delta_pct(cur, prev):
                         if cur and prev and prev != 0:
@@ -1618,7 +1629,6 @@ with _tab_kpi_exp:
                         return None
 
                     _prev_score = round(_km_prev["score"].mean(), 1) if not _km_prev.empty else None
-                    _prev_perf = round(_prev_score / _mp_exp, 2) if _prev_score and _mp_exp else None
 
                     _c1, _c2, _c3, _c4 = st.columns(4)
                     with _c1:
@@ -1626,18 +1636,23 @@ with _tab_kpi_exp:
                     with _c2:
                         st.metric("Score médio", _br(_score_medio, 1), delta=_delta_pct(_score_medio, _prev_score))
                     with _c3:
-                        st.metric("Manpower", _br(_mp_exp, 2), delta=" ")
+                        _mp_medio = round(sum(_mp_mensal.get(int(r["mes"]), 0) for _, r in _km.iterrows()) / _n_meses, 2) if _n_meses else 0
+                        _mp_medio_prev = round(sum(_mp_mensal_prev.get(int(r["mes"]), 0) for _, r in _km_prev.iterrows()) / len(_km_prev), 2) if not _km_prev.empty else None
+                        st.metric("MP médio", _br(_mp_medio, 2), delta=_delta_pct(_mp_medio, _mp_medio_prev))
                     with _c4:
+                        _km_tmp = _merge_mp(_km, _mp_mensal)
+                        _perf_medio = round(_km_tmp["performance"].mean(), 2) if _km_tmp["performance"].notna().any() else 0
+                        _km_prev_tmp = _merge_mp(_km_prev, _mp_mensal_prev) if not _km_prev.empty else pd.DataFrame()
+                        _prev_perf = round(_km_prev_tmp["performance"].mean(), 2) if not _km_prev_tmp.empty and _km_prev_tmp["performance"].notna().any() else None
                         st.metric("Eficiência média", _br(_perf_medio, 2), delta=_delta_pct(_perf_medio, _prev_perf))
                     st.divider()
                     if not _km.empty:
+                        _km = _merge_mp(_km, _mp_mensal)
                         _km["Mês"] = _km["mes"].apply(lambda m: MESES_PT[int(m)])
-                        _km["performance"] = (_km["score"] / _mp_exp).round(2) if _mp_exp else None
                         _km_prev_c = pd.DataFrame()
                         if not _km_prev.empty:
-                            _km_prev_c = _km_prev.copy()
+                            _km_prev_c = _merge_mp(_km_prev, _mp_mensal_prev)
                             _km_prev_c["Mês"] = _km_prev_c["mes"].apply(lambda m: MESES_PT[int(m)])
-                            _km_prev_c["performance"] = (_km_prev_c["score"] / _mp_exp).round(2) if _mp_exp else None
 
                         _col1, _col2, _col3 = st.columns(3)
                         with _col1:
@@ -1726,6 +1741,8 @@ with _tab_kpi_exp:
                             if not _km_yr.empty:
                                 _km_yr = _km_yr.copy()
                                 _km_yr["ano"] = int(_yr)
+                                _mp_yr = calcular_manpower_mensal_depto(_dep_exp_id, int(_yr))
+                                _km_yr["manpower"] = _km_yr["mes"].apply(lambda m: _mp_yr.get(int(m), 0))
                                 _df_traj_fr.append(_km_yr)
                         if _df_traj_fr:
                             _df_traj = pd.concat(_df_traj_fr, ignore_index=True).sort_values(["ano", "mes"])
@@ -1740,6 +1757,25 @@ with _tab_kpi_exp:
                                         tooltip=[alt.Tooltip("periodo:N", title="Período"), alt.Tooltip("score:Q", format=",.1f")],
                                     ).properties(height=220))
                                 st.altair_chart(_ch_traj, use_container_width=True)
+
+                        st.markdown("#### Trajetória do Manpower - histórico completo")
+                        _df_mp_traj = []
+                        for _yr in _anos_exp:
+                            _mp_yr_all = calcular_manpower_mensal_depto(_dep_exp_id, int(_yr))
+                            for _m, _mp_v in _mp_yr_all.items():
+                                if _mp_v > 0:
+                                    _df_mp_traj.append({"ano": int(_yr), "mes": _m, "manpower": _mp_v,
+                                                        "periodo": f"{int(_yr)}-{MESES_PT[_m]}"})
+                        if _df_mp_traj:
+                            _df_mp_traj = pd.DataFrame(_df_mp_traj).sort_values(["ano", "mes"])
+                            _ch_mp_traj = (alt.Chart(_df_mp_traj)
+                                .mark_line(point=alt.OverlayMarkDef(filled=True, fill=COLOR_GOLD, stroke=COLOR_NAVY, size=70), color=COLOR_NAVY, strokeWidth=3)
+                                .encode(
+                                    x=alt.X("periodo:N", sort=None, title=None, axis=alt.Axis(labelAngle=-45)),
+                                    y=alt.Y("manpower:Q", scale=_yscale(_df_mp_traj["manpower"]), title="Manpower"),
+                                    tooltip=[alt.Tooltip("periodo:N", title="Período"), alt.Tooltip("manpower:Q", format=",.2f")],
+                                ).properties(height=220))
+                            st.altair_chart(_ch_mp_traj, use_container_width=True)
 
         with _tab_exp_perf:
             st.subheader("Eficiência - Exportação")
@@ -1763,9 +1799,11 @@ with _tab_kpi_exp:
                                 st.info("Sem dados fechados para este ano.")
                             else:
                                 _km_p["Mês"] = _km_p["mes"].apply(lambda m: MESES_PT[int(m)])
-                                _mp_col = calcular_manpower_por_departamento().get(_dep_exp_id, 0)
-                                _km_p["manpower"] = _mp_col
-                                _km_p["performance"] = (_km_p["score"] / _mp_col).round(2) if _mp_col else None
+                                _mp_mensal_p = calcular_manpower_mensal_depto(_dep_exp_id, int(_ano_p))
+                                _km_p["manpower"] = _km_p["mes"].apply(lambda m: _mp_mensal_p.get(int(m), 0))
+                                _km_p["performance"] = _km_p.apply(
+                                    lambda r: round(r["score"] / r["manpower"], 2) if r["manpower"] else None, axis=1
+                                )
                                 _df_show_p = _km_p[["Mês", "processos", "score", "manpower", "performance"]].copy()
                                 _df_show_p.columns = ["Mês", "Processos", "Score", "Manpower", "Eficiência"]
                                 _styled_p = _df_show_p.style.format({
