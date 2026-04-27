@@ -15,3 +15,11 @@ data/processos_360.csv
 data/processos_360_meta.json
 !data/processos_360_meta.json
 data/backups/
+data/exportacao_360.csv
+!data/exportacao_360.csv
+data/exportacao_360_meta.json
+!data/exportacao_360_meta.json
+data/exportacao_embarcados.xlsx
+!data/exportacao_embarcados.xlsx
+data/exportacao_emb_meta.json
+!data/exportacao_emb_meta.json

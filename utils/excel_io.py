@@ -16,6 +16,7 @@ SHEET_COLABORADORES = "Colaboradores"
 SHEET_HISTORICO = "Historico"
 SHEET_MANPOWER_MENSAL = "ManpowerMensal"
 SHEET_PERFORMANCE = "Performance"
+SHEET_PERFORMANCE_EXP = "PerformanceExportacao"
 SHEET_USUARIOS = "Usuarios"
 SHEET_RESTITUICOES = "Restituicoes"
 SHEET_RESTITUICOES_LOG = "RestituicoesLog"
@@ -34,6 +35,7 @@ HEADERS = {
     SHEET_HISTORICO: ["id", "colaborador_id", "nome", "tipo", "cargo", "data", "observacao"],
     SHEET_MANPOWER_MENSAL: ["ano", "mes", "departamento_id", "manpower_total"],
     SHEET_PERFORMANCE: ["ano", "mes", "volume_score", "manpower", "performance", "meta", "pct_meta"],
+    SHEET_PERFORMANCE_EXP: ["ano", "mes", "volume_score", "manpower", "performance", "meta", "pct_meta"],
     SHEET_USUARIOS: [
         "id",
         "nome",
