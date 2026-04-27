@@ -21,6 +21,7 @@ from utils.processos360 import (
     validar_csv,
 )
 from utils.ui import aplicar_estilos_globais, is_dark_mode, renderizar_cabecalho_pagina
+from utils import exportacao as exp
 
 _DARK = is_dark_mode()
 _BASE_DARK_TEXT = "#d4dae2" if _DARK else "#111111"
@@ -1585,43 +1586,463 @@ with tab_upload:
 # DEPARTAMENTO: EXPORTAÇÃO
 # ══════════════════════════════════════════════════════════════════════
 
-with tab_exportacao:
-    st.markdown(
-        """
-        <div style="padding: 2rem 0 1rem; text-align: center; color: #6E6E73;">
-            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📦</div>
-            <div style="font-size: 1.2rem; font-weight: 700; color: #111111;">Exportação — Em breve</div>
-            <div style="margin-top: 0.5rem; font-size: 0.9rem;">
-                Esta seção receberá o acompanhamento de processos, analistas, clientes e alertas
-                do departamento de Exportação.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.divider()
+_EXP_STATUS_ORDEM = exp.STATUS_ORDEM_EXP
+_EXP_STATUS_CORES = {
+    "Ag.Instruções":  "#7ea6c7",
+    "Pré-Embarque":   "#C9A67A",
+    "Embarque":       "#5e8668",
+    "Ag.Desembaraço": "#4a8ab5",
+    "Sem etapa":      "#8E8E93",
+}
+_EXP_ACC_PALETTE = [_BASE_DARK_TEXT, "#4a8ab5", "#C9A67A", "#5e8668", "#8E8E93",
+                    "#7ea6c7", "#8b5e3c", "#b5423a", "#6E6E73", "#36586f"]
 
+with tab_exportacao:
     tab_exp_geral, tab_exp_analist, tab_exp_clientes, tab_exp_alertas, tab_exp_tabela, tab_exp_upload = st.tabs(
         ["Visão Geral", "Analistas", "Clientes", "Alertas e Prazos", "Tabela", "Upload"]
     )
 
     with tab_exp_geral:
-        st.info("Em construção — dados de volume e status de Exportação serão exibidos aqui.")
+        if not exp.dados_360_existem():
+            st.info("Nenhum dado carregado. Acesse a aba **Upload** para importar a planilha.")
+        else:
+            _df360 = exp.obter_processos_360()
+            if _df360.empty:
+                st.info("Nenhum dado carregado. Acesse a aba **Upload** para importar a planilha.")
+            else:
+                _total360 = len(_df360)
+                st.markdown(
+                    f"""<div style="background:{_CARD_BG};border:1px solid {_CARD_BORDER};border-radius:20px;
+                    padding:1rem 1.4rem;margin-bottom:1rem;box-shadow:{_CARD_SHADOW};
+                    display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;">
+                    <div style="flex:0 0 auto;margin-right:0.8rem;">
+                        <span style="color:#6E6E73;font-size:0.7rem;text-transform:uppercase;font-weight:800;">Total</span><br/>
+                        <span style="color:{_BASE_DARK_TEXT};font-size:1.8rem;font-weight:800;">{_total360:,}</span>
+                    </div>
+                    {"".join(f'''<div style="flex:1 1 0;min-width:120px;background:rgba(255,255,255,0.06);
+                        border:1px solid {_CARD_BORDER};border-radius:14px;padding:0.55rem 0.75rem;text-align:center;
+                        border-left:4px solid {_EXP_STATUS_CORES.get(s,'#ccc')};">
+                        <div style="color:#6E6E73;font-size:0.65rem;text-transform:uppercase;font-weight:700;
+                            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{s}</div>
+                        <div style="color:{_BASE_DARK_TEXT};font-size:1.25rem;font-weight:800;">{len(_df360[_df360["Status"]==s])}</div>
+                        <div style="color:{_EXP_STATUS_CORES.get(s,"#6E6E73")};font-size:0.78rem;font-weight:700;">
+                            {len(_df360[_df360["Status"]==s])/_total360*100:.1f}%</div>
+                    </div>''' for s in _EXP_STATUS_ORDEM)}
+                    </div>""",
+                    unsafe_allow_html=True,
+                )
+                st.divider()
+                _c1, _c2 = st.columns(2)
+                with _c1:
+                    st.caption("**Distribuição por Status**")
+                    import altair as _alt
+                    _ds = _df360["Status"].value_counts().reset_index()
+                    _ds.columns = ["Status", "Quantidade"]
+                    _ds["Status"] = pd.Categorical(_ds["Status"], categories=_EXP_STATUS_ORDEM, ordered=True)
+                    _ds = _ds.sort_values("Status")
+                    _ch = (_alt.Chart(_ds).mark_bar(cornerRadiusEnd=8).encode(
+                        x=_alt.X("Quantidade:Q", title="Processos"),
+                        y=_alt.Y("Status:N", sort=_EXP_STATUS_ORDEM, title=None, axis=_alt.Axis(labelLimit=250)),
+                        color=_alt.Color("Status:N", scale=_alt.Scale(
+                            domain=list(_EXP_STATUS_CORES.keys()), range=list(_EXP_STATUS_CORES.values())), legend=None),
+                        tooltip=[_alt.Tooltip("Status:N"), _alt.Tooltip("Quantidade:Q", format=",d")],
+                    ).properties(height=220))
+                    st.altair_chart(_ch, use_container_width=True)
+                with _c2:
+                    st.caption("**Distribuição por Modalidade**")
+                    if "Modalidade" in _df360.columns:
+                        _dm = _df360["Modalidade"].value_counts().reset_index()
+                        _dm.columns = ["Modalidade", "Quantidade"]
+                        if len(_dm) > 5:
+                            _dm = pd.concat([_dm.head(5), pd.DataFrame([{"Modalidade": "Outros", "Quantidade": _dm.iloc[5:]["Quantidade"].sum()}])], ignore_index=True)
+                        _dm_total = _dm["Quantidade"].sum()
+                        _dm["Pct"] = (_dm["Quantidade"] / _dm_total * 100).round(1)
+                        _dm["Label"] = _dm["Pct"].apply(lambda v: f"{v:.1f}%")
+                        _mod_pal = [_BASE_DARK_TEXT, "#4a8ab5", "#C9A67A", "#5e8668", "#8E8E93", "#7ea6c7"]
+                        _dm_dom = _dm["Modalidade"].tolist()
+                        _dm_rng = [_mod_pal[i % len(_mod_pal)] for i in range(len(_dm_dom))]
+                        _pie = (_alt.Chart(_dm).mark_arc(innerRadius=0, outerRadius=90, cornerRadius=3).encode(
+                            theta=_alt.Theta("Quantidade:Q", stack=True),
+                            color=_alt.Color("Modalidade:N", scale=_alt.Scale(domain=_dm_dom, range=_dm_rng),
+                                             legend=_alt.Legend(title=None, orient="bottom", columns=3)),
+                            tooltip=[_alt.Tooltip("Modalidade:N"), _alt.Tooltip("Quantidade:Q", format=",d"), _alt.Tooltip("Pct:Q", title="%", format=".1f")],
+                        ))
+                        _txt = (_alt.Chart(_dm).mark_text(radius=110, size=12, fontWeight="bold").encode(
+                            theta=_alt.Theta("Quantidade:Q", stack=True), text="Label:N",
+                            color=_alt.Color("Modalidade:N", scale=_alt.Scale(domain=_dm_dom, range=_dm_rng), legend=None),
+                        ))
+                        st.altair_chart((_pie + _txt).properties(height=240, padding={"top": 20, "bottom": 10}), use_container_width=True)
+                _c3, _c4 = st.columns(2)
+                with _c3:
+                    st.caption("**Distribuição por Account**")
+                    _da = _df360["Account Responsável"].value_counts().reset_index()
+                    _da.columns = ["Account", "Quantidade"]
+                    _da_dom = _da["Account"].tolist()
+                    _da_rng = [_EXP_ACC_PALETTE[i % len(_EXP_ACC_PALETTE)] for i in range(len(_da_dom))]
+                    _ch_acc = (_alt.Chart(_da).mark_bar(cornerRadiusEnd=8).encode(
+                        x=_alt.X("Quantidade:Q", title="Processos"),
+                        y=_alt.Y("Account:N", sort="-x", title=None, axis=_alt.Axis(labelLimit=250)),
+                        color=_alt.Color("Account:N", scale=_alt.Scale(domain=_da_dom, range=_da_rng), legend=None),
+                        tooltip=[_alt.Tooltip("Account:N"), _alt.Tooltip("Quantidade:Q", format=",d")],
+                    ).properties(height=max(220, len(_da_dom) * 24)))
+                    st.altair_chart(_ch_acc, use_container_width=True)
+                with _c4:
+                    st.caption("**Distribuição por Tipo**")
+                    if "Tipo" in _df360.columns:
+                        _dt = _df360["Tipo"].value_counts().reset_index()
+                        _dt.columns = ["Tipo", "Quantidade"]
+                        if len(_dt) > 6:
+                            _dt = pd.concat([_dt.head(6), pd.DataFrame([{"Tipo": "Outros", "Quantidade": _dt.iloc[6:]["Quantidade"].sum()}])], ignore_index=True)
+                        _dt_total = _dt["Quantidade"].sum()
+                        _dt["Pct"] = (_dt["Quantidade"] / _dt_total * 100).round(1)
+                        _dt["Label"] = _dt["Pct"].apply(lambda v: f"{v:.1f}%")
+                        _tp_pal = ["#4a8ab5", "#C9A67A", "#5e8668", "#8E8E93", _BASE_DARK_TEXT, "#7ea6c7", "#8b5e3c"]
+                        _dt_dom = _dt["Tipo"].tolist()
+                        _dt_rng = [_tp_pal[i % len(_tp_pal)] for i in range(len(_dt_dom))]
+                        _pie_t = (_alt.Chart(_dt).mark_arc(innerRadius=0, outerRadius=90, cornerRadius=3).encode(
+                            theta=_alt.Theta("Quantidade:Q", stack=True),
+                            color=_alt.Color("Tipo:N", scale=_alt.Scale(domain=_dt_dom, range=_dt_rng),
+                                             legend=_alt.Legend(title=None, orient="bottom", columns=2)),
+                            tooltip=[_alt.Tooltip("Tipo:N"), _alt.Tooltip("Quantidade:Q", format=",d"), _alt.Tooltip("Pct:Q", title="%", format=".1f")],
+                        ))
+                        _txt_t = (_alt.Chart(_dt).mark_text(radius=110, size=11, fontWeight="bold").encode(
+                            theta=_alt.Theta("Quantidade:Q", stack=True), text="Label:N",
+                            color=_alt.Color("Tipo:N", scale=_alt.Scale(domain=_dt_dom, range=_dt_rng), legend=None),
+                        ))
+                        st.altair_chart((_pie_t + _txt_t).properties(height=240, padding={"top": 20, "bottom": 10}), use_container_width=True)
 
     with tab_exp_analist:
-        st.info("Em construção — distribuição de carteira por analista de Exportação.")
+        if not exp.dados_360_existem():
+            st.info("Nenhum dado carregado. Acesse a aba **Upload** para importar a planilha.")
+        else:
+            _df_an = exp.obter_processos_360()
+            if _df_an.empty:
+                st.info("Nenhum dado carregado.")
+            else:
+                import altair as _alt
+                _an_agg = (
+                    _df_an.groupby("Account Responsável")
+                    .agg(processos=("Processo", "count"), clientes=("Cliente", "nunique"))
+                    .reset_index()
+                    .sort_values("processos", ascending=False)
+                )
+                _mc1, _mc2, _mc3, _mc4 = st.columns(4)
+                _mc1.metric("Analistas", len(_an_agg))
+                _mc2.metric("Total processos", int(_an_agg["processos"].sum()))
+                _mc3.metric("Média por analista", round(_an_agg["processos"].mean(), 1) if len(_an_agg) else 0)
+                _mc4.metric("Maior carteira", int(_an_agg["processos"].max()) if len(_an_agg) else 0)
+
+                for _i in range(0, len(_an_agg), 3):
+                    _cols = st.columns(3)
+                    for _j, _col in enumerate(_cols):
+                        _idx = _i + _j
+                        if _idx >= len(_an_agg):
+                            break
+                        _row = _an_agg.iloc[_idx]
+                        _df_an_fil = _df_an[_df_an["Account Responsável"] == _row["Account Responsável"]]
+                        _sc = _df_an_fil["Status"].value_counts()
+                        _pills = " | ".join(f"{s}: {_sc.get(s,0)}" for s in _EXP_STATUS_ORDEM if _sc.get(s, 0) > 0)
+                        with _col:
+                            st.markdown(
+                                f"""<div style="background:{_CARD_BG};border:1px solid {_CARD_BORDER};
+                                border-radius:18px;padding:1rem 1.2rem;margin-bottom:0.2rem;box-shadow:{_CARD_SHADOW};">
+                                <div style="font-weight:800;color:{_BASE_DARK_TEXT};font-size:1.05rem;margin-bottom:0.4rem;">
+                                    {_row['Account Responsável']}</div>
+                                <div style="display:flex;gap:1.2rem;margin-bottom:0.5rem;">
+                                    <div><span style="color:{_MUTED_TEXT};font-size:0.75rem;text-transform:uppercase;font-weight:700;">Processos</span><br/>
+                                    <span style="color:{_BASE_DARK_TEXT};font-size:1.3rem;font-weight:800;">{int(_row['processos'])}</span></div>
+                                    <div><span style="color:{_MUTED_TEXT};font-size:0.75rem;text-transform:uppercase;font-weight:700;">Clientes</span><br/>
+                                    <span style="color:#5e8668;font-size:1.3rem;font-weight:800;">{int(_row['clientes'])}</span></div>
+                                </div>
+                                <div style="font-size:0.75rem;color:{_MUTED_TEXT};">{_pills}</div>
+                                </div>""",
+                                unsafe_allow_html=True,
+                            )
+                            with st.expander("Ver clientes", expanded=False):
+                                _cl_agg = (
+                                    _df_an_fil.groupby("Cliente").size()
+                                    .reset_index(name="Processos")
+                                    .sort_values("Processos", ascending=False)
+                                )
+                                _rows_h = "".join(
+                                    f'<tr style="border-bottom:1px solid #E5E5EA;">'
+                                    f'<td style="padding:5px 8px;font-size:0.8rem;color:#111111;">{r["Cliente"]}</td>'
+                                    f'<td style="padding:5px 8px;font-size:0.8rem;text-align:center;color:#111111;font-weight:700;">{int(r["Processos"])}</td>'
+                                    f'</tr>'
+                                    for _, r in _cl_agg.iterrows()
+                                )
+                                st.markdown(
+                                    f'<table style="width:100%;border-collapse:collapse;">'
+                                    f'<thead><tr style="background:#FAFAFA;">'
+                                    f'<th style="text-align:left;padding:6px 8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Cliente</th>'
+                                    f'<th style="text-align:center;padding:6px 8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Proc.</th>'
+                                    f'</tr></thead><tbody>{_rows_h}</tbody></table>',
+                                    unsafe_allow_html=True,
+                                )
+                st.divider()
+                st.caption("**Distribuição por Analista e Status**")
+                _df_piv = _df_an.groupby(["Account Responsável", "Status"]).size().reset_index(name="Quantidade")
+                _df_piv["Status"] = pd.Categorical(_df_piv["Status"], categories=_EXP_STATUS_ORDEM, ordered=True)
+                _ch_an = (_alt.Chart(_df_piv).mark_bar(cornerRadiusEnd=4).encode(
+                    x=_alt.X("Quantidade:Q", title="Processos", stack="zero"),
+                    y=_alt.Y("Account Responsável:N", sort=_alt.EncodingSortField(field="Quantidade", op="sum", order="descending"),
+                              title=None, axis=_alt.Axis(labelLimit=250)),
+                    color=_alt.Color("Status:N", scale=_alt.Scale(
+                        domain=list(_EXP_STATUS_CORES.keys()), range=list(_EXP_STATUS_CORES.values())),
+                        legend=_alt.Legend(title="Status")),
+                    tooltip=[_alt.Tooltip("Account Responsável:N", title="Analista"),
+                              _alt.Tooltip("Status:N"), _alt.Tooltip("Quantidade:Q", format=",d")],
+                ).properties(height=max(320, len(_an_agg) * 30)))
+                st.altair_chart(_ch_an, use_container_width=True)
 
     with tab_exp_clientes:
-        st.info("Em construção — concentração e análise de clientes de Exportação.")
+        if not exp.dados_360_existem():
+            st.info("Nenhum dado carregado. Acesse a aba **Upload** para importar a planilha.")
+        else:
+            _df_cli = exp.obter_processos_360()
+            if _df_cli.empty:
+                st.info("Nenhum dado carregado.")
+            else:
+                import altair as _alt
+                _total_cli = _df_cli["Cliente"].nunique()
+                _mc1, _mc2, _mc3 = st.columns(3)
+                _mc1.metric("Clientes únicos", _total_cli)
+                _mc2.metric("Total processos", len(_df_cli))
+                _mc3.metric("Média proc./cliente", round(len(_df_cli) / _total_cli, 1) if _total_cli else 0)
+                st.divider()
+
+                st.caption("**Top 15 Clientes — Volume de Processos**")
+                _df_top = (_df_cli.groupby("Cliente").size().reset_index(name="Processos")
+                           .sort_values("Processos", ascending=False).head(15))
+                _ch_top = (_alt.Chart(_df_top).mark_bar(cornerRadiusEnd=8, color=COLOR_NAVY).encode(
+                    x=_alt.X("Processos:Q", title="Processos"),
+                    y=_alt.Y("Cliente:N", sort="-x", title=None, axis=_alt.Axis(labelLimit=250)),
+                    tooltip=[_alt.Tooltip("Cliente:N"), _alt.Tooltip("Processos:Q", format=",d")],
+                ).properties(height=max(360, len(_df_top) * 28)))
+                st.altair_chart(_ch_top, use_container_width=True)
+                st.divider()
+
+                st.caption("**Concentração de Carteira (Pareto)**")
+                _df_pareto = (_df_cli.groupby("Cliente").size().reset_index(name="Processos")
+                              .sort_values("Processos", ascending=False).reset_index(drop=True))
+                _df_pareto["Acumulado"] = _df_pareto["Processos"].cumsum()
+                _df_pareto["% Acumulado"] = (_df_pareto["Acumulado"] / _df_pareto["Processos"].sum() * 100).round(1)
+                _df_pareto["Rank"] = range(1, len(_df_pareto) + 1)
+                _idx_80 = (_df_pareto["% Acumulado"] >= 80).idxmax()
+                _n_80 = int(_df_pareto.loc[_idx_80, "Rank"])
+                _pct_80 = _df_pareto.loc[_idx_80, "% Acumulado"]
+                st.markdown(
+                    f'<div style="background:rgba(142,142,147,0.08);border:1px solid #E5E5EA;border-radius:12px;'
+                    f'padding:0.7rem 1rem;margin-bottom:0.8rem;font-size:0.88rem;color:#111111;">'
+                    f'Os <b>top {_n_80} clientes</b> ({(_n_80/_total_cli*100):.0f}% da base) representam <b>{_pct_80:.1f}%</b> dos processos.</div>',
+                    unsafe_allow_html=True,
+                )
+                _df_p20 = _df_pareto.head(20).copy()
+                _df_p20["Lbl"] = _df_p20["Rank"].astype(str) + ". " + _df_p20["Cliente"]
+                _ordem_p = _df_p20["Lbl"].tolist()
+                _barras = (_alt.Chart(_df_p20).mark_bar(cornerRadiusEnd=6, color=COLOR_NAVY).encode(
+                    x=_alt.X("Processos:Q"), y=_alt.Y("Lbl:N", sort=_ordem_p, title=None, axis=_alt.Axis(labelLimit=250)),
+                    tooltip=[_alt.Tooltip("Cliente:N"), _alt.Tooltip("Processos:Q", format=",d")],
+                ))
+                _linha = (_alt.Chart(_df_p20).mark_line(color=COLOR_GOLD, strokeWidth=3,
+                    point=_alt.OverlayMarkDef(size=50, color=COLOR_GOLD)).encode(
+                    x=_alt.X("% Acumulado:Q", scale=_alt.Scale(domain=[0, 100])),
+                    y=_alt.Y("Lbl:N", sort=_ordem_p, title=None),
+                    tooltip=[_alt.Tooltip("Cliente:N"), _alt.Tooltip("% Acumulado:Q", format=".1f")],
+                ))
+                st.altair_chart(
+                    _alt.layer(_barras, _linha).resolve_scale(x="independent").properties(height=max(420, len(_df_p20) * 30)),
+                    use_container_width=True,
+                )
+                st.divider()
+                _busca_exp = st.text_input("Buscar cliente", key="busca_cli_exp", placeholder="Digite o nome...")
+                _df_tab_cli = _df_cli.groupby("Cliente").size().reset_index(name="Processos").sort_values("Processos", ascending=False)
+                if _busca_exp:
+                    _df_tab_cli = _df_tab_cli[_df_tab_cli["Cliente"].str.contains(_busca_exp, case=False, na=False)]
+                st.caption(f"**{len(_df_tab_cli)}** clientes")
+                from utils.ui import renderizar_dataframe
+                renderizar_dataframe(_df_tab_cli, use_container_width=True, hide_index=True,
+                                     height=min(38 + len(_df_tab_cli) * 35, 600))
 
     with tab_exp_alertas:
-        st.info("Em construção — alertas e prazos críticos de Exportação.")
+        if not exp.dados_360_existem():
+            st.info("Nenhum dado carregado. Acesse a aba **Upload** para importar a planilha.")
+        else:
+            _df_al = exp.obter_processos_360()
+            if _df_al.empty:
+                st.info("Nenhum dado carregado.")
+            else:
+                _alertas = exp.calcular_alertas_360(_df_al)
+                _itens_al = [
+                    ("Dead Draft", len(_alertas["dead_draft"]), COLOR_RED),
+                    ("Dead Carga", len(_alertas["dead_carga"]), COLOR_RED),
+                    ("Dead VGM", len(_alertas["dead_vgm"]), COLOR_RED),
+                    ("Prev. Embarque", len(_alertas["prev_embarque_vencida"]), "#8b5e3c"),
+                    ("DUE s/ Averb.", len(_alertas["due_sem_avercacao"]), "#b58c23"),
+                    ("Sem Etapa", len(_alertas["sem_etapa"]), "#8E8E93"),
+                    ("Follow > 10d", len(_alertas["follow_desatualizado"]), "#b58c23"),
+                ]
+                _pills_al = "".join(
+                    f'<div style="flex:1 1 0;min-width:100px;text-align:center;background:rgba(255,255,255,0.6);'
+                    f'border:1px solid #E5E5EA;border-radius:12px;padding:0.45rem 0.5rem;border-top:3px solid {cor};">'
+                    f'<div style="color:#6E6E73;font-size:0.6rem;text-transform:uppercase;font-weight:700;white-space:nowrap;">{lbl}</div>'
+                    f'<div style="color:{cor if n > 0 else "#111111"};font-size:1.3rem;font-weight:800;">{n}</div></div>'
+                    for lbl, n, cor in _itens_al
+                )
+                st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">{_pills_al}</div>', unsafe_allow_html=True)
+
+                _fmt_dt = lambda v: v.strftime("%d/%m/%Y") if pd.notna(v) else ""
+
+                def _exp_alerta(titulo, df_a, colunas, fmt=None, icon="⚠️"):
+                    if len(df_a) == 0:
+                        return
+                    with st.expander(f"{icon} {titulo} ({len(df_a)})", expanded=False):
+                        _cols_ok = [c for c in colunas if c in df_a.columns]
+                        _df_s = df_a[_cols_ok].copy()
+                        if fmt:
+                            _styled = _df_s.style.format({k: v for k, v in fmt.items() if k in _df_s.columns})
+                            st.dataframe(_styled, use_container_width=True, hide_index=True)
+                        else:
+                            st.dataframe(_df_s, use_container_width=True, hide_index=True)
+
+                _exp_alerta("Dead Draft vencido sem confirmação",
+                    _alertas["dead_draft"],
+                    ["Processo", "Account Responsável", "Cliente", "Dead Draft", "Dead Draft Confirmado", "Data do follow", "Follow"],
+                    {"Dead Draft": _fmt_dt, "Dead Draft Confirmado": _fmt_dt, "Data do follow": _fmt_dt}, "🚨")
+                _exp_alerta("Dead Carga vencida sem confirmação",
+                    _alertas["dead_carga"],
+                    ["Processo", "Account Responsável", "Cliente", "Dead Carga", "Dead Carga Confirmada", "Data do follow", "Follow"],
+                    {"Dead Carga": _fmt_dt, "Dead Carga Confirmada": _fmt_dt, "Data do follow": _fmt_dt}, "🚨")
+                _exp_alerta("Dead VGM vencido sem confirmação",
+                    _alertas["dead_vgm"],
+                    ["Processo", "Account Responsável", "Cliente", "Dead VGM", "VGM Confirmado", "Data do follow", "Follow"],
+                    {"Dead VGM": _fmt_dt, "VGM Confirmado": _fmt_dt, "Data do follow": _fmt_dt}, "⚓")
+                _exp_alerta("Previsão de embarque vencida sem data real",
+                    _alertas["prev_embarque_vencida"],
+                    ["Processo", "Account Responsável", "Cliente", "Previsão de embarque", "Data de embarque", "Data do follow", "Follow"],
+                    {"Previsão de embarque": _fmt_dt, "Data de embarque": _fmt_dt, "Data do follow": _fmt_dt}, "⏰")
+                _exp_alerta("DUE registrada sem averbação",
+                    _alertas["due_sem_avercacao"],
+                    ["Processo", "Account Responsável", "Cliente", "Data de Registro DUE", "Data averbação", "Data do follow"],
+                    {"Data de Registro DUE": _fmt_dt, "Data averbação": _fmt_dt, "Data do follow": _fmt_dt}, "📋")
+                _exp_alerta("Processos sem etapa",
+                    _alertas["sem_etapa"],
+                    ["Processo", "Account Responsável", "Cliente", "Tipo", "Modalidade", "Data do follow", "Follow"],
+                    {"Data do follow": _fmt_dt}, "❓")
+                _al_follow = _alertas["follow_desatualizado"]
+                if len(_al_follow) > 0:
+                    _al_follow = _al_follow.sort_values("Dias sem Follow", ascending=False)
+                _exp_alerta("Follow-up desatualizado (> 10 dias)",
+                    _al_follow,
+                    ["Processo", "Account Responsável", "Cliente", "Data do follow", "Dias sem Follow", "Follow"],
+                    {"Data do follow": _fmt_dt}, "📅")
 
     with tab_exp_tabela:
-        st.info("Em construção — tabela completa de processos de Exportação.")
+        if not exp.dados_360_existem():
+            st.info("Nenhum dado carregado. Acesse a aba **Upload** para importar a planilha.")
+        else:
+            _df_tab = exp.obter_processos_360()
+            if _df_tab.empty:
+                st.info("Nenhum dado carregado.")
+            else:
+                from utils.ui import renderizar_dataframe
+                with st.expander("Filtros", expanded=False):
+                    _fc1, _fc2, _fc3, _fc4 = st.columns(4)
+                    with _fc1:
+                        _f_st = st.multiselect("Status", sorted(_df_tab["Status"].dropna().unique()), key="exp_f_st")
+                    with _fc2:
+                        _f_ac = st.multiselect("Account", sorted(_df_tab["Account Responsável"].dropna().unique()), key="exp_f_ac")
+                    with _fc3:
+                        _f_mo = st.multiselect("Modalidade", sorted(_df_tab["Modalidade"].dropna().unique()) if "Modalidade" in _df_tab.columns else [], key="exp_f_mo")
+                    with _fc4:
+                        _f_tp = st.multiselect("Tipo", sorted(_df_tab["Tipo"].dropna().unique()) if "Tipo" in _df_tab.columns else [], key="exp_f_tp")
+                    _f_proc = st.text_input("Buscar Processo", key="exp_f_proc", placeholder="Ex: 2643/26")
+                _df_tf = _df_tab.copy()
+                if _f_st:
+                    _df_tf = _df_tf[_df_tf["Status"].isin(_f_st)]
+                if _f_ac:
+                    _df_tf = _df_tf[_df_tf["Account Responsável"].isin(_f_ac)]
+                if _f_mo:
+                    _df_tf = _df_tf[_df_tf["Modalidade"].isin(_f_mo)]
+                if _f_tp:
+                    _df_tf = _df_tf[_df_tf["Tipo"].isin(_f_tp)]
+                if _f_proc:
+                    _df_tf = _df_tf[_df_tf["Processo"].str.contains(_f_proc, case=False, na=False)]
+                st.caption(f"**{len(_df_tf)}** processos")
+                _cols_tab = [c for c in ["Status", "Processo", "Account Responsável", "Cliente", "Tipo", "Modalidade",
+                                          "Booking", "Previsão de embarque", "Data de embarque", "Data do follow", "Follow"]
+                             if c in _df_tf.columns]
+                _fmt_tab = {}
+                for _dc in ["Previsão de embarque", "Data de embarque", "Data do follow"]:
+                    if _dc in _df_tf.columns:
+                        _fmt_tab[_dc] = lambda v: v.strftime("%d/%m/%Y") if pd.notna(v) else ""
+                _df_show_tab = _df_tf[_cols_tab].copy()
+                _styled_tab = _df_show_tab.style.format(_fmt_tab)
+                renderizar_dataframe(_styled_tab, use_container_width=True, hide_index=True,
+                                     height=min(38 + len(_df_show_tab) * 35, 700))
+                _csv_exp = _df_tf.to_csv(index=False).encode("utf-8-sig")
+                st.download_button("Baixar filtrados (CSV)", _csv_exp,
+                    f"exportacao_filtrado_{datetime.now().strftime('%Y%m%d')}.csv", "text/csv")
 
     with tab_exp_upload:
-        st.info("Em construção — upload da planilha de processos de Exportação.")
+        _meta_exp = exp.carregar_meta_360()
+        if _meta_exp:
+            _dt_exp = datetime.fromisoformat(_meta_exp["ultimo_upload"])
+            st.info(
+                f"**Último upload:** {_dt_exp.strftime('%d/%m/%Y %H:%M')} — "
+                f"{_meta_exp['total_registros']} registros — "
+                f"Arquivo: {_meta_exp['arquivo_original']}"
+            )
+        else:
+            st.info("Nenhum upload realizado ainda.")
+        st.markdown("#### Enviar nova planilha")
+        st.caption("Arquivo CSV exportado do sistema operacional de Exportação. Colunas obrigatórias: **Processo, Status, Account Responsável, Cliente, Tipo, Modalidade**.")
+        _up_exp = st.file_uploader("Selecione o arquivo CSV", type=["csv"], key="up_exp_360")
+        if _up_exp is not None:
+            try:
+                _df_prev = pd.read_csv(_up_exp, encoding="utf-8-sig", dtype=str, nrows=5)
+                _up_exp.seek(0)
+                _df_full_up = pd.read_csv(_up_exp, encoding="utf-8-sig", dtype=str)
+                _up_exp.seek(0)
+                st.caption(f"**Preview** — {len(_df_full_up)} registros, {len(_df_full_up.columns)} colunas")
+                st.dataframe(_df_prev, use_container_width=True, hide_index=True)
+                _valido_up, _avisos_up = exp.validar_360_csv(_df_full_up)
+                for _av in _avisos_up:
+                    st.warning(_av)
+                if not _valido_up:
+                    st.error("O arquivo não passou na validação.")
+                else:
+                    if "Status" in _df_full_up.columns:
+                        _sc_up = _df_full_up["Status"].value_counts()
+                        _cols_st = st.columns(min(len(_sc_up), 5))
+                        for _i, (_s, _n) in enumerate(_sc_up.items()):
+                            with _cols_st[_i % len(_cols_st)]:
+                                st.metric(_s, _n)
+                    if st.button("Confirmar Upload", type="primary", key="btn_exp_upload"):
+                        _total_up, _av2 = exp.salvar_upload_360(_up_exp)
+                        if _total_up > 0:
+                            st.success(f"Upload concluído! {_total_up} registros importados.")
+                            for _av in _av2:
+                                st.warning(_av)
+                            st.rerun()
+                        else:
+                            for _av in _av2:
+                                st.error(_av)
+            except Exception as _e:
+                st.error(f"Erro ao ler o arquivo: {_e}")
+        st.divider()
+        st.markdown("#### Histórico de Uploads")
+        _bks = exp.listar_backups_360()
+        if not _bks:
+            st.caption("Nenhum backup disponível.")
+        else:
+            for _bk in _bks[:20]:
+                _bc1, _bc2 = st.columns([3, 1])
+                with _bc1:
+                    st.caption(f"**{_bk['nome']}** — {_bk['data'].strftime('%d/%m/%Y %H:%M')} — {_bk['tamanho']/1024:.0f} KB")
+                with _bc2:
+                    with open(_bk["caminho"], "rb") as _f:
+                        st.download_button("Baixar", _f.read(), _bk["nome"], "text/csv", key=f"bk_exp_{_bk['nome']}")
 
 
 # ══════════════════════════════════════════════════════════════════════
