@@ -1720,28 +1720,62 @@ with tab_exportacao:
                 st.info("Nenhum dado carregado.")
             else:
                 import altair as _alt
+
+                _EXP_TIPO_CORES = {
+                    "Frete": "#4a8ab5",
+                    "Documentos": "#C9A67A",
+                    "Desembaraço": "#5e8668",
+                    "Trading": "#8E8E93",
+                }
+                _EXP_TIPO_ORDEM = ["Frete", "Documentos", "Desembaraço", "Trading"]
+                _THRESHOLD_AN = 5
+
+                def _tipo_tags_html(df_sub):
+                    tipos = set()
+                    if "Tipo" in df_sub.columns:
+                        for v in df_sub["Tipo"].dropna():
+                            for p in str(v).split("+"):
+                                p = p.strip()
+                                if p in _EXP_TIPO_CORES:
+                                    tipos.add(p)
+                    parts = []
+                    for t in _EXP_TIPO_ORDEM:
+                        if t not in tipos:
+                            continue
+                        c = _EXP_TIPO_CORES[t]
+                        parts.append(
+                            f'<span style="display:inline-block;padding:2px 8px;border-radius:20px;'
+                            f'background:{c}22;border:1px solid {c};color:{c};'
+                            f'font-size:0.65rem;font-weight:700;margin-right:4px;">{t}</span>'
+                        )
+                    return "".join(parts)
+
                 _an_agg = (
                     _df_an.groupby("Account Responsável")
                     .agg(processos=("Processo", "count"), clientes=("Cliente", "nunique"))
                     .reset_index()
                     .sort_values("processos", ascending=False)
                 )
+                _an_cards = _an_agg[_an_agg["processos"] >= _THRESHOLD_AN]
+                _an_audit = _an_agg[_an_agg["processos"] < _THRESHOLD_AN]
+
                 _mc1, _mc2, _mc3, _mc4 = st.columns(4)
                 _mc1.metric("Analistas", len(_an_agg))
                 _mc2.metric("Total processos", int(_an_agg["processos"].sum()))
                 _mc3.metric("Média por analista", round(_an_agg["processos"].mean(), 1) if len(_an_agg) else 0)
                 _mc4.metric("Maior carteira", int(_an_agg["processos"].max()) if len(_an_agg) else 0)
 
-                for _i in range(0, len(_an_agg), 3):
+                for _i in range(0, len(_an_cards), 3):
                     _cols = st.columns(3)
                     for _j, _col in enumerate(_cols):
                         _idx = _i + _j
-                        if _idx >= len(_an_agg):
+                        if _idx >= len(_an_cards):
                             break
-                        _row = _an_agg.iloc[_idx]
+                        _row = _an_cards.iloc[_idx]
                         _df_an_fil = _df_an[_df_an["Account Responsável"] == _row["Account Responsável"]]
                         _sc = _df_an_fil["Status"].value_counts()
                         _pills = " | ".join(f"{s}: {_sc.get(s,0)}" for s in _EXP_STATUS_ORDEM if _sc.get(s, 0) > 0)
+                        _tags_html = _tipo_tags_html(_df_an_fil)
                         with _col:
                             st.markdown(
                                 f"""<div style="background:{_CARD_BG};border:1px solid {_CARD_BORDER};
@@ -1754,6 +1788,7 @@ with tab_exportacao:
                                     <div><span style="color:{_MUTED_TEXT};font-size:0.75rem;text-transform:uppercase;font-weight:700;">Clientes</span><br/>
                                     <span style="color:#5e8668;font-size:1.3rem;font-weight:800;">{int(_row['clientes'])}</span></div>
                                 </div>
+                                <div style="margin-bottom:0.4rem;">{_tags_html}</div>
                                 <div style="font-size:0.75rem;color:{_MUTED_TEXT};">{_pills}</div>
                                 </div>""",
                                 unsafe_allow_html=True,
@@ -1768,6 +1803,9 @@ with tab_exportacao:
                                     f'<tr style="border-bottom:1px solid #E5E5EA;">'
                                     f'<td style="padding:5px 8px;font-size:0.8rem;color:#111111;">{r["Cliente"]}</td>'
                                     f'<td style="padding:5px 8px;font-size:0.8rem;text-align:center;color:#111111;font-weight:700;">{int(r["Processos"])}</td>'
+                                    f'<td style="padding:5px 8px;font-size:0.8rem;">'
+                                    f'{_tipo_tags_html(_df_an_fil[_df_an_fil["Cliente"] == r["Cliente"]])}'
+                                    f'</td>'
                                     f'</tr>'
                                     for _, r in _cl_agg.iterrows()
                                 )
@@ -1776,9 +1814,34 @@ with tab_exportacao:
                                     f'<thead><tr style="background:#FAFAFA;">'
                                     f'<th style="text-align:left;padding:6px 8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Cliente</th>'
                                     f'<th style="text-align:center;padding:6px 8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Proc.</th>'
+                                    f'<th style="text-align:left;padding:6px 8px;font-size:0.67rem;color:#6E6E73;text-transform:uppercase;font-weight:700;">Tipos</th>'
                                     f'</tr></thead><tbody>{_rows_h}</tbody></table>',
                                     unsafe_allow_html=True,
                                 )
+
+                if len(_an_audit) > 0:
+                    st.divider()
+                    with st.expander(
+                        f"Log de auditoria — {len(_an_audit)} analista(s) com menos de {_THRESHOLD_AN} processos",
+                        expanded=False,
+                    ):
+                        _audit_rows = []
+                        for _, _ar in _an_audit.iterrows():
+                            _df_aud = _df_an[_df_an["Account Responsável"] == _ar["Account Responsável"]]
+                            for _, _pr in _df_aud.iterrows():
+                                _tipo_parts = [p.strip() for p in str(_pr.get("Tipo", "")).split("+") if p.strip()]
+                                _audit_rows.append({
+                                    "Analista": _ar["Account Responsável"],
+                                    "Processo": _pr.get("Processo", ""),
+                                    "Cliente": _pr.get("Cliente", ""),
+                                    "Status": _pr.get("Status", ""),
+                                    "Tipo": " + ".join(_tipo_parts) if _tipo_parts else "",
+                                })
+                        if _audit_rows:
+                            _df_audit_tbl = pd.DataFrame(_audit_rows)
+                            from utils.ui import renderizar_dataframe
+                            renderizar_dataframe(_df_audit_tbl, use_container_width=True, hide_index=True)
+
                 st.divider()
                 st.caption("**Distribuição por Analista e Status**")
                 _df_piv = _df_an.groupby(["Account Responsável", "Status"]).size().reset_index(name="Quantidade")
