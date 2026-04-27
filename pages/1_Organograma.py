@@ -590,12 +590,10 @@ def _render_views(fd):
                 if "gerente"    in c: return 1
                 if "coordenad"  in c: return 2
                 if "supervisor" in c or "especialista" in c: return 3
-                if "sênior"     in c or "senior"       in c: return 4
-                if "pleno"      in c: return 5
-                if "júnior"     in c or "junior"       in c: return 6
-                if "assistente" in c: return 7
-                if "estagiár"   in c or "jovem"        in c: return 8
-                return 5
+                if "analista"   in c: return 4
+                if "assistente" in c: return 5
+                if "estagiár"   in c or "jovem"        in c: return 6
+                return 4
 
             visible_ids = {
                 p["id"] for p in todos_ativos
@@ -676,25 +674,25 @@ def _render_views(fd):
                         ch = _fp.get(parts[0] + " " + parts[-1], [])
                 return ch
 
-            _STEP = 24  # px por nível extra de hierarquia
+            _K = 72  # px por nível de cargo; Y_absoluto(cargo) = cargo * _K
 
-            def _oc_li(p, depth):
+            def _li_conn(child_cargo, parent_cargo):
+                """Altura do conector li::after para posicionar card no nível absoluto correto."""
+                return max(22, (child_cargo - parent_cargo) * _K - 22)
+
+            def _oc_li(p, depth, parent_cargo):
                 if p["id"] in _seen2 or p.get("nome", "") in _seen2_names:
                     return ""
                 _seen2.add(p["id"])
                 _seen2_names.add(p.get("nome", ""))
                 cargo_level = _nivel_oc(p.get("cargo_nome", ""))
-                extra = max(0, cargo_level - depth) * _STEP
-                conn_h = 22 + extra
-                li_style = (
-                    f' style="padding-top:{conn_h}px;--li-conn-h:{conn_h}px;"'
-                    if extra > 0 else ""
-                )
+                conn_h = _li_conn(cargo_level, parent_cargo)
+                li_style = f' style="padding-top:{conn_h}px;--li-conn-h:{conn_h}px;"'
                 children = [c for c in _fp_get(p["nome"]) if c["id"] not in _seen2 and c.get("nome", "") not in _seen2_names]
                 card = _oc_card(p, depth)
                 if not children:
                     return f"<li{li_style}>{card}</li>"
-                ch = "".join(_oc_li(c, depth + 1) for c in children)
+                ch = "".join(_oc_li(c, depth + 1, cargo_level) for c in children)
                 return f"<li{li_style}>{card}<ul>{ch}</ul></li>"
 
             bruno = next(
@@ -709,14 +707,18 @@ def _render_views(fd):
                 f'</div>'
             )
 
+            _gabriel_cargo = 0
             if bruno and bruno["id"] in visible_ids:
                 _seen2.add(bruno["id"])
+                _bruno_cargo  = _nivel_oc(bruno.get("cargo_nome", ""))
+                _bruno_conn_h = _li_conn(_bruno_cargo, _gabriel_cargo)
+                _bruno_style  = f'style="padding-top:{_bruno_conn_h}px;--li-conn-h:{_bruno_conn_h}px;"'
                 bruno_card = _oc_card(bruno, 1)
                 diretos = [c for c in _fp.get(bruno["nome"], []) if c["id"] in visible_ids]
-                ch_html = "".join(_oc_li(d, 2) for d in diretos)
+                ch_html = "".join(_oc_li(d, 2, _bruno_cargo) for d in diretos)
                 inner = (
                     f"<li>{gabriel_card}"
-                    f"<ul><li>{bruno_card}<ul>{ch_html}</ul></li></ul>"
+                    f"<ul><li {_bruno_style}>{bruno_card}<ul>{ch_html}</ul></li></ul>"
                     f"</li>"
                 )
             else:
@@ -789,6 +791,7 @@ def _render_views(fd):
                 f"document.addEventListener('fullscreenchange',function(){{"
                 f"  var b=document.getElementById('btn-fs');"
                 f"  b.textContent=document.fullscreenElement?'\\u2715 Sair':'\\u26f6 Tela cheia';"
+                f"  document.body.style.background=document.fullscreenElement?'{_bg_body}':'transparent';"
                 f"}});"
                 f"window.addEventListener('load',function(){{"
                 f"  var el=document.documentElement;"
@@ -805,7 +808,7 @@ def _render_views(fd):
                     _depth(c["nome"], d + 1)
             if bruno:
                 _depth(bruno["nome"], 1)
-            _est_h = max(600, (_max_d[0] + 2) * 100 + 60 + 8 * _STEP)
+            _est_h = max(600, 6 * _K + (_max_d[0] + 2) * 22 + 120)
             components.html(html_doc, height=_est_h, scrolling=True)
 
         with tab_quadro:
