@@ -4,7 +4,7 @@ from utils.excel_io import (
     carregar_workbook, salvar_workbook, proximo_id,
     sheet_to_list, encontrar_linha,
     SHEET_COLABORADORES, SHEET_CARGOS, SHEET_DEPARTAMENTOS,
-    SHEET_MANPOWER_MENSAL, SHEET_PERFORMANCE,
+    SHEET_MANPOWER_MENSAL, SHEET_PERFORMANCE, SHEET_PERFORMANCE_EXP,
 )
 from utils.status import colaborador_ativo_em, fim_do_mes
 
@@ -208,3 +208,35 @@ def obter_manpower_para_performance(ano, mes):
         return round(total, 2)
     # Fallback: manpower atual
     return round(sum(calcular_manpower_atual(dept_id) for dept_id in perf_ids), 2)
+
+
+def salvar_performance_exportacao(ano, mes, volume_score, manpower, meta=None):
+    """Upsert de um registro de performance mensal de exportação."""
+    wb = carregar_workbook()
+    ws = wb[SHEET_PERFORMANCE_EXP]
+
+    performance = round(volume_score / manpower, 2) if manpower and manpower > 0 else 0
+    pct_meta = round(performance / meta, 4) if meta and meta > 0 else None
+
+    row_found = None
+    for row in ws.iter_rows(min_row=2):
+        if row[0].value == ano and row[1].value == mes:
+            row_found = row[0].row
+            break
+
+    if row_found:
+        ws.cell(row=row_found, column=3, value=volume_score)
+        ws.cell(row=row_found, column=4, value=manpower)
+        ws.cell(row=row_found, column=5, value=performance)
+        ws.cell(row=row_found, column=6, value=meta)
+        ws.cell(row=row_found, column=7, value=pct_meta)
+    else:
+        ws.append([ano, mes, volume_score, manpower, performance, meta, pct_meta])
+
+    salvar_workbook(wb)
+
+
+def listar_performance_exportacao():
+    """Lista todos os registros de performance de exportação."""
+    wb = carregar_workbook()
+    return sheet_to_list(wb[SHEET_PERFORMANCE_EXP])

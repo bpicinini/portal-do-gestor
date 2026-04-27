@@ -1681,10 +1681,10 @@ with tab_exportacao:
                     _da_rng = [_EXP_ACC_PALETTE[i % len(_EXP_ACC_PALETTE)] for i in range(len(_da_dom))]
                     _ch_acc = (_alt.Chart(_da).mark_bar(cornerRadiusEnd=8).encode(
                         x=_alt.X("Quantidade:Q", title="Processos"),
-                        y=_alt.Y("Account:N", sort="-x", title=None, axis=_alt.Axis(labelLimit=250)),
+                        y=_alt.Y("Account:N", sort="-x", title=None, axis=_alt.Axis(labelLimit=350)),
                         color=_alt.Color("Account:N", scale=_alt.Scale(domain=_da_dom, range=_da_rng), legend=None),
                         tooltip=[_alt.Tooltip("Account:N"), _alt.Tooltip("Quantidade:Q", format=",d")],
-                    ).properties(height=max(220, len(_da_dom) * 24)))
+                    ).properties(height=max(220, len(_da_dom) * 32)))
                     st.altair_chart(_ch_acc, use_container_width=True)
                 with _c4:
                     st.caption("**Distribuição por Tipo**")
@@ -1702,7 +1702,7 @@ with tab_exportacao:
                         _pie_t = (_alt.Chart(_dt).mark_arc(innerRadius=0, outerRadius=90, cornerRadius=3).encode(
                             theta=_alt.Theta("Quantidade:Q", stack=True),
                             color=_alt.Color("Tipo:N", scale=_alt.Scale(domain=_dt_dom, range=_dt_rng),
-                                             legend=_alt.Legend(title=None, orient="bottom", columns=2)),
+                                             legend=_alt.Legend(title=None, orient="bottom", columns=1, labelLimit=0)),
                             tooltip=[_alt.Tooltip("Tipo:N"), _alt.Tooltip("Quantidade:Q", format=",d"), _alt.Tooltip("Pct:Q", title="%", format=".1f")],
                         ))
                         _txt_t = (_alt.Chart(_dt).mark_text(radius=110, size=11, fontWeight="bold").encode(
@@ -1849,13 +1849,13 @@ with tab_exportacao:
                 _ch_an = (_alt.Chart(_df_piv).mark_bar(cornerRadiusEnd=4).encode(
                     x=_alt.X("Quantidade:Q", title="Processos", stack="zero"),
                     y=_alt.Y("Account Responsável:N", sort=_alt.EncodingSortField(field="Quantidade", op="sum", order="descending"),
-                              title=None, axis=_alt.Axis(labelLimit=250)),
+                              title=None, axis=_alt.Axis(labelLimit=350)),
                     color=_alt.Color("Status:N", scale=_alt.Scale(
                         domain=list(_EXP_STATUS_CORES.keys()), range=list(_EXP_STATUS_CORES.values())),
-                        legend=_alt.Legend(title="Status")),
+                        legend=_alt.Legend(title="Status", labelLimit=0)),
                     tooltip=[_alt.Tooltip("Account Responsável:N", title="Analista"),
                               _alt.Tooltip("Status:N"), _alt.Tooltip("Quantidade:Q", format=",d")],
-                ).properties(height=max(320, len(_an_agg) * 30)))
+                ).properties(height=max(320, len(_an_agg) * 36)))
                 st.altair_chart(_ch_an, use_container_width=True)
 
     with tab_exp_clientes:
