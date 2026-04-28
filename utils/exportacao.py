@@ -59,6 +59,7 @@ PESOS: dict[str, float] = {
     "Desembaraço": 2.0,
     "Frete": 1.0,
     "Documentos": 0.5,
+    "Trading": 5.0,
 }
 
 
