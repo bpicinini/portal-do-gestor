@@ -1194,13 +1194,17 @@ with tab_alertas:
             _msg_sem_dados()
         else:
             with st.expander("Filtros", expanded=False):
-                _ac1, _ac2, _ac3 = st.columns(3)
+                _ac1, _ac2, _ac3, _ac4 = st.columns(4)
                 with _ac1:
-                    _fa_cliente = st.multiselect("Cliente", sorted(df["Cliente"].dropna().unique().tolist()), key="al_cliente")
+                    _fa_account = st.multiselect("Account", sorted(df["Account"].dropna().unique().tolist()), key="al_account") if "Account" in df.columns else []
                 with _ac2:
-                    _fa_importador = st.multiselect("Importador", sorted(df["Importador"].dropna().unique().tolist()), key="al_importador") if "Importador" in df.columns else []
+                    _fa_cliente = st.multiselect("Cliente", sorted(df["Cliente"].dropna().unique().tolist()), key="al_cliente")
                 with _ac3:
+                    _fa_importador = st.multiselect("Importador", sorted(df["Importador"].dropna().unique().tolist()), key="al_importador") if "Importador" in df.columns else []
+                with _ac4:
                     _fa_busca = st.text_input("Buscar processo", key="al_busca", placeholder="Ex: 4458/25")
+            if _fa_account:
+                df = df[df["Account"].isin(_fa_account)]
             if _fa_cliente:
                 df = df[df["Cliente"].isin(_fa_cliente)]
             if _fa_importador:
@@ -1405,16 +1409,20 @@ with tab_tabela:
             _msg_sem_dados()
         else:
             with st.expander("Filtros", expanded=False):
-                _tc1, _tc2, _tc3 = st.columns(3)
+                _tc1, _tc2, _tc3, _tc4 = st.columns(4)
                 with _tc1:
-                    f_cliente = _filtro_multiselect(df, "Cliente", "Cliente", "f_cliente")
+                    f_account = _filtro_multiselect(df, "Account", "Account", "f_account") if "Account" in df.columns else []
                 with _tc2:
-                    f_tipo = _filtro_multiselect(df, "Tipo de Operação", "Tipo de Operação", "f_tipo") if "Tipo de Operação" in df.columns else []
+                    f_cliente = _filtro_multiselect(df, "Cliente", "Cliente", "f_cliente")
                 with _tc3:
+                    f_tipo = _filtro_multiselect(df, "Tipo de Operação", "Tipo de Operação", "f_tipo") if "Tipo de Operação" in df.columns else []
+                with _tc4:
                     f_processo = st.text_input("Buscar Processo", key="f_processo", placeholder="Ex: 4458/25")
 
             # Aplicar filtros
             df_f = df.copy()
+            if f_account:
+                df_f = df_f[df_f["Account"].isin(f_account)]
             if f_cliente:
                 df_f = df_f[df_f["Cliente"].isin(f_cliente)]
             if f_tipo:
@@ -1915,13 +1923,17 @@ with tab_exportacao:
                 st.info("Nenhum dado carregado.")
             else:
                 with st.expander("Filtros", expanded=False):
-                    _ea1, _ea2, _ea3 = st.columns(3)
+                    _ea1, _ea2, _ea3, _ea4 = st.columns(4)
                     with _ea1:
-                        _ea_cliente = st.multiselect("Cliente", sorted(_df_al["Cliente"].dropna().unique().tolist()), key="ea_cliente")
+                        _ea_account = st.multiselect("Account", sorted(_df_al["Account Responsável"].dropna().unique().tolist()), key="ea_account") if "Account Responsável" in _df_al.columns else []
                     with _ea2:
-                        _ea_exportador = st.multiselect("Exportador", sorted(_df_al["Exportador"].dropna().unique().tolist()), key="ea_exportador") if "Exportador" in _df_al.columns else []
+                        _ea_cliente = st.multiselect("Cliente", sorted(_df_al["Cliente"].dropna().unique().tolist()), key="ea_cliente")
                     with _ea3:
+                        _ea_exportador = st.multiselect("Exportador", sorted(_df_al["Exportador"].dropna().unique().tolist()), key="ea_exportador") if "Exportador" in _df_al.columns else []
+                    with _ea4:
                         _ea_busca = st.text_input("Buscar processo", key="ea_busca", placeholder="Ex: EXP-2025/001")
+                if _ea_account:
+                    _df_al = _df_al[_df_al["Account Responsável"].isin(_ea_account)]
                 if _ea_cliente:
                     _df_al = _df_al[_df_al["Cliente"].isin(_ea_cliente)]
                 if _ea_exportador:
