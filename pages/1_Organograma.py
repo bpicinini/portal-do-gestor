@@ -679,12 +679,13 @@ def _render_views(fd):
                 )
 
             def _fp_get(nome):
-                """Lookup children by full name, fallback to first+last name."""
-                ch = _fp.get(nome, [])
-                if not ch:
-                    parts = nome.split()
-                    if len(parts) > 2:
-                        ch = _fp.get(parts[0] + " " + parts[-1], [])
+                """Retorna filhos pelo nome completo e também pela chave primeiro+último nome (merge)."""
+                ch = list(_fp.get(nome, []))
+                parts = nome.split()
+                if len(parts) > 2:
+                    short = parts[0] + " " + parts[-1]
+                    seen = {p["id"] for p in ch}
+                    ch += [p for p in _fp.get(short, []) if p["id"] not in seen]
                 return ch
 
             _K = 72  # px por nível de cargo; Y_absoluto(cargo) = cargo * _K
