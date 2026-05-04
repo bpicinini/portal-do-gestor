@@ -688,19 +688,13 @@ def _render_views(fd):
                     ch += [p for p in _fp.get(short, []) if p["id"] not in seen]
                 return ch
 
-            _K = 72  # px por nível de cargo; Y_absoluto(cargo) = cargo * _K
-
-            def _li_conn(child_cargo, parent_cargo):
-                """Altura do conector li::after para posicionar card no nível absoluto correto."""
-                return max(22, (child_cargo - parent_cargo) * _K - 22)
-
             def _oc_li(p, depth, parent_cargo):
                 if p["id"] in _seen2 or p.get("nome", "") in _seen2_names:
                     return ""
                 _seen2.add(p["id"])
                 _seen2_names.add(p.get("nome", ""))
                 cargo_level = _nivel_oc(p.get("cargo_nome", ""))
-                conn_h = _li_conn(cargo_level, parent_cargo)
+                conn_h = 22
                 li_style = f' style="padding-top:{conn_h}px;--li-conn-h:{conn_h}px;"'
                 children = [c for c in _fp_get(p["nome"]) if c["id"] not in _seen2 and c.get("nome", "") not in _seen2_names]
                 card = _oc_card(p, depth)
@@ -725,8 +719,7 @@ def _render_views(fd):
             if bruno and bruno["id"] in visible_ids:
                 _seen2.add(bruno["id"])
                 _bruno_cargo  = _nivel_oc(bruno.get("cargo_nome", ""))
-                _bruno_conn_h = _li_conn(_bruno_cargo, _gabriel_cargo)
-                _bruno_style  = f'style="padding-top:{_bruno_conn_h}px;--li-conn-h:{_bruno_conn_h}px;"'
+                _bruno_style  = f'style="padding-top:22px;--li-conn-h:22px;"'
                 bruno_card = _oc_card(bruno, 1)
                 diretos = [c for c in _fp.get(bruno["nome"], []) if c["id"] in visible_ids]
                 ch_html = "".join(_oc_li(d, 2, _bruno_cargo) for d in diretos)
@@ -853,7 +846,7 @@ def _render_views(fd):
                     _depth(c["nome"], d + 1)
             if bruno:
                 _depth(bruno["nome"], 1)
-            _est_h = max(700, 7 * _K + (_max_d[0] + 2) * 22 + 120)
+            _est_h = max(700, (_max_d[0] + 3) * 120 + 120)
             components.html(html_doc, height=_est_h, scrolling=True)
 
         with tab_quadro:
