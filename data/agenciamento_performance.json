@@ -2,8 +2,8 @@
   {
     "ano": 2025,
     "mes": 1,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 1509,
+    "manpower": 12,
     "performance": 125.75,
     "meta": 117,
     "pct_meta": 1.0748
@@ -11,8 +11,8 @@
   {
     "ano": 2025,
     "mes": 2,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 891,
+    "manpower": 12,
     "performance": 74.25,
     "meta": 117,
     "pct_meta": 0.6346
@@ -20,8 +20,8 @@
   {
     "ano": 2025,
     "mes": 3,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 823,
+    "manpower": 12,
     "performance": 68.58,
     "meta": 117,
     "pct_meta": 0.5862
@@ -29,8 +29,8 @@
   {
     "ano": 2025,
     "mes": 4,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 813,
+    "manpower": 12,
     "performance": 67.75,
     "meta": 117,
     "pct_meta": 0.5791
@@ -38,8 +38,8 @@
   {
     "ano": 2025,
     "mes": 5,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 992,
+    "manpower": 12,
     "performance": 82.66,
     "meta": 117,
     "pct_meta": 0.7065
@@ -47,8 +47,8 @@
   {
     "ano": 2025,
     "mes": 6,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 1058,
+    "manpower": 12,
     "performance": 88.16,
     "meta": 117,
     "pct_meta": 0.7535
@@ -56,8 +56,8 @@
   {
     "ano": 2025,
     "mes": 7,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 1242,
+    "manpower": 12,
     "performance": 103.5,
     "meta": 117,
     "pct_meta": 0.8846
@@ -65,8 +65,8 @@
   {
     "ano": 2025,
     "mes": 8,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 1250,
+    "manpower": 12,
     "performance": 104.16,
     "meta": 117,
     "pct_meta": 0.8903
@@ -74,8 +74,8 @@
   {
     "ano": 2025,
     "mes": 9,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 1693,
+    "manpower": 12,
     "performance": 141.08,
     "meta": 117,
     "pct_meta": 1.2058
@@ -83,8 +83,8 @@
   {
     "ano": 2025,
     "mes": 10,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 1429,
+    "manpower": 12,
     "performance": 119.08,
     "meta": 117,
     "pct_meta": 1.0178
@@ -92,8 +92,8 @@
   {
     "ano": 2025,
     "mes": 11,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 1449,
+    "manpower": 12,
     "performance": 120.75,
     "meta": 117,
     "pct_meta": 1.0321
@@ -101,8 +101,8 @@
   {
     "ano": 2025,
     "mes": 12,
-    "volume_score": 0,
-    "manpower": 0,
+    "volume_score": 1723,
+    "manpower": 12,
     "performance": 143.58,
     "meta": 117,
     "pct_meta": 1.2272

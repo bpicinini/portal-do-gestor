@@ -605,8 +605,13 @@ def _render_views(fd):
                 if p["id"] not in visible_ids:
                     continue
                 nome_p = (p.get("nome") or "").strip()
-                g = str(p.get("gestor_direto") or "").strip()
-                if g and nome_p:
+                if not nome_p:
+                    continue
+                # Estagiários e assistentes (nivel >= 7) aparecem sob o responsavel_direto
+                # na árvore geral, revelando quem eles apoiam diretamente.
+                resp = str(p.get("responsavel_direto") or "").strip() if _nivel(p) >= 7 else ""
+                g = resp or str(p.get("gestor_direto") or "").strip()
+                if g:
                     _fp.setdefault(g, []).append(p)
             for k in _fp:
                 _fp[k].sort(key=lambda x: (_nivel(x), x.get("nome", "")))
